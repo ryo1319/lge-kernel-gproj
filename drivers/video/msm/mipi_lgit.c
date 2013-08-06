@@ -150,6 +150,9 @@ int mipi_lgit_lcd_off(struct platform_device *pdev)
 	int rc = 0;
 	int cnt = 0;
 
+	if (mipi_lgit_pdata->bl_pwm_disable)
+		mipi_lgit_pdata->bl_pwm_disable();
+
 	mfd = platform_get_drvdata(pdev);
 
 	if (!mfd)
@@ -211,6 +214,11 @@ int mipi_lgit_lcd_off_for_shutdown(void)
 	return 0;
 }
 
+static int mipi_lgit_backlight_on_status(void)
+{
+	return (mipi_lgit_pdata->bl_on_status());
+}
+
 static void mipi_lgit_set_backlight_board(struct msm_fb_data_type *mfd)
 {
 	int level;
@@ -244,6 +252,7 @@ static struct msm_fb_panel_data lgit_panel_data = {
 	.on = mipi_lgit_lcd_on,
 	.off = mipi_lgit_lcd_off,
 	.set_backlight = mipi_lgit_set_backlight_board,
+	.get_backlight_on_status = mipi_lgit_backlight_on_status,
 };
 
 static int ch_used[3];
