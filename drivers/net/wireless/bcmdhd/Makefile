@@ -38,6 +38,9 @@ DHDCFLAGS += -DCUSTOMER_HW10
 #DHDCFLAGS += -DSUPPORT_DEEP_SLEEP
 #DHDCFLAGS += -DSIMPLE_MAC_PRINT
 
+# For MMC DATA CRC Error Issue
+DHDCFLAGS += -DSDIO_CRC_ERROR_FIX
+
 # Print out kernel panic point of file and line info when assertion happened
 DHDCFLAGS += -DBCMASSERT_LOG
 
@@ -90,6 +93,9 @@ DHDCFLAGS += -DCUSTOM_SUSPEND_BCN_LI_DTIM=3
 
 # Priority mismatch fix with kernel stack
 DHDCFLAGS += -DPKTPRIO_OVERRIDE
+ifeq ($(TARGET_PRODUCT),geefhd_att_us)
+DHDCFLAGS += -DBG_PKTPRIO_OVERRIDE
+endif
 
 # Ioctl timeout 5000ms
 DHDCFLAGS += -DIOCTL_RESP_TIMEOUT=5000

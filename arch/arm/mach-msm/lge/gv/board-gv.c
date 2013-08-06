@@ -710,7 +710,7 @@ static void __init apq8064_reserve(void)
 #ifndef CONFIG_MACH_LGE
 	apq8064_set_display_params(prim_panel_name, ext_panel_name,
 		ext_resolution);
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 	msm_reserve();
 	if (apq8064_fmem_pdata.size) {
 #if defined(CONFIG_ION_MSM) && defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
@@ -862,20 +862,18 @@ static int get_factory_cable(void)
     int res = 0;
 
     switch(lge_pm_get_cable_type()) {
-	/* It is factory cable */
-	case CABLE_56K:
-	    res = LGEUSB_FACTORY_56K;
-	    break;
-	case CABLE_130K:
-	    res = LGEUSB_FACTORY_130K;
-	    break;
-	case CABLE_910K:
-	    res = LGEUSB_FACTORY_910K;
-	    break;
-	    /* It is normal cable */
-	default:
-	    res = 0;
-	    break;
+    /* It is factory cable */
+    case CABLE_56K:
+        return LGEUSB_FACTORY_56K;
+    case CABLE_130K:
+        return LGEUSB_FACTORY_130K;
+    case CABLE_910K:
+        return LGEUSB_FACTORY_910K;
+
+    /* It is normal cable */
+    default:
+        res = 0;
+        break;
     }
 
     /* if boot mode is factory,
@@ -883,15 +881,14 @@ static int get_factory_cable(void)
      */
     boot_mode = lge_get_boot_mode();
     switch(boot_mode) {
-	case LGE_BOOT_MODE_FACTORY:
-	    res = LGEUSB_FACTORY_130K;
-	    break;
-	case LGE_BOOT_MODE_FACTORY2:
-	//case LGE_BOOT_MODE_PIFBOOT:
-	    res = LGEUSB_FACTORY_56K;
-	    break;
-	default:
-	    break;
+    case LGE_BOOT_MODE_FACTORY:
+        res = LGEUSB_FACTORY_130K;
+        break;
+    case LGE_BOOT_MODE_FACTORY2:
+        res = LGEUSB_FACTORY_56K;
+        break;
+    default:
+        break;
     }
 
     return res;
@@ -914,7 +911,7 @@ struct platform_device lge_android_usb_device = {
 	.platform_data = &lge_android_usb_pdata,
     },
 };
-#endif /* CONFIG_USB_G_LGE_ANDROID */
+#endif /*                          */
 
 #ifdef CONFIG_LGE_USB_DIAG_DISABLE
 static struct platform_device lg_diag_cmd_device = {
@@ -924,7 +921,7 @@ static struct platform_device lg_diag_cmd_device = {
 		.platform_data = 0, //&lg_diag_cmd_pdata
 	},
 };
-#endif //#ifdef CONFIG_LGE_USB_DIAG_DISABLE
+#endif //                                  
 
 /* Bandwidth requests (zero) if no vote placed */
 static struct msm_bus_vectors usb_init_vectors[] = {
@@ -1056,61 +1053,22 @@ static struct lp5521_led_config lp5521_led_config[] = {
 	{
 		.name = "R",
 		.chan_nr	= 0,
-		.led_current	= 170,
-		.max_current	= 170,
+		.led_current	= 255,
+		.max_current	= 255,
 	},
 	{
 		.name = "G",
 		.chan_nr	= 1,
-		.led_current	= 200,
-		.max_current	= 200,
+		.led_current	= 246,
+		.max_current	= 246,
 	},
 	{
 		.name = "B",
 		.chan_nr	= 2,
-		.led_current	= 130,
-		.max_current	= 130,
+		.led_current	= 190,
+		.max_current	= 190,
 	},
 };
-
-
-//[pattern_id : 1, PowerOn_Animation]
-static u8 mode1_red[] = {0xE0, 0x0C, 0x40, 0x00, 0x0C, 0x2F, 0x06, 0x28, 0x05, 0x2D, 0x06, 0x2A, 0x06, 0x25, 0x03, 0xDC, 0x02, 0xFA, 0x48, 0x00, 0x03, 0x54, 0x44, 0x01, 0x23, 0x06, 0x31, 0x84, 0x06, 0xA8, 0x0C, 0xAF};
-static u8 mode1_green[] = {0xE0, 0x80, 0x40, 0x00, 0x52, 0x00, 0x0B, 0x15, 0x05, 0x2D, 0x03, 0x48, 0x03, 0x4B, 0x09, 0x1B, 0x02, 0x63, 0x19, 0x89, 0x03, 0xCA, 0x04, 0xC1, 0x05, 0xB2, 0x06, 0xA6, 0x12, 0x8D, 0x52, 0x00};
-static u8 mode1_blue[] = {0xE0, 0x80, 0x40, 0x00, 0x12, 0xFE, 0x40, 0xC0, 0x0A, 0x18, 0x06, 0xA6, 0x06, 0xAA, 0x03, 0xCF, 0x04, 0xB6, 0x52, 0x00};
-
-//[pattern_id : 2, Not used, LCDOn]
-static u8 mode2_red[]={0x40, 0xff, 0x4d, 0x00, 0x0a, 0xff, 0x0a, 0xfe, 0xc0, 0x00};
-static u8 mode2_green[]={0x40, 0xff, 0x4d, 0x00, 0x0a, 0xff, 0x0a, 0xfe, 0xc0, 0x00};
-static u8 mode2_blue[]={0x40, 0xff, 0x4d, 0x00, 0x0a, 0xff, 0x0a, 0xfe, 0xc0, 0x00};
-
-//[pattern_id : 3, Charging0_99]
-static u8 mode3_red[] = {0x40, 0x0D, 0x44, 0x0C, 0x24, 0x32, 0x24, 0x32, 0x66, 0x00, 0x24, 0xB2, 0x24, 0xB2, 0x44, 0x8C};
-
-//[pattern_id : 4, Charging100]
-static u8 mode4_green[]={0x40, 0x80};
-
-//[pattern_id : 5, Not used, Charging16_99]
-static u8 mode5_red[]={0x40, 0x19, 0x27, 0x19, 0xe0, 0x04, 0x0c, 0x65, 0xe0, 0x04, 0x0c, 0x65, 0xe0, 0x04, 0x0c, 0xe5, 0xe0, 0x04, 0x0c, 0xe5, 0xe0, 0x04, 0x29, 0x98, 0xe0, 0x04, 0x5a, 0x00};
-static u8 mode5_green[]={0x40, 0x0c, 0x43, 0x0b, 0xe0, 0x80, 0x19, 0x30, 0xe0, 0x80, 0x19, 0x30, 0xe0, 0x80, 0x19, 0xb0, 0xe0, 0x80, 0x19, 0xb0, 0xe0, 0x80, 0x43, 0x8b, 0xe0, 0x80, 0x5a, 0x00};
-
-//[pattern_id : 6, PowerOff]
-static u8 mode6_red[] = {0xE0, 0x0C, 0x40, 0x00, 0x0C, 0x2F, 0x06, 0x28, 0x05, 0x2D, 0x06, 0x2A, 0x06, 0x25, 0x03, 0xDC, 0x02, 0xFA, 0x48, 0x00, 0x03, 0x54, 0x44, 0x01, 0x23, 0x06, 0x31, 0x84, 0x06, 0xA8, 0x0C, 0xAF};
-static u8 mode6_green[] = {0xE0, 0x80, 0x40, 0x00, 0x52, 0x00, 0x0B, 0x15, 0x05, 0x2D, 0x03, 0x48, 0x03, 0x4B, 0x09, 0x1B, 0x02, 0x63, 0x19, 0x89, 0x03, 0xCA, 0x04, 0xC1, 0x05, 0xB2, 0x06, 0xA6, 0x12, 0x8D, 0x52, 0x00};
-static u8 mode6_blue[] = {0xE0, 0x80, 0x40, 0x00, 0x12, 0xFE, 0x40, 0xC0, 0x0A, 0x18, 0x06, 0xA6, 0x06, 0xAA, 0x03, 0xCF, 0x04, 0xB6, 0x52, 0x00,};
-
-//[pattern_id : 7, MissedNoti]
-static u8 mode7_red[]={0x40, 0x00, 0x10, 0xFE, 0x40, 0x5D, 0xE2, 0x00, 0x07, 0xAD, 0xE2, 0x00, 0x07, 0xAE, 0xE2, 0x00, 0x48, 0x00, 0x40, 0x5D, 0xE2, 0x00, 0x07, 0xAD, 0xE2, 0x00, 0x07, 0xAE, 0xE2, 0x00, 0x25, 0xFE,};
-static u8 mode7_green[]={0x40, 0x00, 0x10, 0xFE, 0x40, 0xCD, 0xE2, 0x00, 0x03, 0xE6, 0xE2, 0x00, 0x03, 0xE5, 0xE2, 0x00, 0x48, 0x00, 0x40, 0xCD, 0xE2, 0x00, 0x03, 0xE6, 0xE2, 0x00, 0x03, 0xE5, 0xE2, 0x00, 0x25, 0xFE,};
-static u8 mode7_blue[]={0x40, 0x00, 0x10, 0xFE, 0x40, 0xE6, 0xE0, 0x06, 0x03, 0xF2, 0xE0, 0x06, 0x03, 0xF2, 0xE0, 0x06, 0x48, 0x00, 0x40, 0xE6, 0xE0, 0x06, 0x03, 0xF2, 0xE0, 0x06, 0x03, 0xF2, 0xE0, 0x06, 0x25, 0xFE,};
-
-//[pattern_id 101, Felica_on]
-static u8 mode8_blue[]={0x40, 0x33, 0x04, 0x65, 0x04, 0x65, 0x04, 0xE5, 0x04, 0xE5, 0x00, 0x00};
-
-//[pattern_id 102, GPS_on]
-static u8 mode9_blue[]={0x40, 0x00, 0x08, 0x7E, 0x08, 0x7F, 0x08, 0xFE, 0x08, 0xFF, 0x00, 0x00};
-
-
 
 static struct lp5521_led_pattern board_led_patterns[] = {
 	{
@@ -1131,27 +1089,17 @@ static struct lp5521_led_pattern board_led_patterns[] = {
 		},
 	{
 		.r = mode3_red,
-//		.g = mode3_green,
-//		.b = mode3_blue,
 		.size_r = ARRAY_SIZE(mode3_red),
-//		.size_g = ARRAY_SIZE(mode3_green),
-//		.size_b = ARRAY_SIZE(mode3_blue),
 	},
 	{
-//		.r = mode4_red,
 		.g = mode4_green,
-//		.b = mode4_blue,
-//		.size_r = ARRAY_SIZE(mode4_red),
 		.size_g = ARRAY_SIZE(mode4_green),
-//		.size_b = ARRAY_SIZE(mode4_blue),
 	},
 	{
 		.r = mode5_red,
 		.g = mode5_green,
-//		.b = mode5_blue,
 		.size_r = ARRAY_SIZE(mode5_red),
 		.size_g = ARRAY_SIZE(mode5_green),
-//		.size_b = ARRAY_SIZE(mode5_blue),
 	},
 	{
 		.r = mode6_red,
@@ -1271,7 +1219,7 @@ static void lp5521_enable(bool state)
 }
 
 #define LP5521_CONFIGS	(LP5521_PWM_HF | LP5521_PWRSAVE_EN | \
-			LP5521_CP_MODE_BYPASS | \
+			LP5521_CP_MODE_AUTO | \
 			LP5521_CLOCK_INT)
 
 static struct lp5521_platform_data lp5521_pdata = {
@@ -2374,8 +2322,8 @@ static struct platform_device msm8064_device_saw_regulator_core3 = {
 	},
 };
 
-// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
-//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
+//                                                                   
+//                                             
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
 static struct resource bluesleep_resources[] = {
@@ -2404,9 +2352,9 @@ static struct platform_device msm_bluesleep_device = {
 	.num_resources	= ARRAY_SIZE(bluesleep_resources),
 	.resource	= bluesleep_resources,
 };
-#endif // CONFIG_LGE_BLUESLEEP
-//END: 0019632 chanha.park@lge.com 2012-05-31
-// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
+#endif //                     
+//                                           
+//                                                                   
 static struct msm_rpmrs_level msm_rpmrs_levels[] = {
 	{
 		MSM_PM_SLEEP_MODE_WAIT_FOR_INTERRUPT,
@@ -2420,13 +2368,6 @@ static struct msm_rpmrs_level msm_rpmrs_levels[] = {
 		MSM_RPMRS_LIMITS(ON, ACTIVE, MAX, ACTIVE),
 		true,
 		415, 715, 340827, 475,
-	},
-
-	{
-		MSM_PM_SLEEP_MODE_POWER_COLLAPSE_STANDALONE,
-		MSM_RPMRS_LIMITS(ON, ACTIVE, MAX, ACTIVE),
-		true,
-		1300, 228, 1200000, 2000,
 	},
 
 	{
@@ -2523,6 +2464,21 @@ static uint8_t spm_power_collapse_with_rpm[] __initdata = {
 	0x00, 0x24, 0x54, 0x10,
 	0x09, 0x07, 0x01, 0x0B,
 	0x10, 0x54, 0x30, 0x0C,
+	0x24, 0x30, 0x0f,
+};
+
+/* 8064AB has a different command to assert apc_pdn */
+static uint8_t spm_power_collapse_without_rpm_krait_v3[] __initdata = {
+	0x00, 0x24, 0x84, 0x10,
+	0x09, 0x03, 0x01,
+	0x10, 0x84, 0x30, 0x0C,
+	0x24, 0x30, 0x0f,
+};
+
+static uint8_t spm_power_collapse_with_rpm_krait_v3[] __initdata = {
+	0x00, 0x24, 0x84, 0x10,
+	0x09, 0x07, 0x01, 0x0B,
+	0x10, 0x84, 0x30, 0x0C,
 	0x24, 0x30, 0x0f,
 };
 
@@ -2678,6 +2634,27 @@ static struct msm_spm_platform_data msm_spm_data[] __initdata = {
 	},
 };
 
+static void __init apq8064ab_update_krait_spm(void)
+{
+	int i;
+
+	/* Update the SPM sequences for SPC and PC */
+	for (i = 0; i < ARRAY_SIZE(msm_spm_data); i++) {
+		int j;
+		struct msm_spm_platform_data *pdata = &msm_spm_data[i];
+		for (j = 0; j < pdata->num_modes; j++) {
+			if (pdata->modes[j].cmd ==
+					spm_power_collapse_without_rpm)
+				pdata->modes[j].cmd =
+				spm_power_collapse_without_rpm_krait_v3;
+			else if (pdata->modes[j].cmd ==
+					spm_power_collapse_with_rpm)
+				pdata->modes[j].cmd =
+				spm_power_collapse_with_rpm_krait_v3;
+		}
+	}
+}
+
 #if defined(CONFIG_MACH_LGE)
 #define GSBI_I2C_MODE_CODE	0x20
 #define GSBI_DUAL_MODE_CODE	0x60
@@ -2702,7 +2679,7 @@ static struct msm_serial_hslite_platform_data apq8064_felica_gsbi3_pdata = {
 	.line		= 2,
 };
 
-#endif /* CONFIG_LGE_FELICA */
+#endif /*                   */
 
 #if defined(CONFIG_LGE_IRDA)
 static struct msm_serial_hslite_platform_data apq8064_irda_pdata = {
@@ -2711,7 +2688,7 @@ static struct msm_serial_hslite_platform_data apq8064_irda_pdata = {
 	.uart_rx_gpio	= 11,
 	.line		= 3,
 };
-#endif /* CONFIG_LGE_IRDA */
+#endif /*                 */
 
 
 static void __init apq8064_init_buses(void)
@@ -2748,7 +2725,7 @@ static void __init apq8064_init_buses(void)
 		iounmap(gsbi_mem);
 		apq8064_device_felica_gsbi3.dev.platform_data = &apq8064_felica_gsbi3_pdata;
 	}
-#endif /* CONFIG_LGE_FELICA*/
+#endif /*                  */
 }
 
 
@@ -2780,7 +2757,7 @@ static void __init mpq8064_pcie_init(void)
 	}
 }
 #endif
-#ifdef CONFIG_USB_OTG //#if defined(CONFIG_MACH_LGE)
+#ifdef CONFIG_USB_OTG //                            
 static struct platform_device apq8064_device_ext_5v_vreg __devinitdata = {
 	.name	= GPIO_REGULATOR_DEV_NAME,
 	.id	= PM8921_MPP_PM_TO_SYS(7),
@@ -2914,23 +2891,23 @@ static struct platform_device *common_devices[] __initdata = {
 	&android_usb_device,
 #if defined(CONFIG_LGE_BROADCAST_ONESEG)
 	&apq8064_device_qup_spi_gsbi5,
-#endif	 /* CONFIG_LGE_BROADCAST_ONESEG */
+#endif	 /*                             */
 #ifdef CONFIG_USB_G_LGE_ANDROID
 	&lge_android_usb_device,
 #endif
 
-// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
-//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
+//                                                                   
+//                                             
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
 	&msm_bluesleep_device,
 #endif
-//END: 0019632 chanha.park@lge.com 2012-05-31
-// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
+//                                           
+//                                                                   
 
 #ifdef CONFIG_LGE_USB_DIAG_DISABLE
 	&lg_diag_cmd_device,
-#endif //#ifdef CONFIG_LGE_USB_DIAG_DISABLE
+#endif //                                  
 	&msm_device_wcnss_wlan,
 	&msm_device_iris_fm,
 	&apq8064_fmem_device,
@@ -3286,7 +3263,7 @@ static struct spi_board_info spi_broadcast_board_info[] __initdata = {
 	},
 #endif
 };
-#endif	 /* CONFIG_LGE_BROADCAST_ONESEG */
+#endif	 /*                             */
 
 static struct slim_boardinfo apq8064_slim_devices[] = {
 	#ifndef CONFIG_MACH_LGE // [GK][SoundBSP] 2012-10-24 Not Used.
@@ -3303,7 +3280,7 @@ static struct slim_boardinfo apq8064_slim_devices[] = {
 };
 
 static struct msm_i2c_platform_data apq8064_i2c_qup_gsbi1_pdata = {
-	.clk_freq = 384000,//sangwooha.ha@lge.com GK ES3 bring up
+	.clk_freq = 384000,//                                    
 	.src_clk_rate = 24000000,
 };
 
@@ -3313,7 +3290,7 @@ static struct msm_i2c_platform_data apq8064_i2c_qup_gsbi3_pdata = {
 };
 
 static struct msm_i2c_platform_data apq8064_i2c_qup_gsbi4_pdata = {
-	.clk_freq = 384000,//sangwooha.ha@lge.com 20120813 GK ES3 UART bring up
+	.clk_freq = 384000,//                                                  
 	.src_clk_rate = 24000000,
 };
 
@@ -3342,10 +3319,10 @@ static void __init apq8064_i2c_init(void)
 	iounmap(gsbi_mem);
 	apq8064_i2c_qup_gsbi1_pdata.use_gsbi_shared_mode = 1;
 
-	/* LGE_UPDATE_S GV DCM
-	 *  Setting protocol code to 0x60 for dual UART/I2C in GSBI3
-	 *  - Rev.B
-	 */
+	/*                    
+                                                             
+            
+  */
 #if defined(CONFIG_LGE_FELICA) || defined(CONFIG_LGE_NFC_SONY_CXD2235AGG)
 	if(lge_get_board_revno() > HW_REV_B) {
 		gsbi_mem = ioremap_nocache(MSM_GSBI3_PHYS, 4);
@@ -3368,10 +3345,10 @@ static void __init apq8064_i2c_init(void)
 					&mpq8064_i2c_qup_gsbi5_pdata;
 #endif
 
-	/* LGE_UPDATE_S GV DCM
-	 *  Setting protocol code to 0x60 for dual UART/I2C in GSBI4
-	 *  - Rev.B
-	 */
+	/*                    
+                                                             
+            
+  */
 	if(lge_get_board_revno() > HW_REV_A) {
 		gsbi_mem = ioremap_nocache(MSM_GSBI4_PHYS, 4);
 		writel_relaxed(GSBI_DUAL_MODE_CODE, gsbi_mem);
@@ -3807,14 +3784,14 @@ static void __init register_i2c_devices(void)
 		apq8064_camera_board_info.board_info,
 		apq8064_camera_board_info.num_i2c_board_info,
 	};
-/* LGE_CHANGE_E, For GV Rev.C bring-up, 2012.10.29, jungki.kim[Start] */
+/*                                                                    */
 	struct i2c_registry apq8064_camera_i2c_devices_revC = {
 		I2C_SURF | I2C_FFA | I2C_LIQUID | I2C_RUMI,
 		APQ_8064_GSBI4_QUP_I2C_BUS_ID,
 		apq8064_camera_board_info_revC.board_info,
 		apq8064_camera_board_info_revC.num_i2c_board_info,
 	};
-/* LGE_CHANGE_E, For GV Rev.C bring-up, 2012.10.29, jungki.kim[End] */
+/*                                                                  */
 #endif
 
 #ifdef CONFIG_LEDS_LP5521
@@ -3846,7 +3823,7 @@ static void __init register_i2c_devices(void)
 #endif
 
 #ifdef CONFIG_MSM_CAMERA
-/* LGE_CHANGE_E, For GV Rev.C bring-up, 2012.10.29, jungki.kim[Start] */
+/*                                                                    */
  	if(lge_get_board_revno() >= HW_REV_C){
 		if (apq8064_camera_i2c_devices_revC.machs & mach_mask)
 			i2c_register_board_info(apq8064_camera_i2c_devices_revC.bus,
@@ -3854,7 +3831,7 @@ static void __init register_i2c_devices(void)
 				apq8064_camera_i2c_devices_revC.len);
 	 }
 	else
-/* LGE_CHANGE_E, For GV Rev.C bring-up, 2012.10.29, jungki.kim[End] */
+/*                                                                  */
 	{
 		if (apq8064_camera_i2c_devices.machs & mach_mask)
 			i2c_register_board_info(apq8064_camera_i2c_devices.bus,
@@ -4057,7 +4034,7 @@ static void __init apq8064_common_init(void)
 	register_i2c_devices();
 	register_i2c_backlight_devices();
 	lge_add_sound_devices();
-/* ehee.lee@lge.com [START] for NFC */
+/*                                  */
 #if defined(CONFIG_LGE_NFC)
 	lge_add_nfc_devices();
 #endif
@@ -4139,12 +4116,12 @@ static void __init apq8064_common_init(void)
 			platform_device_register(&i2s_mdm_8064_device);
 		} else {
 			mdm_8064_device.dev.platform_data = &mdm_platform_data;
-			// LGE_START // featuring GPIO(MDM2AP_HSIC_READY) confiuration for BCM4334
+			//                                                                        
 			if (lge_get_board_revno() >= HW_REV_C){
 				mdm_8064_device.resource[6].start = 81; // MDM2AP_PBLRDY
 				mdm_8064_device.resource[6].end = 81; // MDM2AP_PBLRDY
 			}
-			// LGE_END // featuring GPIO(MDM2AP_HSIC_READY) confiuration for BCM4334
+			//                                                                      
 			platform_device_register(&mdm_8064_device);
 		}
 	}
@@ -4161,6 +4138,8 @@ static void __init apq8064_common_init(void)
 		apq8064_init_dsps();
 		platform_device_register(&msm_8960_riva);
 	}
+	if (cpu_is_apq8064ab())
+		apq8064ab_update_krait_spm();
 	msm_spm_init(msm_spm_data, ARRAY_SIZE(msm_spm_data));
 	msm_spm_l2_init(msm_spm_l2_data);
 #ifdef CONFIG_ANDROID_RAM_CONSOLE
@@ -4291,7 +4270,7 @@ static void __init apq8064_cdp_init(void)
 
 	spi_register_board_info(spi_broadcast_board_info,
 					 ARRAY_SIZE(spi_broadcast_board_info));
-#endif	 /* CONFIG_LGE_BROADCAST_ONESEG */
+#endif	 /*                             */
 
 #if defined(CONFIG_LGE_FELICA) || defined(CONFIG_LGE_NFC_SONY_CXD2235AGG)
 	/*

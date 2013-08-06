@@ -26,7 +26,7 @@
 #include <linux/string.h>
 //#include <asm/uaccess.h>
 
-#include <mbt_ring.h>
+#include "mbt_ring.h"
 //#include <mbt_dbg.h>
 
 static DEFINE_MUTEX(ringbuffer_lock);

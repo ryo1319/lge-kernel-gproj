@@ -1535,7 +1535,7 @@ static struct platform_driver lg_diag_cmd_driver = {
         .owner	= THIS_MODULE,
     },
 };
-#endif /* CONFIG_LGE_USB_DIAG_DISABLE */
+#endif /*                             */
 
 static int __init diagchar_init(void)
 {

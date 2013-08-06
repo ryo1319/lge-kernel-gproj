@@ -1021,7 +1021,7 @@ static void bridge_disconnect(struct usb_interface *intf)
 	usb_put_dev(dev->udev);
 	kfree(dev);
 
-#if 1 // LGE_CHANGE_S Workaround for power off kernel crash
+#if 1 //                                                   
     if(ch_id==0)
     {
         int id;
@@ -1034,7 +1034,7 @@ static void bridge_disconnect(struct usb_interface *intf)
                 ctrl_bridge_disconnect(id);
         }
     }
-#endif//LGE_CHANGE_E Workaround for power off kernel crash
+#endif//                                                  
 }
 
 /*bit position represents interface number*/

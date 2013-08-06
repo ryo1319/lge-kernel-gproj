@@ -758,11 +758,11 @@ ret_assigned_laddr:
 	list_for_each_entry(sbdev, &ctrl->devs, dev_list) {
 		if (memcmp(sbdev->e_addr, e_addr, 6) == 0) {
 			struct slim_driver *sbdrv;
-// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
+//                                                                         
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			sbdev->laddr = i;
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
+//                                                                         
 			if (sbdev->dev.driver) {
 				sbdrv = to_slim_driver(sbdev->dev.driver);
 				if (sbdrv->device_up)

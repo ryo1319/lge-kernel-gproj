@@ -755,7 +755,7 @@ int32_t pm8xxx_adc_scale_batt_therm(int32_t adc_code,
 	bat_voltage = pm8xxx_adc_scale_ratiometric_calib(adc_code,
 			adc_properties, chan_properties);
 #ifdef CONFIG_LGE_CHARGER_TEMP_SCENARIO
-/* battery of therm H/W register level reading kwangjae1.lee@lge.com */
+/*                                                                   */
 	adc_chan_result->adc_value = bat_voltage;
 #endif
 	return pm8xxx_adc_map_batt_therm(

@@ -180,7 +180,7 @@ static int acm_port_connect(struct f_acm *acm)
 		    return ret;
 		}
 		break;
-#endif /* CONFIG_USB_G_LGE_ANDROID */
+#endif /*                          */
 	default:
 		pr_err("%s: Un-supported transport: %s\n", __func__,
 				xport_to_str(acm->transport));
@@ -215,7 +215,7 @@ static int acm_port_disconnect(struct f_acm *acm)
 		ghsic_ctrl_disconnect(&acm->port, port_num);
 		ghsic_data_disconnect(&acm->port, port_num);
 		break;
-#endif /* CONFIG_USB_G_LGE_ANDROID */
+#endif /*                          */
 	default:
 		pr_err("%s: Un-supported transport:%s\n", __func__,
 				xport_to_str(acm->transport));
@@ -1103,7 +1103,7 @@ static int acm_init_port(int port_num, const char *name)
 		/*client port number will be updated in acm_port_setup*/
 		no_acm_hsic_sports++;
         break;
-#endif /* CONFIG_USB_G_LGE_ANDROID */
+#endif /*                          */
 	default:
 		pr_err("%s: Un-supported transport transport: %u\n",
 				__func__, gacm_ports[port_num].transport);

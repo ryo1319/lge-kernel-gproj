@@ -36,14 +36,11 @@
 
 #include "acpuclock.h"
 #include "acpuclock-krait.h"
+#include "avs.h"
 
 #ifdef CONFIG_LGE_PM_LOW_BATT_CHG
 #include <mach/board_lge.h>
 #endif
-
-#if defined(CONFIG_MACH_APQ8064_GK_KR)	|| defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GVDCM)
-static int PIF_CHECK;
-#endif 
 
 /* MUX source selects. */
 #define PRI_SRC_SEL_SEC_SRC	0
@@ -51,6 +48,14 @@ static int PIF_CHECK;
 #define PRI_SRC_SEL_HFPLL_DIV2	2
 
 #define SECCLKAGD		BIT(4)
+
+int g_speed_bin;
+int g_pvs_bin;
+
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)\
+		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+int limit_cpufreq = 0;
+#endif
 
 static DEFINE_MUTEX(driver_lock);
 static DEFINE_SPINLOCK(l2_lock);
@@ -453,16 +458,12 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 	unsigned long flags;
 	int rc = 0;
 
-#if defined(CONFIG_MACH_APQ8064_GK_KR)	|| defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GVDCM)
-	static int count =0;
-	if(count < 400)count++;	
-	
-	if(PIF_CHECK && rate >= 702000 && count < 400)rate = 702000;
-	else if(rate >= 1134000 && count < 400) rate = 1134000;	
-
-	//printk("PCH_TEST CPU=%d Count=%d, rate=%d\n", cpu, count, (unsigned int)rate);
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)\
+		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+	if(limit_cpufreq) {
+		if(rate > 1242000) rate = 1242000;	
+	}
 #endif
-
 	if (cpu > num_possible_cpus())
 		return -EINVAL;
 
@@ -492,6 +493,12 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 	vdd_data.vdd_dig  = calculate_vdd_dig(tgt);
 	vdd_data.vdd_core = calculate_vdd_core(tgt);
 	vdd_data.ua_core = tgt->ua_core;
+
+	/* Disable AVS before voltage switch */
+	if (reason == SETRATE_CPUFREQ && drv.scalable[cpu].avs_enabled) {
+		AVS_DISABLE(cpu);
+		drv.scalable[cpu].avs_enabled = false;
+	}
 
 	/* Increase VDD levels if needed. */
 	if (reason == SETRATE_CPUFREQ || reason == SETRATE_HOTPLUG) {
@@ -527,6 +534,12 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 
 	/* Drop VDD levels if we can. */
 	decrease_vdd(cpu, &vdd_data, reason);
+
+	/* Re-enable AVS */
+	if (reason == SETRATE_CPUFREQ && tgt->avsdscr_setting) {
+		AVS_ENABLE(cpu, tgt->avsdscr_setting);
+		drv.scalable[cpu].avs_enabled = true;
+	}
 
 	dev_dbg(drv.dev, "ACPU%d speed change complete\n", cpu);
 
@@ -787,6 +800,22 @@ static const struct acpu_level __cpuinit *find_min_acpu_level(void)
 	return NULL;
 }
 
+#ifdef CONFIG_MACH_APQ8064_J1D
+static const struct acpu_level __cpuinit *find_max_acpu_level(void)
+{
+	struct acpu_level *l;
+	struct acpu_level *max_acpu_level = NULL;
+
+	for (l = drv.acpu_freq_tbl; l->speed.khz != 0; l++)
+		if (l->use_for_scaling)
+		{
+			max_acpu_level = l;
+		}
+
+	return max_acpu_level;
+}
+#endif
+
 static int __cpuinit per_cpu_init(int cpu)
 {
 	struct scalable *sc = &drv.scalable[cpu];
@@ -807,7 +836,19 @@ static int __cpuinit per_cpu_init(int cpu)
 	if (!acpu_level)
 #endif
 	{
+#ifdef CONFIG_MACH_APQ8064_J1D
+		if((lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_56K)
+			&& (cpu == 0)
+		)
+		{
+			acpu_level = find_max_acpu_level();
+		} else {
+			acpu_level = find_min_acpu_level();
+		}
+#else
 		acpu_level = find_min_acpu_level();
+#endif
+
 		if (!acpu_level) {
 			ret = -ENODEV;
 			goto err_table;
@@ -950,9 +991,11 @@ static const int krait_needs_vmin(void)
 
 static void krait_apply_vmin(struct acpu_level *tbl)
 {
-	for (; tbl->speed.khz != 0; tbl++) 
+	for (; tbl->speed.khz != 0; tbl++) {
 		if (tbl->vdd_core < 1150000)
 			tbl->vdd_core = 1150000;
+		tbl->avsdscr_setting = 0;
+	}
 }
 
 static int __init get_speed_bin(u32 pte_efuse)
@@ -969,6 +1012,8 @@ static int __init get_speed_bin(u32 pte_efuse)
 	} else {
 		dev_info(drv.dev, "SPEED BIN: %d\n", speed_bin);
 	}
+
+	g_speed_bin = speed_bin;
 
 	return speed_bin;
 }
@@ -987,6 +1032,8 @@ static int __init get_pvs_bin(u32 pte_efuse)
 	} else {
 		dev_info(drv.dev, "ACPU PVS: %d\n", pvs_bin);
 	}
+
+	g_pvs_bin = pvs_bin;
 
 	return pvs_bin;
 }
@@ -1095,11 +1142,6 @@ static void __init hw_init(void)
 int __init acpuclk_krait_init(struct device *dev,
 			      const struct acpuclk_krait_params *params)
 {
-#if defined(CONFIG_MACH_APQ8064_GK_KR)	|| defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GVDCM)
-	if (lge_get_factory_boot()) PIF_CHECK=1;
-  else PIF_CHECK=0;
-#endif
-
 	drv_data_init(dev, params);
 	hw_init();
 

@@ -97,9 +97,9 @@ static int msm_btsco_rate = BTSCO_RATE_8KHZ;
 static int msm_btsco_ch = 1;
 
 #if 0
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+//                                                                                  
 static int msm_auxpcm_rate = BTSCO_RATE_8KHZ;
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+//                                                                                
 #endif
 
 static int rec_mode = INCALL_REC_MONO;
@@ -521,11 +521,11 @@ static const struct snd_soc_dapm_widget apq8064_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Handset SubMic", NULL),
 #endif
 
-//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT) )
+//                                                                                                   
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) ) 
 	SND_SOC_DAPM_MIC("Handset 3rdMic", NULL),
 #endif
-//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
+//                                                                                                 
 
 
 	/*********** Digital Mics ***************/
@@ -556,12 +556,12 @@ static const struct snd_soc_dapm_route apq8064_common_audio_map[] = {
 	{"Ext Spk Top", NULL, "LINEOUT5"},
 #endif
 
-//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT) )
+//                                                                                                   
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) )
 	{"AMIC5", NULL, "MIC BIAS4 External"},
 	{"MIC BIAS4 External", NULL, "Handset 3rdMic"},
 #endif
-//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
+//                                                                                                 
 
 
 	/************   Analog MIC Paths  ************/
@@ -716,12 +716,12 @@ static const struct soc_enum msm_btsco_enum[] = {
 };
 
 #if 0
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+//                                                                                  
 static const char *auxpcm_rate_text[] = {"8000", "16000"};
 static const struct soc_enum msm_auxpcm_enum[] = {
 		SOC_ENUM_SINGLE_EXT(2, auxpcm_rate_text),
 };
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+//                                                                                
 #endif
 
 static int msm_slim_0_rx_ch_get(struct snd_kcontrol *kcontrol,
@@ -809,7 +809,7 @@ static int msm_btsco_rate_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 #if 0
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+//                                                                                  
 static int msm_auxpcm_rate_get(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
@@ -837,7 +837,7 @@ static int msm_auxpcm_rate_put(struct snd_kcontrol *kcontrol,
 					msm_auxpcm_rate);
 	return 0;
 }
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+//                                                                                
 #endif
 
 static int msm_incall_rec_mode_get(struct snd_kcontrol *kcontrol,
@@ -877,7 +877,7 @@ static const struct snd_kcontrol_new tabla_msm_controls[] = {
 };
 
 #if 0
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+//                                                                                  
 static const struct snd_kcontrol_new auxpcm_rate_mixer_controls[] = {
 	SOC_ENUM_EXT("AUX PCM SampleRate", msm_auxpcm_enum[0],
 		msm_auxpcm_rate_get, msm_auxpcm_rate_put),
@@ -895,7 +895,7 @@ static int msm_auxpcm_init(struct snd_soc_pcm_runtime *rtd)
                return err;
        return 0;
 }
-//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+//                                                                                
 #endif
 
 static void *def_tabla_mbhc_cal(void)
@@ -1508,11 +1508,11 @@ static int msm_auxpcm_be_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	/* PCM only supports mono output with 8khz sample rate */
 	rate->min = rate->max = 8000;
 #else
-	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+	//                                                                                  
 	pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_btsco_rate);
 	//pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_auxpcm_rate);
 	rate->min = rate->max = msm_btsco_rate; //msm_auxpcm_rate;
-	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+	//                                                                                
 #endif
 	channels->min = channels->max = 1;
 
@@ -2016,9 +2016,9 @@ static struct snd_soc_dai_link msm_dai[] = {
 		.codec_name = "msm-stub-codec.1",
 		.codec_dai_name = "msm-stub-rx",
 #if 0
-		//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
+		//                                                                                  
 		//.init = &msm_auxpcm_init,
-		//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
+		//                                                                                
 #endif
 		.no_pcm = 1,
 		.be_id = MSM_BACKEND_DAI_AUXPCM_RX,

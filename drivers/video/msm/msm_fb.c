@@ -625,6 +625,7 @@ static int msm_fb_suspend_sub(struct msm_fb_data_type *mfd)
 	mfd->suspend.sw_refreshing_enable = mfd->sw_refreshing_enable;
 	mfd->suspend.op_enable = mfd->op_enable;
 	mfd->suspend.panel_power_on = mfd->panel_power_on;
+	mfd->suspend.op_suspend = true;
 
 	if (mfd->op_enable) {
 		ret =
@@ -692,6 +693,8 @@ static int msm_fb_resume_sub(struct msm_fb_data_type *mfd)
 #if defined(CONFIG_LGE_QC_LCDC_LUT)
        lge_set_qlut();
 #endif
+
+	mfd->suspend.op_suspend = false;
 
 	return ret;
 }
@@ -912,11 +915,15 @@ static int unset_bl_level, bl_updated;
 static int bl_level_old = 0xCA;
 static int default_bl_value = 202;
 #elif defined(CONFIG_BACKLIGHT_LM3533)
-static int bl_level_old = -1; /* LGE_CHANGE */
+static int bl_level_old = -1; /*            */
 static int default_bl_value = -1;
 #elif defined(CONFIG_BACKLIGHT_LM3630)//daewoo.kwak
 static int bl_level_old = 0xF0;
+#if defined(CONFIG_MACH_APQ8064_GVDCM)
+static int default_bl_value = 144;
+#else
 static int default_bl_value = 164;
+#endif // CONFIG_MACH_APQ8064_GVDCM
 #else
 static int bl_level_old;
 #endif
@@ -1341,7 +1348,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 #elif defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT) \
        || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT_PANEL)
 #if defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKKT) \
-       || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKATT)
+       || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK)  || defined(CONFIG_MACH_APQ8064_GVKT) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 	var->height = 121,      /* height of picture in mm */
 	var->width = 68,        /* width of picture in mm */
 #elif defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GVKDDI)
@@ -1502,7 +1509,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 			__func__, __LINE__, mfd->index);
 		fix->smem_len = 0;
 	}
-#else //LGE_DSDR_KERNEL_SUPPORT
+#else //                       
 		fix->smem_len = MAX((msm_fb_line_length(mfd->index,
 							panel_info->xres,
 							bpp) *
@@ -1513,7 +1520,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 							bpp) *
 				     panel_info->mode2_yres + PAGE_SIZE -
 				     remainder_mode2) * mfd->fb_page);
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 	mfd->var_xres = panel_info->xres;
 	mfd->var_yres = panel_info->yres;
 	mfd->var_frame_rate = panel_info->frame_rate;
@@ -1618,7 +1625,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 
 #if !defined(LGE_DSDR_KERNEL_SUPPORT)
 	if (!bf_supported || mfd->index == 0)
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 		if (fbram_size < fix->smem_len) {
 			pr_err("error: no more framebuffer memory!\n");
 			return -ENOMEM;
@@ -1653,7 +1660,7 @@ static int msm_fb_register(struct msm_fb_data_type *mfd)
 
 #if !defined(LGE_DSDR_KERNEL_SUPPORT)
 	if (!bf_supported || mfd->index == 0)
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 		memset(fbi->screen_base, 0x0, fix->smem_len);
 
 	mfd->op_enable = TRUE;
@@ -1908,9 +1915,9 @@ static int msm_fb_open(struct fb_info *info, int user)
 		else
 			pr_debug("%s:%d no mdp_set_dma_pan_info %d\n",
 				__func__, __LINE__, info->node);
-#else //LGE_DSDR_KERNEL_SUPPORT
+#else //                       
 		mdp_set_dma_pan_info(info, NULL, TRUE);
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 		if (msm_fb_blank_sub(FB_BLANK_UNBLANK, info, mfd->op_enable)) {
 			printk(KERN_ERR "[LCD][DEBUG] msm_fb_open: can't turn on display!\n");
 			return -1;
@@ -1989,7 +1996,7 @@ static int msm_fb_pan_display(struct fb_var_screeninfo *var,
 		       __func__, info->node);
 		return -EPERM;
 	}
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 
 	if (info->node != 0 || mfd->cont_splash_done)	/* primary */
 		if ((!mfd->op_enable) || (!mfd->panel_power_on))
@@ -2065,6 +2072,9 @@ static int msm_fb_pan_display(struct fb_var_screeninfo *var,
 	mdp_set_dma_pan_info(info, dirtyPtr,
 			     (var->activate == FB_ACTIVATE_VBL));
 	mdp_dma_pan_update(info);
+#ifdef CONFIG_FB_MSM_OVERLAY
+	mdp4_unmap_sec_resource(mfd);
+#endif
 	up(&msm_fb_pan_sem);
 
 #if defined(CONFIG_MACH_LGE)
@@ -2172,7 +2182,7 @@ static int msm_fb_check_var(struct fb_var_screeninfo *var, struct fb_info *info)
 #if !defined(LGE_DSDR_KERNEL_SUPPORT)
 	if (!bf_supported ||
 		(info->node != 1 && info->node != 2))
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 		if (info->fix.smem_len <
 		    (var->xres_virtual*
 		     var->yres_virtual*
@@ -3038,7 +3048,7 @@ static int msmfb_blit(struct fb_info *info, void __user *p)
 		       __func__, info->node);
 		return -EPERM;
 	}
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 	/* Get the count size for the total BLIT request. */
 	if (copy_from_user(&req_list_header, p, sizeof(req_list_header)))
 		return -EFAULT;
@@ -3746,15 +3756,15 @@ static int msm_fb_ioctl(struct fb_info *info, unsigned int cmd,
 				__func__);
 			return ret;
 		}
-/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [S]*/
+/*                                                                                                   */
 /* This source code confirmed by QCT*/
 #if defined (CONFIG_LGE_BROADCAST_TDMB) || defined (CONFIG_LGE_BROADCAST_ONESEG)
 		if(csc_matrix.id == -1) {
 			memcpy(mdp_csc_convert[1].csc_mv, csc_matrix.csc_mv, sizeof(csc_matrix.csc_mv));
 			return ret;
 		}
-#endif  /* CONFIG_LGE_BROADCAST */
-/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [E]*/
+#endif  /*                      */
+/*                                                                                                   */
 
 		down(&msm_fb_ioctl_ppp_sem);
 		msmfb_set_color_conv(&csc_matrix);
@@ -4055,12 +4065,12 @@ struct platform_device *msm_fb_add_device(struct platform_device *pdev)
 			pdata->panel_info.fb_num, type);
 #endif
 #ifdef LGE_DSDR_KERNEL_SUPPORT
-/* LGE_CHANGE
- * [DSDR]
- * 2012-04-12, antonio.hwang@lge.com
+/*           
+         
+                                    
  */
     if(pdata->panel_info.fb_num < 3) pdata->panel_info.fb_num = 3;
-#endif //LGE_DSDR_KERNEL_SUPPORT
+#endif //                       
 	fb_num = pdata->panel_info.fb_num;
 
 	if (fb_num <= 0)

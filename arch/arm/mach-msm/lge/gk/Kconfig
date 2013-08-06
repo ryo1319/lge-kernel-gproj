@@ -36,3 +36,38 @@ config MACH_APQ8064_GKATT
 		bool "APQ8064 GKATT"
 	help
 	  Support for the LGE GK device.
+
+config MACH_APQ8064_GKOPENHK
+	depends on ARCH_APQ8064
+	select MACH_LGE
+		bool "APQ8064 GKOPENHK"
+	help
+	  Support for the LGE GK device.
+
+config MACH_APQ8064_GKOPENTW
+	depends on ARCH_APQ8064
+	select MACH_LGE
+		bool "APQ8064 GKOPENTW"
+	help
+	  Support for the LGE GK device.
+
+config MACH_APQ8064_GKSHBSG
+	depends on ARCH_APQ8064
+	select MACH_LGE
+		bool "APQ8064 GKSHBSG"
+	help
+	  Support for the LGE GK device.
+
+config MACH_APQ8064_GKOPENEU
+	depends on ARCH_APQ8064
+	select MACH_LGE
+		bool "APQ8064 GKOPENEU"
+	help
+	  Support for the LGE GK device.
+
+config MACH_APQ8064_GKTCLMX
+	depends on ARCH_APQ8064
+	select MACH_LGE
+		bool "APQ8064 GKTCLMX"
+	help
+	  Support for the LGE GK device.

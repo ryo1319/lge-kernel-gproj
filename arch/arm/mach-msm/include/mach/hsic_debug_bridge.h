@@ -1,13 +1,13 @@
 /*
- * HSIC Debug Module for EMS, created by Secheol.Pyo.
- * 2012-3-17
- * 
- * Secheol Pyo <secheol.pyo@lge.com>
- *
- *
- *  HISTORY 
- * 2012-04-05, Release
- * 2012-04-12, suspend-resume
+                                                     
+            
+   
+                                    
+  
+  
+            
+                      
+                             
 */
 
 

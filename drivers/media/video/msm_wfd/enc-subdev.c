@@ -24,6 +24,11 @@
 #define VID_ENC_MAX_ENCODER_CLIENTS 1
 #define MAX_NUM_CTRLS 20
 
+//                                                                                           
+#define V4L2_FRAME_FLAGS (V4L2_BUF_FLAG_KEYFRAME | V4L2_BUF_FLAG_PFRAME | \
+		V4L2_BUF_FLAG_BFRAME | V4L2_QCOM_BUF_FLAG_CODECCONFIG)
+//                                                                                           
+
 static long venc_fill_outbuf(struct v4l2_subdev *sd, void *arg);
 
 struct venc_inst {
@@ -178,6 +183,10 @@ static void venc_cb(u32 event, u32 status, void *info, u32 size, void *handle,
 			frame_data->frm_clnt_data;
 		vbuf->v4l2_planes[0].bytesused =
 			frame_data->data_len;
+
+		//                                                                                           
+		vbuf->v4l2_buf.flags &= ~(V4L2_FRAME_FLAGS);
+		//                                                                                           
 
 		switch (frame_data->frame) {
 		case VCD_FRAME_I:
@@ -2158,7 +2167,7 @@ static long venc_free_recon_buffers(struct v4l2_subdev *sd, void *arg)
 			if (rc)
 				WFD_MSG_ERR("Failed to free recon buffer\n");
 
-			if (IS_ERR_OR_NULL(
+			if (!IS_ERR_OR_NULL(
 				client_ctx->recon_buffer_ion_handle[i])) {
 				if (!inst->secure) {
 					ion_unmap_iommu(

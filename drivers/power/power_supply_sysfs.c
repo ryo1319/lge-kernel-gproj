@@ -33,14 +33,14 @@
  */
 /* [START] sungsookim */
 #ifdef CONFIG_LGE_PM
-/* LGE_S kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 #define BMS_BATT_ATTR(_name)                                     \
 {                                                                   \
 	.attr = { .name = #_name, .mode = 0644 },                       \
 	.show = bms_batt_show_property,                              \
 	.store = bms_batt_store_property,                            \
 }
-/* LGE_E kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 #define PSEUDO_BATT_ATTR(_name)                                     \
 {                                                                   \
 	.attr = { .name = #_name, .mode = 0644 },                       \
@@ -164,7 +164,7 @@ static ssize_t power_supply_store_property(struct device *dev,
 
 /* [START] sungsookim */
 #ifdef CONFIG_LGE_PM
-/* LGE_S kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 static ssize_t bms_batt_show_property(struct device *dev,
 		struct device_attribute *attr,
 		char *buf)
@@ -216,7 +216,7 @@ out:
 	return ret;
 
 }
-/* LGE_E kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 
 static ssize_t pseudo_batt_show_property(struct device *dev,
 		struct device_attribute *attr,
@@ -331,13 +331,13 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(voltage_min),
 	POWER_SUPPLY_ATTR(voltage_max_design),
 	POWER_SUPPLY_ATTR(voltage_min_design),
-/* BEGIN: kidong0420.kim@lge.com 2011-10-17 display the battery voltage as mV unit */
+/*                                                                                 */
 	#ifdef CONFIG_MACH_LGE
 	POWER_SUPPLY_ATTR(batt_vol),
 	#else/*QCT_ORG*/
 	POWER_SUPPLY_ATTR(voltage_now),
-	#endif/*CONFIG_MACH_LGE */
-/* END: kidong0420.kim@lge.com 2011-10-17 */
+	#endif/*                */
+/*                                        */
 	POWER_SUPPLY_ATTR(voltage_avg),
 	POWER_SUPPLY_ATTR(current_max),
 	POWER_SUPPLY_ATTR(current_now),
@@ -379,15 +379,15 @@ static struct device_attribute power_supply_attrs[] = {
 	PSEUDO_BATT_ATTR(pseudo_batt),
 	BLOCK_CHARGING_ATTR(block_charging),
 	POWER_SUPPLY_ATTR(ext_pwr),
-/* LGE_S kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 	BMS_BATT_ATTR(bms_log),
-/* LGE_E kwangjae1.lee@lge.com 2012-06-11 Add bms debugger */
+/*                                                         */
 
 /*2012-07-11 Add battery present check in the testmode */
 	POWER_SUPPLY_ATTR(real_present),
 /*2012-07-11 Add battery present check in the testmode */
 #ifdef CONFIG_BATTERY_MAX17047
-/*doosan.baek@lge.com 20121108 Add battery condition */
+/*                                                   */
 	POWER_SUPPLY_ATTR(battery_condition),
 	POWER_SUPPLY_ATTR(battery_age),
 #endif

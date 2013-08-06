@@ -268,6 +268,11 @@ int wl_cfg80211_set_p2p_ps(struct net_device *net, char* buf, int len)
 { return 0; }
 #endif /* WL_CFG80211 */
 
+#if defined(CUSTOMER_HW10)
+extern int dhdsdio_func_blocksize(dhd_pub_t *dhd, int function_num, int block_size);
+extern struct wl_priv *wlcfg_drv_priv;
+#endif
+
 extern int dhd_os_check_wakelock(void *dhdp);
 extern int dhd_os_check_if_up(void *dhdp);
 extern void *bcmsdh_get_drvdata(void);
@@ -1263,6 +1268,15 @@ int wl_android_wifi_on(struct net_device *dev)
 	int ret = 0;
 	int retry = POWERUP_MAX_RETRY;
 
+#if defined(CUSTOMER_HW10)
+	struct wl_priv *wl = wlcfg_drv_priv;
+	dhd_pub_t *dhd = NULL;
+
+	if (wl) {
+		dhd = (dhd_pub_t *)(wl->pub);
+	}
+#endif
+
 	printk("%s in\n", __FUNCTION__);
 	if (!dev) {
 		DHD_ERROR(("%s: dev is null\n", __FUNCTION__));
@@ -1292,6 +1306,13 @@ int wl_android_wifi_on(struct net_device *dev)
 			goto exit;
 		}
 #endif
+
+#if defined(CUSTOMER_HW10) && defined(USE_DYNAMIC_F2_BLKSIZE)
+		if (wl && dhd && wl_get_drv_status(wl, AP_CREATING, dev)) {
+			dhdsdio_func_blocksize(dhd, 2, DYNAMIC_F2_BLKSIZE_FOR_NONLEGACY);
+		}
+#endif /* CUSTOMER_HW4 && USE_DYNAMIC_F2_BLKSIZE */
+
 		sdioh_start(NULL, 1);
 		if (!ret) {
 			if (dhd_dev_init_ioctl(dev) < 0)

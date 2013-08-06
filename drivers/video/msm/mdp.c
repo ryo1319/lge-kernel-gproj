@@ -52,6 +52,18 @@ uint32 mdp4_extn_disp;
 static struct clk *mdp_clk;
 static struct clk *mdp_pclk;
 static struct clk *mdp_lut_clk;
+
+struct res_mmu_clk {
+	char *mmu_clk_name;
+	struct clk *mmu_clk;
+};
+
+static struct res_mmu_clk mdp_sec_mmu_clks[] = {
+	{"mdp_iommu_clk"}, {"rot_iommu_clk"},
+	{"vcodec_iommu0_clk"}, {"vcodec_iommu1_clk"},
+	{"smmu_iface_clk"}
+};
+
 int mdp_rev;
 int mdp_iommu_split_domain;
 u32 mdp_max_clk = 200000000;
@@ -193,6 +205,44 @@ uint32_t mdp_block2base(uint32_t block)
 		break;
 	}
 	return base;
+}
+int mdp_enable_iommu_clocks(void)
+{
+	int ret = 0, i;
+	for (i = 0; i < ARRAY_SIZE(mdp_sec_mmu_clks); i++) {
+		mdp_sec_mmu_clks[i].mmu_clk = clk_get(&mdp_init_pdev->dev,
+			mdp_sec_mmu_clks[i].mmu_clk_name);
+		if (IS_ERR(mdp_sec_mmu_clks[i].mmu_clk)) {
+			pr_err(" %s: Get failed for clk %s", __func__,
+				   mdp_sec_mmu_clks[i].mmu_clk_name);
+			ret = PTR_ERR(mdp_sec_mmu_clks[i].mmu_clk);
+			break;
+		}
+		ret = clk_prepare_enable(mdp_sec_mmu_clks[i].mmu_clk);
+		if (ret) {
+			clk_put(mdp_sec_mmu_clks[i].mmu_clk);
+			mdp_sec_mmu_clks[i].mmu_clk = NULL;
+		}
+	}
+	if (ret) {
+		for (i--; i >= 0; i--) {
+			clk_disable_unprepare(mdp_sec_mmu_clks[i].mmu_clk);
+			clk_put(mdp_sec_mmu_clks[i].mmu_clk);
+			mdp_sec_mmu_clks[i].mmu_clk = NULL;
+		}
+	}
+	return ret;
+}
+
+int mdp_disable_iommu_clocks(void)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(mdp_sec_mmu_clks); i++) {
+		clk_disable_unprepare(mdp_sec_mmu_clks[i].mmu_clk);
+		clk_put(mdp_sec_mmu_clks[i].mmu_clk);
+		mdp_sec_mmu_clks[i].mmu_clk = NULL;
+	}
+	return 0;
 }
 
 static uint32_t mdp_pp_block2hist_lut(uint32_t block)
@@ -493,8 +543,8 @@ extern uint32 p_lg_qc_lcdc_lut[];
 extern int g_kcal_r;
 extern int g_kcal_g;
 extern int g_kcal_b;
-#endif /* CONFIG_LGE_KCAL_QLUT */
-#endif /* CONFIG_LGE_QC_LCDC_LUT */
+#endif /*                      */
+#endif /*                        */
 
 static int mdp_lut_hw_update(struct fb_cmap *cmap)
 {
@@ -590,9 +640,9 @@ static int mdp_lut_update_lcdc(struct fb_info *info, struct fb_cmap *cmap)
 	}
 
        /*
-        * 2012.11.09, hyuk.myeong@lge.com
-        * this code doesn't work everytime
-	 * out = inpdw(MDP_BASE + 0x90070);
+                                         
+                                          
+                                    
         */
 	/*mask off non LUT select bits*/
 	out = inpdw(MDP_BASE + 0x90070) & ~((0x1 << 10) | 0x7);
@@ -1715,7 +1765,9 @@ void mdp_clk_ctrl(int on)
 			mdp_clk_cnt--;
 			if (mdp_clk_cnt == 0)
 				mdp_clk_disable_unprepare();
-		}
+		} else
+			pr_err("%s: %d: mdp clk off is invalid\n",
+			       __func__, __LINE__);
 	}
 	pr_debug("%s: on=%d cnt=%d\n", __func__, on, mdp_clk_cnt);
 	mutex_unlock(&mdp_suspend_mutex);
@@ -2543,7 +2595,6 @@ static int mdp_probe(struct platform_device *pdev)
 #if defined(CONFIG_FB_MSM_MIPI_DSI) && defined(CONFIG_FB_MSM_MDP40)
 	struct mipi_panel_info *mipi;
 #endif
-	unsigned int mdp_r = 0;
 
 	if ((pdev->id == 0) && (pdev->num_resources > 0)) {
 		mdp_init_pdev = pdev;
@@ -2565,14 +2616,6 @@ static int mdp_probe(struct platform_device *pdev)
 		}
 
 		mdp_rev = mdp_pdata->mdp_rev;
-		if (mdp_rev == MDP_REV_42) {
-			mdp_r = inpdw(MDP_BASE + 0x0);
-			mdp_r = ((mdp_r & 0x30000) >> 16);
-			if (mdp_r == 3) {
-				mdp_rev = MDP_REV_43;
-				mdp_pdata->mdp_rev = MDP_REV_43;
-			}
-		}
 
 		mdp_iommu_split_domain = mdp_pdata->mdp_iommu_split_domain;
 

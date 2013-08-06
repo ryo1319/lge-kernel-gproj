@@ -269,9 +269,9 @@
  */
 
 /* 
- * DGMS MC-C05702-7 : Apply Autorun
- * CONFIG_USB_G_LGE_ANDROID_AUTORUN
- * CONFIG_USB_G_LGE_ANDROID_AUTORUN_LGE
+                                   
+                                   
+                                       
  */
 
 /* #define VERBOSE_DEBUG */
@@ -322,9 +322,9 @@ static const char fsg_string_interface[] = "Mass Storage";
 
 #define FUNCTION_NAME "cdrom_storage"
 
-/* Belows are LGE-customized SCSI cmd and
- * sub-cmd for autorun processing.
- * 2011-03-09, hyunhui.park@lge.com
+/*                                       
+                                  
+                                   
  */
 #define SC_LGE_SPE              0xF1
 #define SUB_CODE_MODE_CHANGE    0x01
@@ -359,7 +359,7 @@ static const char fsg_string_interface[] = "Mass Storage";
 #define SUB_ACK_STATUS_CGO      0x04
 #define SUB_ACK_STATUS_TET      0x05
 #define SUB_ACK_STATUS_PTP      0x06
-#endif /* CONFIG_USB_G_LGE_ANDROID_AUTORUN */
+#endif /*                                  */
 
 #include "storage_common.c"
 
@@ -373,9 +373,9 @@ struct fsg_dev;
 struct fsg_common;
 
 #ifdef CONFIG_USB_G_LGE_ANDROID_AUTORUN
-/* Belows are uevent string to communicate with
- * android framework and application.
- * 2011-03-09, hyunhui.park@lge.com
+/*                                             
+                                     
+                                   
  */
 static char *envp_ack[2] = {"AUTORUN=ACK", NULL};
 
@@ -528,7 +528,7 @@ struct fsg_common {
 	char inquiry_string[8 + 16 + 4 + 1];
 
 #ifdef CONFIG_USB_G_LGE_ANDROID_AUTORUN
-	/* LGE-customized USB mode */
+	/*                         */
 	enum chg_mode_state mode_state;
 #endif
 
@@ -699,7 +699,7 @@ static void bulk_in_complete(struct usb_ep *ep, struct usb_request *req)
 	if (req->status == -ECONNRESET)		/* Request was cancelled */
 		usb_ep_fifo_flush(ep);
 
-#if 1// def CONFIG_USB_G_LGE_ANDROID - Temporary fixing for Qualcomm Test Code
+#if 1//                                                                       
     if (!common) {
 		pr_info("QCT_TESTCODE %s: Driver_data is already free!!\n", __func__);
 		return;
@@ -733,7 +733,7 @@ static void bulk_out_complete(struct usb_ep *ep, struct usb_request *req)
 	if (req->status == -ECONNRESET)		/* Request was cancelled */
 		usb_ep_fifo_flush(ep);
 	
-#if 1// def CONFIG_USB_G_LGE_ANDROID - Temporary fixing for Qualcomm Test Code
+#if 1//                                                                       
     if (!common) {
 		pr_info("QCT_TESTCODE %s: Driver_data is already free!!\n", __func__);
 		return;
@@ -744,7 +744,7 @@ static void bulk_out_complete(struct usb_ep *ep, struct usb_request *req)
         return;
     }
 #endif
-#endif// jaegeun.jung@lge.com
+#endif//                     
 	
 	/* Hold the lock while we update the request and buffer states */
 	smp_wmb();
@@ -1432,8 +1432,8 @@ static int do_inquiry(struct fsg_common *common, struct fsg_buffhd *bh)
 }
 
 #ifdef CONFIG_USB_G_LGE_ANDROID_AUTORUN
-/* Add function which handles LGE-customized command from PC.
- * 2011-03-09, hyunhui.park@lge.com
+/*                                                           
+                                   
  */
 static int do_ack_status(struct fsg_common *common, struct fsg_buffhd *bh, u8 ack)
 {
@@ -2446,7 +2446,7 @@ static int do_scsi_command(struct fsg_common *common)
 			break;
 		} /* switch (common->cmnd[1]) */
 		break;
-#endif /* CONFIG_USB_G_LGE_ANDROID_AUTORUN */
+#endif /*                                  */
 
 	case MODE_SELECT:
 		common->data_size_from_cmnd = common->cmnd[4];

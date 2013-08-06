@@ -374,7 +374,9 @@ module_param(op_mode, int, 0644);
 extern int wl_control_wl_start(struct net_device *dev);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 struct semaphore dhd_registration_sem;
+#ifndef CUSTOMER_HW10 //                                                           
 struct semaphore dhd_chipup_sem;
+#endif
 int dhd_registration_check = FALSE;
 
 #define DHD_REGISTRATION_TIMEOUT  12000  /* msec : allowed time to finished dhd registration */
@@ -2209,6 +2211,19 @@ dhd_dpc_thread(void *data)
 	complete(&tsk->completed);
 #endif
 
+	//                                                                                                    
+	{
+		struct cpumask cpus;
+		DHD_ERROR(("%s: Enter  Set CPU Affinity only to cpu0\n", __func__));
+		cpumask_clear(&cpus);
+		cpumask_set_cpu(0, &cpus);				
+		if (sched_setaffinity(current->pid, &cpus))
+			DHD_ERROR(("%s: dhd_dpc() set CPU affinity failed\n",__func__));
+		else
+			DHD_ERROR(("%s: dhd_dpc() set CPU affinity Succeed	PID = %d\n",__func__, current->pid));
+	}
+	//                                                                                                     
+
 	/* Run until signal received */
 	while (1) {
 		if (down_interruptible(&tsk->sema) == 0) {
@@ -3047,9 +3062,11 @@ dhd_osl_detach(osl_t *osh)
 #if 1 && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	dhd_registration_check = FALSE;
 	up(&dhd_registration_sem);
+#ifndef CUSTOMER_HW10	//                                                           
 #if	defined(BCMLXSDMMC)
 	up(&dhd_chipup_sem);
 #endif
+#endif 
 #endif 
 }
 
@@ -3568,7 +3585,7 @@ bool dhd_is_concurrent_mode(dhd_pub_t *dhd)
 }
 
 
-/* LGE_patch : S : config file setting */
+/*                                     */
 #if defined(CONFIG_LGE_BCM433X_PATCH)
 #include <linux/fs.h>
 #include <linux/ctype.h>
@@ -3820,8 +3837,8 @@ err:
 	ret = -1;
 	goto out;
 }
-#endif /* CONFIG_LGE_BCM433X_PATCH */
-/* LGE_patch : E : config file setting */
+#endif /*                          */
+/*                                     */
 
 #if !defined(AP) && defined(WLP2P)
 /* From Android JerryBean release, the concurrent mode is enabled by default and the firmware
@@ -4372,9 +4389,9 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	dhd_wl_ioctl_cmd(dhd, WLC_SET_VAR, iovbuf, sizeof(iovbuf), TRUE, 0);
 #endif /* ENABLE_BCN_LI_BCN_WAKEUP */
 
-#if defined(CONFIG_LGE_BCM433X_PATCH)	/* LGE_patch : config file setting */
+#if defined(CONFIG_LGE_BCM433X_PATCH)	/*                                 */
 	dhd_preinit_config(dhd, 0);
-#endif /* CONFIG_LGE_BCM433X_PATCH */
+#endif /*                          */
 
 	/* query for 'ver' to get version info from firmware */
 	memset(buf, 0, sizeof(buf));
@@ -4939,7 +4956,9 @@ dhd_module_init(void)
 {
 	int error = 0;
 
-#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+//                                                           
+//#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+#if !defined(CUSTOMER_HW10) && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	int retry = POWERUP_MAX_RETRY;
 	int chip_up = 0;
 #endif 
@@ -4964,7 +4983,9 @@ dhd_module_init(void)
 	} while (0);
 #endif 
 
-#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+//                                                           
+//#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
+#if !defined(CUSTOMER_HW10) && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	do {
 		sema_init(&dhd_chipup_sem, 0);
 		dhd_bus_reg_sdio_notify(&dhd_chipup_sem);

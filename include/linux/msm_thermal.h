@@ -20,7 +20,7 @@ struct msm_thermal_data {
 	uint32_t limit_temp_degC;
 	uint32_t temp_hysteresis_degC;
 	uint32_t freq_step;
-#if defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GVDCM)
+#if defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX)
 	uint32_t limit_temp_degC_low;
 #endif	
 };

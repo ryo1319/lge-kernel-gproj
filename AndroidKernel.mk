@@ -75,7 +75,7 @@ $(TARGET_PREBUILT_INT_KERNEL): $(KERNEL_OUT) $(KERNEL_CONFIG) $(KERNEL_HEADERS_I
 	
 ifeq ($(PRODUCT_SUPPORT_EXFAT), y) 
 	@cp -f $(ANDROID_BUILD_TOP)/kernel/tuxera_update.sh $(ANDROID_BUILD_TOP)
-	@sh tuxera_update.sh --target target/lg.d/mobile-mtp --use-cache --latest --max-cache-entries 2 --source-dir $(ANDROID_BUILD_TOP)/kernel --output-dir $(ANDROID_BUILD_TOP)/$(KERNEL_OUT) -a --user lg-mobile --pass AumlTsj0ou
+	@sh tuxera_update.sh --target target/lg.d/mobile-mtp-3013.2.7.2 --use-cache --latest --max-cache-entries 2 --source-dir $(ANDROID_BUILD_TOP)/kernel --output-dir $(ANDROID_BUILD_TOP)/$(KERNEL_OUT) -a --user lg-mobile --pass AumlTsj0ou
 	@tar -xzf tuxera-exfat*.tgz
 	@mkdir -p $(TARGET_OUT_EXECUTABLES)
 	@cp $(ANDROID_BUILD_TOP)/tuxera-exfat*/exfat/kernel-module/texfat.ko $(ANDROID_BUILD_TOP)/$(TARGET_OUT_EXECUTABLES)/../lib/modules/
@@ -100,7 +100,7 @@ build_kernel:
         
 ifeq ($(PRODUCT_SUPPORT_EXFAT), y)
 	@cp -f $(ANDROID_BUILD_TOP)/kernel/tuxera_update.sh $(ANDROID_BUILD_TOP)
-	@sh tuxera_update.sh --target target/lg.d/mobile-mtp --use-cache --latest --source-dir $(ANDROID_BUILD_TOP)/kernel --output-dir $(ANDROID_BUILD_TOP)/$(KERNEL_OUT) -a --user lg-mobile --pass AumlTsj0ou
+	@sh tuxera_update.sh --target target/lg.d/mobile-mtp-3013.2.7.2 --use-cache --latest --max-cache-entries 2 --source-dir $(ANDROID_BUILD_TOP)/kernel --output-dir $(ANDROID_BUILD_TOP)/$(KERNEL_OUT) -a --user lg-mobile --pass AumlTsj0ou
 	@tar -xzf tuxera-exfat*.tgz
 	@mkdir -p $(TARGET_OUT_EXECUTABLES)
 	@cp $(ANDROID_BUILD_TOP)/tuxera-exfat*/exfat/kernel-module/texfat.ko $(ANDROID_BUILD_TOP)/$(TARGET_OUT_EXECUTABLES)/../lib/modules/

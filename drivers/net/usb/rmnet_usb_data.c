@@ -201,7 +201,7 @@ static int rmnet_usb_bind(struct usbnet *usbnet, struct usb_interface *iface)
 		(int)bulk_in->desc.bEndpointAddress,
 		(int)bulk_out->desc.bEndpointAddress,
 		(int)(bulk_in->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK),
-		(int)(bulk_out->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)); //secheol.pyo@lge.com, Rmnet review.
+		(int)(bulk_out->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)); //                                  
 #endif		
 	/*change name of net device to rmnet_usbx here*/
 	strlcpy(usbnet->net->name, "rmnet_usb%d", IFNAMSIZ);

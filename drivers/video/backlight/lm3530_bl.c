@@ -28,7 +28,7 @@
 #include <mach/board_lge.h>
 #include <linux/earlysuspend.h>
 
-//LGE_UPDATE_S hojin.ryu@lge.com Exponential BL Setting applied 20120731
+//                                                                      
 #define MAX_LEVEL		0xFF	//255 out of 255(android)
 #define MIN_LEVEL 		0x6E	//110 out of 255(android)
 
@@ -37,7 +37,7 @@
 #define min_brightness_lm3530	0x36
 
 #define DEFAULT_FTM_BRIGHTNESS	0x36 
-//LGE_UPDATE_E hojin.ryu@lge.com Exponential BL Setting applied 20120731
+//                                                                      
 
 #define I2C_BL_NAME "lm3530"
 
@@ -118,19 +118,19 @@ static int lm3530_write_reg(struct i2c_client *client,
 
  //EJJ_ORG 0911 Exp. based LUT 0911
 /*
-//LGE_UPDATE_S hojin.ryu@lge.com Exponential BL mapping table 20120828
-static char mapped_value[146] = {
-	54, 54, 54, 54, 54, 54, 55, 55, 55, 56, 56, 57, 57, 57, 58, 58, 59, 59,
-	60, 61, 61, 62, 63, 63, 64, 65, 65, 66, 67, 68, 68, 69, 70, 70, 71, 72,
-	72, 73, 74, 74, 75, 76, 76, 78, 79, 80, 80, 81, 82, 82, 83, 84, 84, 85,
-	86, 86, 87, 88, 88, 88, 89, 90, 90, 91, 92, 92, 92, 93, 94, 94, 95, 95,
-	96, 96, 97, 97, 97, 98, 98, 98, 99, 99, 99, 100, 100, 101, 102, 102, 103,
-	103, 104, 104, 105, 105, 105, 105, 106, 106, 107, 108, 108, 108, 109, 109,
-	109, 110, 110, 110, 111, 111, 111, 112, 112, 112, 113, 113, 114, 114, 114,
-	115, 115, 115, 116, 116, 116, 117, 117, 118, 118, 118, 119, 119, 119, 119,
-	120, 120, 120, 121, 121, 121, 121, 122, 122, 122, 123, 123};
-//LGE_UPDATE_S hojin.ryu@lge.com Exponential BL mapping table 20120828
- //EJJ_ORG 0911 
+                                                                      
+                                 
+                                                                        
+                                                                        
+                                                                        
+                                                                        
+                                                                          
+                                                                           
+                                                                           
+                                                                           
+                                                             
+                                                                      
+                
  */
 //EJJ_ADD 0921 Linear based Tune #3
 	static char mapped_value[146] = {	
@@ -146,7 +146,7 @@ static char mapped_value[146] = {
 		79 	,80 ,82	,83	,85	,87	,88	,90	,91	,92	,94 };
 //EJJ_ADD 0921 Linear based Tune #3
 
-//LGE_UPDATE_S hojin.ryu@lge.com Exponential BL level applied 20120731
+//                                                                    
 static void lm3530_set_main_current_level(struct i2c_client *client, int level)
 {
 	struct lm3530_device *dev;
@@ -179,7 +179,7 @@ static void lm3530_set_main_current_level(struct i2c_client *client, int level)
 
 	mutex_unlock(&main_lm3530_dev->bl_mutex);
 }
-//LGE_UPDATE_S hojin.ryu@lge.com Exponential BL level applied 20120731
+//                                                                    
 
 void lm3530_backlight_on(int level)
 {

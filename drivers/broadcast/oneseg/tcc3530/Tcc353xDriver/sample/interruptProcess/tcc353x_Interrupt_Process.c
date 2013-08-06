@@ -28,7 +28,7 @@ unsigned int RingBufId = 0;
 extern TcpalSemaphore_t Tcc353xStreamSema;
 
 /* for overflow test */
-#define _DBG_CHK_OVERFLOW_CNT_
+//#define _DBG_CHK_OVERFLOW_CNT_
 I32U gOverflowcnt = 0;
 I32U gDbgIsrCnt = 0;
 
@@ -228,6 +228,15 @@ void Tcc353xInterruptGetStream(I32U _fifoSize)
 
 	totalSize = _fifoSize - (_fifoSize%188);
 
+	//                                                                           
+	//TcpalPrintErr((I08S *) "Tcc353xInterruptGetStream size[%d]\n", totalSize);
+
+	totalSize = (totalSize/188/4)*188*4;
+
+	if(totalSize > 188 * 87)
+		totalSize = 188 * 84;
+	//                                                                         
+
 	if(totalSize>=188) {
 		I32U nextwp;
 
@@ -276,6 +285,15 @@ void Tcc353xInterruptGetStream(I32U _fifoSize)
 	I32U writeSize = 0;
 
 	totalSize = _fifoSize - (_fifoSize%188);
+
+	//                                                                           
+	//TcpalPrintErr((I08S *) "Tcc353xInterruptGetStream size[%d]\n", totalSize);
+
+	totalSize = (totalSize/188/4)*188*4;
+
+	if(totalSize > 188 * 87)
+		totalSize = 188 * 84;
+	//                                                                         
 
 	if(totalSize>=188) {
 		Tcc353xApiStreamRead(0,

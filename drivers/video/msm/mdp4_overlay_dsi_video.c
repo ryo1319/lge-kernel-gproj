@@ -65,7 +65,6 @@ static struct vsycn_ctrl {
 	int blt_change;
 	int blt_free;
 	int blt_ctrl;
-	int sysfs_created;
 	struct mutex update_lock;
 	struct completion ov_comp;
 	struct completion dmap_comp;
@@ -327,14 +326,6 @@ void mdp4_dsi_video_wait4vsync(int cndx, long long *vtime)
 		return;
 	}
 
-#if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_WXGA_PT) || defined(CONFIG_FB_MSM_MIPI_HITACHI_VIDEO_HD_PT)
-	/* start timing generator & mmu if they are not started yet */
-	mdp4_overlay_dsi_video_start();
-#elif defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT) \
-       || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT_PANEL)
-//	mdp4_overlay_dsi_video_start();
-#endif
-
 	spin_lock_irqsave(&vctrl->spin_lock, flags);
 	if (vctrl->wait_vsync_cnt == 0)
 		INIT_COMPLETION(vctrl->vsync_comp);
@@ -408,10 +399,10 @@ static void mdp4_dsi_video_wait4ov(int cndx)
 			&vctrl->ov_comp, msecs_to_jiffies(100))){
 		pr_err("%s %d  TIMEOUT_\n", __func__, __LINE__);
 #ifdef CONFIG_MACH_LGE
-		/* LGE_CHANGE
-		 * Workaround for BLT hang issue
-		 * 2012-10-29, baryun.hwang@lge.com
-		 */
+		/*           
+                                  
+                                     
+   */
 		mdp4_dsi_video_blt_stop(vctrl->mfd);
 		mdp4_dsi_video_blt_start(vctrl->mfd);
 #endif
@@ -439,10 +430,13 @@ ssize_t mdp4_dsi_video_show_event(struct device *dev,
 		INIT_COMPLETION(vctrl->vsync_comp);
 	vctrl->wait_vsync_cnt++;
 	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
-	ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
-		msecs_to_jiffies(VSYNC_PERIOD * 2));
-	if (ret <= 0)
-		return -EBUSY;
+
+    ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
+            msecs_to_jiffies(VSYNC_PERIOD * 4));
+    if (ret <= 0) {
+           vctrl->wait_vsync_cnt = 0;
+           return -EBUSY;
+    }
 
 	spin_lock_irqsave(&vctrl->spin_lock, flags);
 	vsync_tick = ktime_to_ns(vctrl->vsync_time);
@@ -591,10 +585,14 @@ int mdp4_dsi_video_on(struct platform_device *pdev)
 	pipe->mfd = mfd;
 #endif
 
+	atomic_set(&vctrl->suspend, 0);
+
 	if (!(mfd->cont_splash_done)) {
+		long long vtime;
+
 		mfd->cont_splash_done = 1;
-		mdp4_dsi_video_wait4dmap_done(0);
 		MDP_OUTP(MDP_BASE + DSI_VIDEO_BASE, 0);
+		mdp4_dsi_video_wait4vsync(0, &vtime);
 		mipi_dsi_controller_cfg(0);
 	}
 
@@ -618,8 +616,6 @@ int mdp4_dsi_video_on(struct platform_device *pdev)
 	pipe->dst_w = fbi->var.xres;
 
 	mdp4_overlay_mdp_pipe_req(pipe, mfd);
-
-	atomic_set(&vctrl->suspend, 0);
 
 	mdp4_overlay_dmap_xy(pipe);	/* dma_p */
 	mdp4_overlay_dmap_cfg(mfd, 1);
@@ -709,6 +705,14 @@ int mdp4_dsi_video_on(struct platform_device *pdev)
 
 	mdp_histogram_ctrl_all(TRUE);
 
+#if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_WXGA_PT) \
+    || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT) \
+    || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT_PANEL)
+//    mdp4_overlay_dsi_video_start();//remove set other position in this file
+#else
+    mdp4_overlay_dsi_video_start();
+#endif
+
 	return ret;
 }
 
@@ -730,12 +734,6 @@ int mdp4_dsi_video_off(struct platform_device *pdev)
 #endif
 
 	printk(KERN_INFO "[LCD][DEBUG] %s is started.. \n", __func__);
-
-	mfd = (struct msm_fb_data_type *)platform_get_drvdata(pdev);
-	vctrl = &vsync_ctrl_db[cndx];
-	pipe = vctrl->base_pipe;
-
-	mutex_lock(&mfd->dma->ov_mutex);
 
 #if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_WXGA_PT) \
        || defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT) \
@@ -760,12 +758,19 @@ int mdp4_dsi_video_off(struct platform_device *pdev)
 	printk(KERN_INFO "[LCD][DEBUG] %s : mipi_lgit_lcd_off retry_cnt = %d\n", __func__, retry_cnt);
 #endif
 
+	mfd = (struct msm_fb_data_type *)platform_get_drvdata(pdev);
+	vctrl = &vsync_ctrl_db[cndx];
+	pipe = vctrl->base_pipe;
+
 	atomic_set(&vctrl->suspend, 1);
 	atomic_set(&vctrl->vsync_resume, 0);
 
 	msleep(20);	/* >= 17 ms */
 
-	complete_all(&vctrl->vsync_comp);
+	if (vctrl->wait_vsync_cnt) {
+		complete_all(&vctrl->vsync_comp);
+		vctrl->wait_vsync_cnt = 0;
+	}
 
 	if (pipe->ov_blt_addr) {
 		spin_lock_irqsave(&vctrl->spin_lock, flags);
@@ -796,6 +801,8 @@ int mdp4_dsi_video_off(struct platform_device *pdev)
 		 */
 		vp->update_cnt = 0;     /* empty queue */
 	}
+
+	mutex_lock(&mfd->dma->ov_mutex);
 
 	if (pipe) {
 		/* sanity check, free pipes besides base layer */

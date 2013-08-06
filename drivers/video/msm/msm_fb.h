@@ -53,6 +53,7 @@ struct disp_info_type_suspend {
 	boolean op_enable;
 	boolean sw_refreshing_enable;
 	boolean panel_power_on;
+	boolean op_suspend;
 };
 
 struct msmfb_writeback_data_list {
@@ -191,6 +192,8 @@ struct msm_fb_data_type {
 	int cont_splash_done;
 	void *cpu_pm_hdl;
 	int vsync_sysfs_created;
+	uint32 sec_mapped;
+	uint32 sec_active;
 };
 
 struct dentry *msm_fb_get_debugfs_root(void);

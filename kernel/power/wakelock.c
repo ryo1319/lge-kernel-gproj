@@ -421,7 +421,7 @@ static void suspend(struct work_struct *work)
 			pr_info("suspend: pm_suspend returned with no event\n");
 		wake_lock_timeout(&unknown_wakeup, HZ / 2);
 	}
-	save_suspend_step(SUSPEND_EXITDONE);  // LGE_UPDATE
+	save_suspend_step(SUSPEND_EXITDONE);  //           
 #ifdef CONFIG_MACH_LGE
 	end_monitor_blocking(wakelock_monitor_id);
 #endif

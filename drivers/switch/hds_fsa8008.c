@@ -54,12 +54,12 @@
 
 #ifdef CONFIG_LGE_AUX_NOISE
 /*
- * 2012-07-20, bob.cho@lge.com
- * extern api to remove aux noise
+                              
+                                 
  */
 #include <mach/board_lge.h>
 #include "../../sound/soc/codecs/wcd9310.h"
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 #undef  LGE_HSD_DEBUG_PRINT /*TODO*/
 #define LGE_HSD_DEBUG_PRINT /*TODO*/
 #undef  LGE_HSD_ERROR_PRINT
@@ -211,11 +211,11 @@ static void insert_headset(struct hsd_info *hi)
 		HSD_DBG("3 polarity earjack");
 		#ifdef CONFIG_LGE_AUX_NOISE
 				/*
-				 * 2012-07-20, bob.cho@lge.com
-				 * call api to remove aux noise when headset inserted
-				 */
+                                  
+                                                         
+     */
 				tabla_codec_hph_pa_ctl(TABLA_EVENT_HEADSET_INSERT);
-		#endif /*CONFIG_LGE_AUX_NOISE*/
+		#endif /*                    */
 
 		atomic_set(&hi->is_3_pole_or_not, 1);
 
@@ -266,11 +266,11 @@ static void remove_headset(struct hsd_info *hi)
 		hi->set_headset_mic_bias(FALSE);
 #ifdef CONFIG_LGE_AUX_NOISE	
 		/*
-		 * 2012-07-20, bob.cho@lge.com
-		 * call api to remove aux noise when headset removed
-		 */
+                                
+                                                      
+   */
 		tabla_codec_hph_pa_ctl(TABLA_EVENT_HEADSET_REMOVAL);
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 
 	atomic_set(&hi->is_3_pole_or_not, 1);
 	mutex_lock(&hi->mutex_lock);
@@ -360,7 +360,7 @@ static irqreturn_t gpio_irq_handler(int irq, void *dev_id)
 
 #ifdef CONFIG_FSA8008_USE_LOCAL_WORK_QUEUE
 
-#if 1 //def CONFIG_MACH_LGE_I_BOARD_DCM
+#if 1 //                               
 	queue_delayed_work(local_fsa8008_workqueue, &(hi->work), HZ/2 /* 500ms */);
 #else
 	queue_delayed_work(local_fsa8008_workqueue, &(hi->work), 0);
@@ -368,7 +368,7 @@ static irqreturn_t gpio_irq_handler(int irq, void *dev_id)
 
 #else
 
-#if 1 //def CONFIG_MACH_LGE_I_BOARD_DCM
+#if 1 //                               
 	schedule_delayed_work(&(hi->work), HZ/2 /* 500ms */);
 #else
 	schedule_delayed_work(&(hi->work), 0);

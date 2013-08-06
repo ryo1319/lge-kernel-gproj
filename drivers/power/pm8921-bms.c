@@ -31,7 +31,7 @@
 #include <linux/mutex.h>
 #include <linux/rtc.h>
 
-/* LGE_S jungshik.park@lge.com 2012-04-18 for bms debugging */
+/*                                                          */
 #ifdef LGE_BMS_DEBUG
 #define pr_bms_fmt(fmt) "[BMS:%s] " fmt, __func__
 #define dbg(fmt, ...) \
@@ -40,7 +40,7 @@
 #define dbg(fmt, ...) \
 	do {} while (0)
 #endif
-/* LGE_E jungshik.park@lge.com 2012-04-18 for bms debugging */
+/*                                                          */
 
 #ifdef CONFIG_LGE_PM
 /* When low(under 3.3V), happend blue screen. Just protect phone. */
@@ -195,7 +195,7 @@ struct pm8921_bms_chip {
 static DEFINE_MUTEX(soc_invalidation_mutex);
 static int shutdown_soc_invalid;
 static struct pm8921_bms_chip *the_chip;
-/* LGE_UPDATE jungshik.park@lge.com 2012-04-18 change default rbatt from 128 to 200 mOhms */
+/*                                                                                        */
 #define DEFAULT_RBATT_MOHMS			200
 #define DEFAULT_OCV_MICROVOLTS		3900000
 #define DEFAULT_CHARGE_CYCLES		0
@@ -1785,6 +1785,7 @@ static int charging_adjustments(struct pm8921_bms_chip *chip,
 static void very_low_voltage_check(struct pm8921_bms_chip *chip,
 					int ibat_ua, int vbat_uv)
 {
+#if !defined(CONFIG_BATTERY_MAX17047) && !defined(CONFIG_BATTERY_MAX17043)
 	/*
 	 * if battery is very low (v_cutoff voltage + 20mv) hold
 	 * a wakelock untill soc = 0%
@@ -1802,6 +1803,7 @@ static void very_low_voltage_check(struct pm8921_bms_chip *chip,
 		chip->low_voltage_wake_lock_held = 0;
 		wake_unlock(&chip->low_voltage_wake_lock);
 	}
+#endif
 }
 
 static int last_soc_est = -EINVAL;
@@ -2112,7 +2114,7 @@ static bool is_shutdown_soc_within_limits(struct pm8921_bms_chip *chip, int soc)
 * Last safe code for low volt under 5%.
 */
 
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 #define CUTOFF_SET		(3600000)
 #else
 #define CUTOFF_SET		(3350000)
@@ -2318,7 +2320,7 @@ static int calculate_state_of_charge(struct pm8921_bms_chip *chip,
 
 		chip->pon_ocv_uv = chip->last_ocv_uv;
 		chip->last_ocv_uv = new_ocv;
-#if 0//def CONFIG_LGE_PM
+#if 0//                 
 	/* In  95~100 percent during charged, We do not used  function charging_adjustments
 	   * Cause of, before EOC, retained 99%.
 	   */
@@ -2512,7 +2514,7 @@ static int report_state_of_charge(struct pm8921_bms_chip *chip)
 #endif
 
 #ifdef LGE_REPORT_SOC_ONE
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 	if(last_soc <= 10 )
 		return LGE_Report_ONE(chip,last_soc);
 #else

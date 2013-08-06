@@ -108,7 +108,7 @@ enum battery_type {
 	BATT_UNKNOWN = 0,
 	BATT_PALLADIUM,
 	BATT_DESAY,
-	BATT_LGE, /* LGE_UPDATE jungshik.park@lge.com 2012-04-18 battery type add */
+	BATT_LGE, /*                                                              */
 #ifdef CONFIG_LGE_PM
 	BATT_1900_LGE,
 	BATT_2100_LGE,
@@ -162,10 +162,10 @@ extern struct pm8921_bms_battery_data  LGE_2200_PMH_data;
 #if !defined(CONFIG_BATTERY_MAX17043) && !defined(CONFIG_BATTERY_MAX17047)
 #define BMS_SYSFS_RESET
 #endif
-//#define LGE_BMS_DEBUG
+//                     
 
 
-/* LGE_PM_E Added temp offset 5 Celsius kwangjae1.lee@lge.com */
+/*                                                            */
 /**
  * pm8921_bms_get_vsense_avg - return the voltage across the sense
  *				resitor in microvolts
