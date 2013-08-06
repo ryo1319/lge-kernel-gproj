@@ -120,49 +120,6 @@ struct mdp4_overlay_perf perf_current = {
 
 static struct ion_client *display_iclient;
 
-static int mdp4_map_sec_resource(struct msm_fb_data_type *mfd)
-{
-	int ret = 0;
-
-	if(!mfd)
-		pr_err("%s: mfd is invalid\n", __func__);
-
-	if (mfd->sec_mapped)
-		return 0;
-
-	ret = mdp_enable_iommu_clocks();
-	if (ret) {
-		pr_err("IOMMU clock enabled failed while open");
-		return ret;
-	}
-	ret = msm_ion_secure_heap(ION_HEAP(ION_CP_MM_HEAP_ID));
-	if (ret)
-		pr_err("ION heap secure failed heap id %d ret %d\n",
-			   ION_CP_MM_HEAP_ID, ret);
-	else
-		mfd->sec_mapped = 1;
-	mdp_disable_iommu_clocks();
-	return ret;
-}
-int mdp4_unmap_sec_resource(struct msm_fb_data_type *mfd)
-{
-	int ret = 0;
-	if(!mfd)
-		pr_err("%s: mfd is invalid\n", __func__);
-
-	if ((mfd->sec_mapped == 0) || (mfd->sec_active))
-		return 0;
-
-	ret = mdp_enable_iommu_clocks();
-	if (ret) {
-		pr_err("IOMMU clock enabled failed while close\n");
-		return ret;
-	}
-	msm_ion_unsecure_heap(ION_HEAP(ION_CP_MM_HEAP_ID));
-	mfd->sec_mapped = 0;
-	mdp_disable_iommu_clocks();
-	return ret;
-}
 
 /*
  * mdp4_overlay_iommu_unmap_freelist()
@@ -754,20 +711,22 @@ void mdp4_overlay_rgb_setup(struct mdp4_overlay_pipe *pipe)
 	mask = 0xFFFEFFFF;
 	pipe->op_mode = (pipe->op_mode & mask) | (curr & ~mask);
 #if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT)
-	//                                                                                    
+	//2012-11-20 taewonee.kim@lge.com : QCT pre patch for the inverted clone image [START]
 	if((pipe->mfd->panel_info.type != DTV_PANEL)&&(pipe->mfd->panel_info.type != WRITEBACK_PANEL))
-	//                                                                                  
+	//2012-11-20 taewonee.kim@lge.com : QCT pre patch for the inverted clone image [END]
 	{
 		if (panel_rotate_180 && (pipe->pipe_num == OVERLAY_PIPE_RGB1 || pipe->pipe_num == OVERLAY_PIPE_RGB2))
 		{
 			uint32 op_mode = pipe->op_mode | MDP4_OP_FLIP_UD | MDP4_OP_SCALEY_EN;
+
 			if (pipe->ext_flag & MDP_FLIP_UD)
 				op_mode &= ~MDP4_OP_FLIP_UD;
 
 			pipe->op_mode = op_mode;
 		}
 
-		dst_xy = (((pipe->mfd->panel_info.yres - pipe->dst_y - pipe->dst_h) << 16) | pipe->dst_x);
+		if ((pipe->op_mode & MDP4_OP_FLIP_UD) && pipe->mfd)
+			dst_xy = (((pipe->mfd->panel_info.yres - pipe->dst_y - pipe->dst_h) << 16) | pipe->dst_x);
 	}
 
 	if (!pipe->mfd)
@@ -872,10 +831,10 @@ void mdp4_overlay_vg_setup(struct mdp4_overlay_pipe *pipe)
 	char *vg_base;
 	uint32 frame_size, src_size, src_xy, dst_size, dst_xy;
 	uint32 format, pattern, luma_offset, chroma_offset;
-/*                                                                                                   */
+/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [S]*/
 /* This source code confirmed by QCT*/
 	uint32 mask, curr, addr;
-/*                                                                                                   */
+/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [E]*/
 	int pnum, ptype, i;
 	uint32_t block;
 
@@ -954,9 +913,9 @@ void mdp4_overlay_vg_setup(struct mdp4_overlay_pipe *pipe)
 
 
 #if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT)
-	//                                                                                    
+	//2012-11-20 taewonee.kim@lge.com : QCT pre patch for the inverted clone image [START]
 	if((pipe->mfd->panel_info.type != DTV_PANEL) && (pipe->mfd->panel_info.type != WRITEBACK_PANEL))
-	//                                                                                  
+	//2012-11-20 taewonee.kim@lge.com : QCT pre patch for the inverted clone image [END]
 	{
 		if (panel_rotate_180)
 		{
@@ -968,8 +927,11 @@ void mdp4_overlay_vg_setup(struct mdp4_overlay_pipe *pipe)
 			pipe->op_mode = op_mode;
 		}
 
-		dst_xy = (((pipe->mfd->panel_info.yres - pipe->dst_y - pipe->dst_h) << 16) | pipe->dst_x);
-		outpdw(MDP_BASE + 0xE0044, 0xe0fff);
+		if ((pipe->op_mode & MDP4_OP_FLIP_UD) && pipe->mfd)
+		{
+			dst_xy = (((pipe->mfd->panel_info.yres - pipe->dst_y - pipe->dst_h) << 16) | pipe->dst_x);
+			outpdw(MDP_BASE + 0xE0044, 0xe0fff);
+		}
 	}
 
 	if (!pipe->mfd)
@@ -997,7 +959,7 @@ void mdp4_overlay_vg_setup(struct mdp4_overlay_pipe *pipe)
 			&chroma_offset);
 	}
 
-/*                                                                                                   */
+/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [S]*/
 /* This source code confirmed by QCT*/
 	/* Ensure proper covert matrix loaded when color space swaps */
 	curr = inpdw(vg_base + 0x0058);
@@ -1016,7 +978,7 @@ void mdp4_overlay_vg_setup(struct mdp4_overlay_pipe *pipe)
 		mask = 0xFFFCF1FF;
 	}
 	pipe->op_mode = (pipe->op_mode & mask) | (curr & ~mask);
-/*                                                                                                   */
+/* 2012-11-29 wonhee.jeong@lge.com this code add to mdp tunning when start DMB in G, GK (apq8064) [E]*/
 
 	/* luma component plane */
 	outpdw(vg_base + 0x0010, pipe->srcp0_addr + luma_offset);
@@ -2069,6 +2031,7 @@ void mdp4_mixer_blend_setup(int mixer)
 	unsigned char *overlay_base;
 	uint32 c0, c1, c2;
 
+
 	d_pipe = ctrl->stage[mixer][MDP4_MIXER_STAGE_BASE];
 	if (d_pipe == NULL) {
 		pr_err("%s: Error: no bg_pipe at mixer=%d\n", __func__, mixer);
@@ -2128,9 +2091,6 @@ void mdp4_mixer_blend_setup(int mixer)
 				blend->op |= MDP4_BLEND_BG_INV_ALPHA;
 			} else
 				blend->op = MDP4_BLEND_BG_ALPHA_FG_CONST;
-				
-			blend->op |= MDP4_BLEND_BG_INV_ALPHA; //[QCT_PATCH][SR01036939] alpha blending error
-//                                                                            
 		} else if (d_alpha) {
 			ptype = mdp4_overlay_format2type(s_pipe->src_format);
 			if (ptype == OVERLAY_TYPE_VIDEO &&
@@ -3233,11 +3193,6 @@ int mdp4_overlay_set(struct fb_info *info, struct mdp_overlay *req)
 	}
 #endif
 
-        if (pipe->flags & MDP_SECURE_OVERLAY_SESSION) {
-                mdp4_map_sec_resource(mfd);
-                mfd->sec_active = TRUE;
-        }
-
 	/* return id back to user */
 	req->id = pipe->pipe_ndx;	/* pipe_ndx start from 1 */
 	pipe->req_data = *req;		/* keep original req */
@@ -3374,8 +3329,6 @@ int mdp4_overlay_unset(struct fb_info *info, int ndx)
 
 	mdp4_stat.overlay_unset[pipe->mixer_num]++;
 
-	if (pipe->flags & MDP_SECURE_OVERLAY_SESSION)
-		mfd->sec_active = FALSE;
 	mdp4_overlay_pipe_free(pipe);
 
 	mutex_unlock(&mfd->dma->ov_mutex);
@@ -3716,7 +3669,7 @@ int mdp4_overlay_commit(struct fb_info *info)
 	msm_fb_signal_timeline(mfd);
 
 	mdp4_overlay_mdp_perf_upd(mfd, 0);
-	mdp4_unmap_sec_resource(mfd);
+
 	mutex_unlock(&mfd->dma->ov_mutex);
 
 	return ret;
