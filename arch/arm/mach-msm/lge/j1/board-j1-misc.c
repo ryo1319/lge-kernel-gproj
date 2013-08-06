@@ -109,13 +109,13 @@ static int vibrator_gpio_init(void)
 	gpio_vibrator_en = GPIO_LIN_MOTOR_EN;
 	gpio_vibrator_pwm = GPIO_LIN_MOTOR_PWM;
 /*
-	if (lge_get_board_revno() == HW_REV_B) {
-#ifdef CONFIG_LGE_ISA1200
-		gpio_vibrator_pwm = 4;
-#endif
-	}
-	gpio_vibrator_en = 33;
-	gpio_vibrator_pwm = 3;*/
+                                         
+                         
+                        
+      
+  
+                       
+                       */
 	return 0;
 }
 #endif
@@ -501,10 +501,10 @@ static struct mhl_platform_data sii8334_mhl_pdata = {
 #define I2C_RUMI (1 << 2)
 #define I2C_SIM  (1 << 3)
 #define I2C_LIQUID (1 << 4)
-/* LGE_UPDATE_S. 02242012. jihyun.lee@lge.com
-   Add mach_mask for I2C */
+/*                                           
+                         */
 #define I2C_J1V (1 << 5)
-/* LGE_UPDATE_E */
+/*              */
 
 #define MHL_I2C_DEVICE_TYPE "SiI-833x"
 
@@ -627,7 +627,7 @@ void __init apq8064_init_misc(void)
 #endif
 
 #if defined(CONFIG_ANDROID_VIBRATOR)
-#if defined(CONFIG_MACH_APQ8064_J1V) || defined(CONFIG_MACH_APQ8064_J1U) || defined(CONFIG_MACH_APQ8064_J1A) || defined(CONFIG_MACH_APQ8064_J1SP) || defined(CONFIG_MACH_APQ8064_J1D) || defined(CONFIG_MACH_APQ8064_J1SK) || defined(CONFIG_MACH_APQ8064_J1KT) || defined(CONFIG_MACH_APQ8064_J1KD) || defined(CONFIG_MACH_APQ8064_J1R) || defined(CONFIG_MACH_APQ8064_J1B)|| defined(CONFIG_MACH_APQ8064_J1VD)|| defined(CONFIG_MACH_APQ8064_J1X)|| defined(CONFIG_MACH_APQ8064_J1TL) || defined(CONFIG_MACH_APQ8064_J1TM) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKATT)
+#if defined(CONFIG_MACH_APQ8064_J1V) || defined(CONFIG_MACH_APQ8064_J1U) || defined(CONFIG_MACH_APQ8064_J1A) || defined(CONFIG_MACH_APQ8064_J1SP) || defined(CONFIG_MACH_APQ8064_J1D) || defined(CONFIG_MACH_APQ8064_J1SK) || defined(CONFIG_MACH_APQ8064_J1KT) || defined(CONFIG_MACH_APQ8064_J1KD) || defined(CONFIG_MACH_APQ8064_J1R) || defined(CONFIG_MACH_APQ8064_J1B)|| defined(CONFIG_MACH_APQ8064_J1VD)|| defined(CONFIG_MACH_APQ8064_J1X)|| defined(CONFIG_MACH_APQ8064_J1TL) || defined(CONFIG_MACH_APQ8064_J1TM) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 	if (vib_flag == 0) {
 		platform_add_devices(misc_devices, ARRAY_SIZE(misc_devices));
 	}

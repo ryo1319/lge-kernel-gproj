@@ -61,7 +61,7 @@
 
 #ifdef CONFIG_LGE_HANDLE_PANIC
 /*
- * Magic number for LGE Error handler
+                                     
  */
 #define LGE_ERROR_HANDLE_MAGIC_NUM	0xA97F2C46
 /*
@@ -69,7 +69,7 @@
  */
 #define LGE_ERROR_HANDLE_MAGIC_ADDR	0x18
 void *lge_error_handle_cookie_addr;
-#endif // CONFIG_LGE_HANDLE_PANIC
+#endif //                        
 
 static int restart_mode;
 void *restart_reason;
@@ -249,7 +249,7 @@ void lge_set_kernel_crash_magic(void)
 	else
 		__raw_writel(subsys_crash_magic, restart_reason);
 }
-#endif // CONFIG_LGE_HANDLE_PANIC
+#endif //                        
 static void msm_restart_prepare(const char *cmd)
 {
 #ifdef CONFIG_MSM_DLOAD_MODE
@@ -292,10 +292,10 @@ static void msm_restart_prepare(const char *cmd)
 				__raw_writel(0x77665500, restart_reason);
 			} else if (!strncmp(cmd, "recovery", 8)) {
 				__raw_writel(0x77665502, restart_reason);
-			/*LGE_CHANGE
-			  PC Sync - B&R : Add restart reason
-			  2012-05-21 woo.jung@lge.com
-			*/
+			/*          
+                                       
+                                
+   */
 	      	 	} else if (!strncmp(cmd, "--bnr_recovery", 14)) {
 	           		__raw_writel(0x77665555, restart_reason);
 				printk("--bnr_recovery\n");
@@ -308,9 +308,9 @@ static void msm_restart_prepare(const char *cmd)
 
 			/*[start] Power Off for Testmode(#250-105-1)*/	
 			} else if(!strncmp(cmd,"diag_power_off",14)) {
-			/*LGE_CHANGE_S 2012-08-11 jungwoo.yun@lge.com */
+			/*                                            */
 				pm8921_usb_pwr_enable(0); 
-			/*LGE_CHANGE_E 2012-08-11 jungwoo.yun@lge.com */
+			/*                                            */
 				__raw_writel(0x7766550F, restart_reason);
 			}
 			/*[end] Power Off for Testmode(#250-105-1)*/
@@ -333,7 +333,7 @@ static void msm_restart_prepare(const char *cmd)
 			__raw_writel(0x77665501, restart_reason);
 		}
 	}
-#endif // CONFIG_LGE_HANDLE_PANIC
+#endif //                        
 
 #ifdef CONFIG_LGE_PM
 	pr_notice("check battery fet\n");
@@ -380,7 +380,7 @@ static int __init msm_pmic_restart_init(void)
 {
 	int rc;
 #ifdef CONFIG_LGE_HANDLE_PANIC
-//	lge_error_handle_cookie_addr = MSM_IMEM_BASE + LGE_ERROR_HANDLE_MAGIC_ADDR;
+//                                                                            
 #endif
 
 	if (pmic_reset_irq != 0) {

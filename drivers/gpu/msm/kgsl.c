@@ -332,13 +332,16 @@ kgsl_create_context(struct kgsl_device_private *dev_priv)
 
 	context = kzalloc(sizeof(*context), GFP_KERNEL);
 
-	if (context == NULL)
+	if (context == NULL){
+		printk(KERN_ERR "kgsl_create_context :: kzalloc failed.\n");
 		return NULL;
+	}
 
 	while (1) {
 		if (idr_pre_get(&dev_priv->device->context_idr,
 				GFP_KERNEL) == 0) {
 			kfree(context);
+			printk(KERN_ERR "kgsl_create_context :: idr_pre_get failed.\n");
 			return NULL;
 		}
 
@@ -351,6 +354,7 @@ kgsl_create_context(struct kgsl_device_private *dev_priv)
 
 	if (ret) {
 		kfree(context);
+		printk(KERN_ERR "kgsl_create_context :: idr_get_new_above- return:%d \n",ret);
 		return NULL;
 	}
 
@@ -361,6 +365,7 @@ kgsl_create_context(struct kgsl_device_private *dev_priv)
 				KGSL_MEMSTORE_MAX);
 		idr_remove(&dev_priv->device->context_idr, id);
 		kfree(context);
+		printk(KERN_ERR "kgsl_create_context :: cannot have more than %d ctxs\n",KGSL_MEMSTORE_MAX);
 		return NULL;
 	}
 
@@ -439,6 +444,22 @@ void kgsl_timestamp_expired(struct work_struct *work)
 
 		list_del(&event->list);
 		kfree(event);
+	}
+
+	/* Send the next pending event for each context to the device */
+	if (device->ftbl->next_event) {
+		unsigned int id = KGSL_MEMSTORE_GLOBAL;
+
+		list_for_each_entry(event, &device->events, list) {
+
+			if (!event->context)
+				continue;
+
+			if (event->context->id != id) {
+				device->ftbl->next_event(device, event);
+				id = event->context->id;
+			}
+		}
 	}
 
 	mutex_unlock(&device->mutex);
@@ -1285,6 +1306,7 @@ static long kgsl_ioctl_drawctxt_create(struct kgsl_device_private *dev_priv,
 
 	if (context == NULL) {
 		result = -ENOMEM;
+		printk(KERN_ERR "kgsl_ioctl_drawctxt_create :: kgsl_create_context failed. \n");
 		goto done;
 	}
 
@@ -1292,8 +1314,10 @@ static long kgsl_ioctl_drawctxt_create(struct kgsl_device_private *dev_priv,
 		result = dev_priv->device->ftbl->drawctxt_create(
 			dev_priv->device, dev_priv->process_priv->pagetable,
 			context, param->flags);
-		if (result)
+		if (result){
+			printk(KERN_ERR "kgsl_ioctl_drawctxt_create :: ftbl->drawctxt_create failed.: %d\n",result);
 			goto done;
+		}
 	}
 	trace_kgsl_context_create(dev_priv->device, context, param->flags);
 	param->drawctxt_id = context->id;

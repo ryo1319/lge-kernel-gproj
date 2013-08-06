@@ -1,19 +1,19 @@
-/*===========================================================================
- *	FILE:
- *	hsic_debug_ch.h
- *
- *	DESCRIPTION:
- *	This module was created for MDM debugging. 
- *   If EMS feature enabled on MDM9x15, MDM9x15 sends some debugging message when mdm crash occured.
- *   APQ8064 received this message by using this module and print out debugging message before kernel panic.
- *   Basically this module operates only SSR level 1, and use hsic sysmon channel.
- *   
- *	Edit History:
- *	YYYY-MM-DD		who 						why
- *	-----------------------------------------------------------------------------
- *	2012-07-25	 	wj1208.jo@lge.com	  	Make new file
- *
- *==========================================================================================
+/*                                                                           
+        
+                  
+  
+               
+                                              
+                                                                                                    
+                                                                                                            
+                                                                                  
+     
+                
+                            
+                                                                                
+                                                  
+  
+                                                                                            
  */
 
 

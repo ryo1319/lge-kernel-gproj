@@ -42,7 +42,7 @@
 #endif
 
 
-#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT)
+#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 #define GPIO_EAR_SENSE_N             38
 #else
 #define GPIO_EAR_SENSE_N             82
@@ -57,10 +57,10 @@
 #define I2C_RUMI (1 << 2)
 #define I2C_SIM  (1 << 3)
 #define I2C_LIQUID (1 << 4)
-/* LGE_UPDATE_S. 02242012. jihyun.lee@lge.com
-   Add mach_mask for I2C */
+/*                                           
+                         */
 #define I2C_J1V (1 << 5)
-/* LGE_UPDATE_E */
+/*              */
 
 struct i2c_registry {
 	u8                     machs;
@@ -205,7 +205,7 @@ static int __init lge_hsd_fsa8008_init(void)
 #if defined(CONFIG_MACH_APQ8064_J1U)
     bd_rev = HW_REV_E;
 #endif
-#if defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKATT)
+#if defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
     bd_rev = HW_REV_E;
 #endif
 
@@ -217,7 +217,7 @@ static int __init lge_hsd_fsa8008_init(void)
         lge_bd_rev = lge_get_board_revno();
 
         if (lge_bd_rev >= bd_rev) {
-            lge_hs_pdata.set_headset_mic_bias = set_headset_mic_bias_l29; //[AUDIO_BSP], 20120730, sehwan.lee@lge.com PMIC L29 Control(because headset noise)
+            lge_hs_pdata.set_headset_mic_bias = set_headset_mic_bias_l29; //                                                                                 
             printk(KERN_INFO "lge_bd_rev : %d, >= bd_rev : %d, so set set_headset_mic_bias = NULL!!!\n", lge_bd_rev, bd_rev);
         }
         else {

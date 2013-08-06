@@ -33,7 +33,7 @@ static int __init mipi_lgit_lcd_init(void);
 
 #define DSV_ONBST 57
 
-//LGE_UPDATE_S hojin.ryu@lge.com 20120629 IEF On/Off function for camera preview
+//                                                                              
 #define LGIT_IEF_SWITCH
 
 #ifdef LGIT_IEF_SWITCH
@@ -78,7 +78,7 @@ int mipi_lgit_lcd_ief_on(void)
 	return 0;                                                                             
 } 
 #endif
-//LGE_UPDATE_E hojin.ryu@lge.com 20120629 IEF On/Off function for camera preview
+//                                                                              
 
  int mipi_lgit_lcd_on(struct platform_device *pdev)
 {

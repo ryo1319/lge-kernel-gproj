@@ -28,15 +28,15 @@
 #include "msm_cam_server.h"
 #include "msm_vfe32.h"
 
-//Start LGE_BSP_CAMERA::youngwook.song@lge.com WBT Error
+//                                                      
 #define BUFFER_SIZE_10 10
-//End LGE_BSP_CAMERA::youngwook.song@lge.com WBT Error
-//Start LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+//                                                    
+//                                                                                   
 #include <linux/syscalls.h>
 int BrightnessDownRatio = 3;
 int CurrentBrightnessValue;
 int ControlBrightnessValue;
-//End LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+//                                                                                 
 atomic_t irq_cnt;
 
 #define VFE32_AXI_OFFSET 0x0050
@@ -146,9 +146,9 @@ static struct vfe32_cmd_type vfe32_cmd[] = {
 		{VFE_CMD_EPOCH2_ACK},
 		{VFE_CMD_START_RECORDING},
 /*60*/	{VFE_CMD_STOP_RECORDING},
-//Start LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                          
 		{VFE_CMD_STOP_RECORDING_DONE},  //		{VFE_CMD_DUMMY_5},
-//End  LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                         
 		{VFE_CMD_DUMMY_6},
 		{VFE_CMD_CAPTURE, V32_CAPTURE_LEN, 0xFF},
 		{VFE_CMD_DUMMY_7},
@@ -717,7 +717,6 @@ static void axi_disable_irq(struct vfe_share_ctrl_t *share_ctrl,
 
 static void vfe32_stop(struct vfe32_ctrl_type *vfe32_ctrl)
 {
-
 	/* in either continuous or snapshot mode, stop command can be issued
 	 * at any time. stop camif immediately. */
 	if (!vfe32_ctrl->share_ctrl->dual_enabled)
@@ -1551,10 +1550,10 @@ static int vfe_stats_cs_buf_init(
 }
 
 static void vfe32_start_common(
-	struct msm_cam_media_controller *pmctl,  /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	struct msm_cam_media_controller *pmctl,  /*                                                                            */
 	struct vfe32_ctrl_type *vfe32_ctrl)
 {
-	pmctl->hardware_running = 1; /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	pmctl->hardware_running = 1; /*                                                                            */
 	CDBG("VFE opertaion mode = 0x%x, output mode = 0x%x\n",
 		vfe32_ctrl->share_ctrl->operation_mode,
 		vfe32_ctrl->share_ctrl->outpath.output_mode);
@@ -1584,14 +1583,14 @@ static int vfe32_stop_recording(
 	return 0;
 }
 
-//Start LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                          
 static void vfe32_stop_recording_done(
 	struct msm_cam_media_controller *pmctl,
 	struct vfe32_ctrl_type *vfe32_ctrl)
 {
 	msm_camio_bus_scale_cfg(pmctl->sdata->pdata->cam_bus_scale_table, S_PREVIEW);
 }
-//End  LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                         
 
 static void vfe32_start_liveshot(
 	struct msm_cam_media_controller *pmctl,
@@ -1621,7 +1620,7 @@ static int vfe32_zsl(
 	struct vfe32_ctrl_type *vfe32_ctrl)
 {
 	vfe32_ctrl->share_ctrl->start_ack_pending = TRUE;
-	vfe32_start_common(pmctl, vfe32_ctrl); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	vfe32_start_common(pmctl, vfe32_ctrl); /*                                                                            */
 
 	msm_camera_io_w(1, vfe32_ctrl->share_ctrl->vfebase + 0x18C);
 	msm_camera_io_w(1, vfe32_ctrl->share_ctrl->vfebase + 0x188);
@@ -1634,7 +1633,7 @@ static int vfe32_capture_raw(
 {
 	vfe32_ctrl->share_ctrl->outpath.out0.capture_cnt = num_frames_capture;
 	vfe32_ctrl->share_ctrl->vfe_capture_count = num_frames_capture;
-	vfe32_start_common(pmctl, vfe32_ctrl); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	vfe32_start_common(pmctl, vfe32_ctrl); /*                                                                            */
 	return 0;
 }
 
@@ -1658,10 +1657,9 @@ static int vfe32_capture(
 	}
 
 	vfe32_ctrl->share_ctrl->vfe_capture_count = num_frames_capture;
-
 	vfe32_ctrl->share_ctrl->vfe_capture_count = num_frames_capture;
 
-	vfe32_start_common(pmctl, vfe32_ctrl); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	vfe32_start_common(pmctl, vfe32_ctrl); /*                                                                            */
 	/* for debug */
 	msm_camera_io_w(1, vfe32_ctrl->share_ctrl->vfebase + 0x18C);
 	msm_camera_io_w(1, vfe32_ctrl->share_ctrl->vfebase + 0x188);
@@ -1672,7 +1670,7 @@ static int vfe32_start(
 	struct msm_cam_media_controller *pmctl,
 	struct vfe32_ctrl_type *vfe32_ctrl)
 {
-	vfe32_start_common(pmctl, vfe32_ctrl); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+	vfe32_start_common(pmctl, vfe32_ctrl); /*                                                                            */
 	return 0;
 }
 
@@ -2003,7 +2001,7 @@ static void vfe32_send_isp_msg(
 			(void *)&isp_msg_evt);
 }
 
-//Start LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+//                                                                                   
 static int atoi(const char *name)
 {
 	int val = 0;
@@ -2025,9 +2023,9 @@ static void Set_LCD_Brightness(int value)
     fd = sys_open("/sys/class/leds/lcd-backlight/brightness", O_RDWR | O_CREAT | O_APPEND, 0644);
     if (fd >= 0) {
         char buffer[10];
-//Start LGE_BSP_CAMERA::youngwook.song@lge.com WBT Error
+//                                                      
         int bytes = snprintf(buffer, BUFFER_SIZE_10, "%d\n", value);
-//End LGE_BSP_CAMERA::youngwook.song@lge.com WBT Error
+//                                                    
         sys_write(fd, buffer, bytes);
         sys_close(fd);
     }
@@ -2058,7 +2056,7 @@ static int Get_LCD_Brightness(void)
 	set_fs(old_fs);
 	return value;
 }
-//End LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+//                                                                                 
 static int vfe32_proc_general(
 	struct msm_cam_media_controller *pmctl,
 	struct msm_isp_cmd *cmd,
@@ -2080,7 +2078,7 @@ static int vfe32_proc_general(
 			vfe32_general_cmd[cmd->id]);
 		vfe32_ctrl->share_ctrl->vfe_reset_flag = true;
 		vfe32_reset(vfe32_ctrl);
-		pmctl->hardware_running = 0; /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+		pmctl->hardware_running = 0; /*                                                                            */
 		break;
 	case VFE_CMD_START:
 		pr_info("vfe32_proc_general: cmdID = %s\n",
@@ -2131,7 +2129,7 @@ static int vfe32_proc_general(
 	case VFE_CMD_START_RECORDING:
 		pr_info("vfe32_proc_general: cmdID = %s\n",
 			vfe32_general_cmd[cmd->id]);
-		//Start LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+		//                                                                                   
 		CurrentBrightnessValue = Get_LCD_Brightness();
 		if (CurrentBrightnessValue > 140)
 		{
@@ -2140,7 +2138,7 @@ static int vfe32_proc_general(
 			printk("[LCD_Control] Control LCD Brightness = %d\n",ControlBrightnessValue);
 		}
 		printk("[LCD_Control] Current LCD Brightness = %d\n",CurrentBrightnessValue);
-		//End LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+		//                                                                                 
 		rc = vfe32_start_recording(pmctl, vfe32_ctrl);
 		break;
 	case VFE_CMD_STOP_RECORDING:
@@ -2148,16 +2146,16 @@ static int vfe32_proc_general(
 			vfe32_general_cmd[cmd->id]);
 		rc = vfe32_stop_recording(pmctl, vfe32_ctrl);
 		break;		
-//Start LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                          
 	case VFE_CMD_STOP_RECORDING_DONE:
 		pr_info("vfe32_proc_general: cmdID = VFE_CMD_STOP_RECORDING_DONE\n");
-		//Start LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+		//                                                                                   
 		printk("[LCD_Control] Current LCD Brightness = %d\n",CurrentBrightnessValue);
 		Set_LCD_Brightness(CurrentBrightnessValue);
-		//End LGE_BSP_CAMERA::seongjo.kim@lge.com LCD Brightness down when camcording enter
+		//                                                                                 
 		vfe32_stop_recording_done(pmctl, vfe32_ctrl);
 		break;
-//End  LGE_BSP_CAMERA : iommu page fault patch for JB - jonghwan.ko@lge.com
+//                                                                         
 	case VFE_CMD_OPERATION_CFG: {
 		if (cmd->length != V32_OPERATION_CFG_LEN) {
 			rc = -EINVAL;
@@ -3181,7 +3179,7 @@ static int vfe32_proc_general(
 		}
 
 		vfe32_stop(vfe32_ctrl);
-		pmctl->hardware_running = 0; /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+		pmctl->hardware_running = 0; /*                                                                            */
 		break;
 
 	case VFE_CMD_SYNC_TIMER_SETTING:
@@ -4190,11 +4188,11 @@ static void vfe32_process_camif_sof_irq(
 	if (vfe32_ctrl->vfe_sof_count_enable)
 	{
 		vfe32_ctrl->share_ctrl->vfeFrameId++;
-//LGE_UPDATE_S 0828 add messages to debug timeout error yt.jeon@lge.com
+//                                                                     
 		if (vfe32_ctrl->share_ctrl->vfeFrameId < 15) {
 			pr_err("%s: SOF frame id %d\n", __func__, vfe32_ctrl->share_ctrl->vfeFrameId);
 		}
-//LGE_UPDATE_E 0828 add messages to debug timeout error yt.jeon@lge.com		
+//                                                                       
 	}
 
 	vfe32_send_isp_msg(&vfe32_ctrl->subdev,
@@ -5557,11 +5555,39 @@ static long msm_vfe_subdev_ioctl(struct v4l2_subdev *sd,
 	struct vfe_cmd_stats_buf *scfg = NULL;
 	struct vfe_cmd_stats_ack *sack = NULL;
 
+//                                                                                
+#if 0
 	if (!vfe32_ctrl->share_ctrl->vfebase) {
 		pr_err("%s: base address unmapped\n", __func__);
 		return -EFAULT;
 	}
-
+#else
+#if defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM)
+	if (!vfe32_ctrl->share_ctrl->vfebase) {
+		pr_err("%s: base address unmapped\n", __func__);
+		return -EFAULT;
+	}
+#else
+       if (!vfe32_ctrl->share_ctrl->vfebase ) {
+            if(arg) {
+               vfe_params = (struct msm_camvfe_params *)arg;
+               cmd = vfe_params->vfe_cfg;
+               if (cmd->cmd_type != VFE_CMD_STATS_REQBUF &&
+                   cmd->cmd_type != VFE_CMD_STATS_ENQUEUEBUF &&
+                   cmd->cmd_type != VFE_CMD_STATS_FLUSH_BUFQ &&
+                   cmd->cmd_type != VFE_CMD_STATS_UNREGBUF) {
+                   pr_err("%s: base address unmapped\n", __func__);
+                   return -EFAULT;
+               }
+            }
+       else
+                return -EFAULT;
+	   }
+#endif   	
+#endif	
+//                                                                               
+	
+	   
 	CDBG("%s\n", __func__);
 	if (subdev_cmd == VIDIOC_MSM_VFE_INIT) {
 		CDBG("%s init\n", __func__);
@@ -5898,15 +5924,36 @@ void msm_axi_subdev_release(struct v4l2_subdev *sd)
 	struct msm_cam_media_controller *pmctl =
 		(struct msm_cam_media_controller *)v4l2_get_subdev_hostdata(sd);
 	struct axi_ctrl_t *axi_ctrl = v4l2_get_subdevdata(sd);
+
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	mutex_lock(&axi_ctrl->state_mutex);
+	/*printk(KERN_DEBUG "%s : task = %s, pid = %d\n", __func__, current->comm, current->pid);*/
+#endif
+/*                                                                */
+
 	if (!axi_ctrl->share_ctrl->vfebase) {
 		pr_err("%s: base address unmapped\n", __func__);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto release_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	}
-	pr_err("%s called\n", __func__); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
+
+	pr_err("%s called\n", __func__); /*                                                                            */
 	CDBG("%s, free_irq\n", __func__);
 	axi_ctrl->share_ctrl->axi_ref_cnt--;
 	if (axi_ctrl->share_ctrl->axi_ref_cnt > 0)
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto release_ret;
+#else
 		return;
+#endif
+/*                                                                */
 
 	axi_clear_all_interrupts(axi_ctrl->share_ctrl);
 	axi_ctrl->share_ctrl->dual_enabled = 0;
@@ -5929,8 +5976,14 @@ void msm_axi_subdev_release(struct v4l2_subdev *sd)
 
 	msm_camio_bus_scale_cfg(
 		pmctl->sdata->pdata->cam_bus_scale_table, S_EXIT);
-	pr_err("%s called X\n", __func__); /* LGE_CHANGE, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */		
+	pr_err("%s called X\n", __func__); /*                                                                            */
 
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+release_ret:
+	mutex_unlock(&axi_ctrl->state_mutex);
+#endif
+/*                                                                */
 }
 
 void msm_vfe_subdev_release(struct v4l2_subdev *sd)
@@ -5950,6 +6003,18 @@ void axi_abort(struct axi_ctrl_t *axi_ctrl)
 	spin_lock_irqsave(&axi_ctrl->share_ctrl->stop_flag_lock, flags);
 	axi_ctrl->share_ctrl->stop_ack_pending  = TRUE;
 	spin_unlock_irqrestore(&axi_ctrl->share_ctrl->stop_flag_lock, flags);
+
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	mutex_lock(&axi_ctrl->state_mutex);
+	if (!axi_ctrl->share_ctrl->vfebase) {
+		pr_err("%s: base address unmapped\n", __func__);
+		goto abort_ret;
+	}
+	/*printk(KERN_DEBUG "%s : task = %s, pid = %d\n", __func__, current->comm, current->pid);*/
+#endif
+/*                                                                */
+
 	msm_camera_io_w(AXI_HALT,
 		axi_ctrl->share_ctrl->vfebase + VFE_AXI_CMD);
 	wmb();
@@ -5978,6 +6043,12 @@ void axi_abort(struct axi_ctrl_t *axi_ctrl)
 	if (axi_ctrl->share_ctrl->sync_abort)
 		wait_for_completion_interruptible(
 			&axi_ctrl->share_ctrl->reset_complete);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+abort_ret:
+	mutex_unlock(&axi_ctrl->state_mutex);
+#endif
+/*                                                                */
 }
 
 int axi_config_buffers(struct axi_ctrl_t *axi_ctrl,
@@ -6157,12 +6228,23 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 	uint32_t vfe_mode =
 		(axi_ctrl->share_ctrl->current_mode &
                ~(VFE_OUTPUTS_RDI0|VFE_OUTPUTS_RDI1|VFE_OUTPUTS_RDI2));
-       pr_err("axi start = %d\n",
-               axi_ctrl->share_ctrl->current_mode);
-
+   pr_err("axi start = %d\n",
+           axi_ctrl->share_ctrl->current_mode);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	mutex_lock(&axi_ctrl->state_mutex);
+	/*printk(KERN_DEBUG "%s : task = %s, pid = %d\n", __func__, current->comm, current->pid);*/
+#endif
+/*                                                                */
 	rc = axi_config_buffers(axi_ctrl, vfe_params);
 	if (rc < 0)
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto start_ret;
+#else
 		return;
+#endif
+/*                                                                */
 
 	switch (vfe_params.cmd_type) {
 	case AXI_CMD_PREVIEW:
@@ -6192,7 +6274,13 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 			msm_camio_bus_scale_cfg(
 			pmctl->sdata->pdata->cam_bus_scale_table,
 			bus_vector_idx);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto start_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	case AXI_CMD_ZSL:
 		if (!axi_ctrl->share_ctrl->dual_enabled)
 			msm_camio_bus_scale_cfg(
@@ -6202,9 +6290,21 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 		if (!axi_ctrl->share_ctrl->dual_enabled)
 			msm_camio_bus_scale_cfg(
 			pmctl->sdata->pdata->cam_bus_scale_table, S_LIVESHOT);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto start_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	default:
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto start_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	}
 	axi_enable_wm_irq(axi_ctrl->share_ctrl);
 
@@ -6371,11 +6471,19 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 		msm_camera_io_w((
 				0x1 << axi_ctrl->share_ctrl->outpath.out2.ch0),
 				axi_ctrl->share_ctrl->vfebase + VFE_BUS_CMD);
+/*                                                                                                  */
+#if defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+		msm_camera_io_w(0x3, axi_ctrl->share_ctrl->vfebase +
+			vfe32_AXI_WM_CFG[axi_ctrl->share_ctrl->
+			outpath.out2.ch0]);
+#else
 		msm_camera_io_w(0x1, axi_ctrl->share_ctrl->vfebase +
 			vfe32_AXI_WM_CFG[axi_ctrl->share_ctrl->
 			outpath.out2.ch0]);
-
+#endif
 		pr_err("%s: axi_ctrl->share_ctrl->outpath.out2.ch0 = %d\n",__func__, axi_ctrl->share_ctrl->outpath.out2.ch0);
+		pr_err("%s: Enable FrameBased for RDI0 \n",__func__);
+/*                                                                                                */
 	}
 	if (axi_ctrl->share_ctrl->current_mode & VFE_OUTPUTS_RDI1) {
 		axi_ctrl->share_ctrl->outpath.out3.capture_cnt =
@@ -6385,11 +6493,19 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 		msm_camera_io_w((
 				0x1 << axi_ctrl->share_ctrl->outpath.out3.ch0),
 				axi_ctrl->share_ctrl->vfebase + VFE_BUS_CMD);
+/*                                                                                                  */
+#if defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+		msm_camera_io_w(0x3, axi_ctrl->share_ctrl->vfebase +
+			vfe32_AXI_WM_CFG[axi_ctrl->share_ctrl->
+			outpath.out3.ch0]);
+#else
 		msm_camera_io_w(0x1, axi_ctrl->share_ctrl->vfebase +
 			vfe32_AXI_WM_CFG[axi_ctrl->share_ctrl->
 			outpath.out3.ch0]);
-
+#endif
 		pr_err("%s: axi_ctrl->share_ctrl->outpath.out3.ch0 = %d\n",__func__, axi_ctrl->share_ctrl->outpath.out3.ch0);
+		pr_err("%s: Enable FrameBased for RDI1 \n",__func__);
+/*                                                                                                */
 	}
 	if (axi_ctrl->share_ctrl->current_mode & VFE_OUTPUTS_RDI2) {
 		axi_ctrl->share_ctrl->outpath.out4.capture_cnt =
@@ -6438,6 +6554,12 @@ void axi_start(struct msm_cam_media_controller *pmctl,
 			VFE_REG_UPDATE_CMD);
 	axi_ctrl->share_ctrl->operation_mode |=
 		axi_ctrl->share_ctrl->current_mode;
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+start_ret:
+	mutex_unlock(&axi_ctrl->state_mutex);
+#endif
+/*                                                                */
 }
 
 void axi_stop(struct msm_cam_media_controller *pmctl,
@@ -6449,6 +6571,16 @@ void axi_stop(struct msm_cam_media_controller *pmctl,
 		VFE_OUTPUTS_RDI1|VFE_OUTPUTS_RDI2);
 	int bus_vector_idx = 0;
 
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	mutex_lock(&axi_ctrl->state_mutex);
+	if (!axi_ctrl->share_ctrl->vfebase) {
+		pr_err("%s: base address unmapped\n", __func__);
+		goto stop_ret;
+	}
+	/*printk(KERN_DEBUG "%s : task = %s, pid = %d\n", __func__, current->comm, current->pid);*/
+#endif
+/*                                                                */
 	switch (vfe_params.cmd_type) {
 	case AXI_CMD_PREVIEW:
 	case AXI_CMD_CAPTURE:
@@ -6457,7 +6589,13 @@ void axi_stop(struct msm_cam_media_controller *pmctl,
 		axi_ctrl->share_ctrl->cmd_type = vfe_params.cmd_type;
 		break;
 	case AXI_CMD_RECORD:
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto stop_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	case AXI_CMD_LIVESHOT:
 		if (!axi_ctrl->share_ctrl->dual_enabled) {
 			bus_vector_idx = S_VIDEO;
@@ -6469,16 +6607,34 @@ void axi_stop(struct msm_cam_media_controller *pmctl,
 			pmctl->sdata->pdata->cam_bus_scale_table,
 			bus_vector_idx);
 		}
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto stop_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	default:
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto stop_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	}
 
 	if (axi_ctrl->share_ctrl->stop_immediately) {
 		axi_disable_irq(axi_ctrl->share_ctrl,
 			axi_ctrl->share_ctrl->current_mode);
 		axi_stop_process(axi_ctrl->share_ctrl);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+		goto stop_ret;
+#else
 		return;
+#endif
+/*                                                                */
 	}
 
 	if (axi_ctrl->share_ctrl->current_mode & VFE_OUTPUTS_RDI0) {
@@ -6516,6 +6672,12 @@ void axi_stop(struct msm_cam_media_controller *pmctl,
 	}
 	msm_camera_io_w_mb(reg_update,
 		axi_ctrl->share_ctrl->vfebase + VFE_REG_UPDATE_CMD);
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+stop_ret:
+	mutex_unlock(&axi_ctrl->state_mutex);
+#endif
+/*                                                                */
 }
 
 static int msm_axi_config(struct v4l2_subdev *sd, void __user *arg)
@@ -7224,6 +7386,11 @@ static int __devinit vfe32_probe(struct platform_device *pdev)
 	vfe32_ctrl->pdev = pdev;
 	/*disable bayer stats by default*/
 	vfe32_ctrl->ver_num.main = 0;
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	mutex_init(&axi_ctrl->state_mutex);
+#endif
+/*                                                                */
 	return 0;
 
 vfe32_no_resource:

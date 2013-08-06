@@ -653,7 +653,7 @@ int subsystem_restart_dev(struct subsys_device *dev)
 		__subsystem_restart_dev(dev);
 		break;
 	case RESET_SOC:
-		// bluetooth.kang@lge.com  Force RIVA SSR level 3
+		//                                               
 		if (strncmp("wcnss", name, 5) == 0) {
 			__subsystem_restart_dev(dev);
 			break;	

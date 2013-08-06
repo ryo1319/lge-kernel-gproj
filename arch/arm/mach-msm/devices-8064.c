@@ -432,7 +432,7 @@ struct platform_device apq8064_device_qup_spi_gsbi5 = {
 	.num_resources	= ARRAY_SIZE(resources_qup_spi_gsbi5),
 	.resource	= resources_qup_spi_gsbi5,
 };
-#endif /* CONFIG_LGE_BROADCAST */
+#endif /*                      */
 #if defined( CONFIG_LGE_FELICA ) || defined(CONFIG_LGE_NFC_SONY_CXD2235AGG)
 static struct resource resources_uart_gsbi6[] = {
     {
@@ -487,7 +487,7 @@ struct platform_device apq8064_device_felica_gsbi3 = {
        .num_resources  = ARRAY_SIZE(resources_uart_felica_gsbi3),
        .resource       = resources_uart_felica_gsbi3,
 };
-#endif /* CONFIG_LGE_FELICA */
+#endif /*                   */
 
 static struct resource resources_qup_i2c_gsbi5[] = {
 	{
@@ -1147,7 +1147,13 @@ static struct resource resources_hsusb_host[] = {
 
 #if defined(CONFIG_MACH_APQ8064_GK_KR) || \
     defined(CONFIG_MACH_APQ8064_GKATT) || \
-    defined(CONFIG_MACH_APQ8064_GVDCM)
+    defined(CONFIG_MACH_APQ8064_GKOPENHK) || \
+    defined(CONFIG_MACH_APQ8064_GKOPENTW) || \
+    defined(CONFIG_MACH_APQ8064_GKSHBSG) || \
+    defined(CONFIG_MACH_APQ8064_GKOPENEU) || \
+    defined(CONFIG_MACH_APQ8064_GVDCM) || \
+    defined(CONFIG_MACH_APQ8064_GV_KR) || \
+    defined(CONFIG_MACH_APQ8064_GKTCLMX)
 #define HSIC_MDM2AP_PBLRDY       81
 #else	// for J1 project
 #define HSIC_MDM2AP_PBLRDY	 46

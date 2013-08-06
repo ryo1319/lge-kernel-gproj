@@ -57,7 +57,6 @@ static struct vsycn_ctrl {
 	int wait_vsync_cnt;
 	int blt_change;
 	int blt_free;
-	int sysfs_created;
 	struct mutex update_lock;
 	struct completion ov_comp;
 	struct completion dmap_comp;
@@ -382,10 +381,13 @@ ssize_t mdp4_lcdc_show_event(struct device *dev,
 		INIT_COMPLETION(vctrl->vsync_comp);
 	vctrl->wait_vsync_cnt++;
 	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
-	ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
-		msecs_to_jiffies(VSYNC_PERIOD * 2));
-	if (ret <= 0)
-		return -EBUSY;
+
+        ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
+               msecs_to_jiffies(VSYNC_PERIOD * 4));
+        if (ret <= 0) {
+               vctrl->wait_vsync_cnt = 0;
+               return -EBUSY;
+        }
 
 	spin_lock_irqsave(&vctrl->spin_lock, flags);
 	vsync_tick = ktime_to_ns(vctrl->vsync_time);
@@ -648,6 +650,7 @@ int mdp4_lcdc_on(struct platform_device *pdev)
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);
 
 	mdp_histogram_ctrl_all(TRUE);
+	mdp4_overlay_lcdc_start();
 
 	return ret;
 }
@@ -672,7 +675,10 @@ int mdp4_lcdc_off(struct platform_device *pdev)
 
 	msleep(20);	/* >= 17 ms */
 
-	complete_all(&vctrl->vsync_comp);
+	if (vctrl->wait_vsync_cnt) {
+		complete_all(&vctrl->vsync_comp);
+		vctrl->wait_vsync_cnt = 0;
+	}
 
 	if (pipe->ov_blt_addr) {
 		spin_lock_irqsave(&vctrl->spin_lock, flags);

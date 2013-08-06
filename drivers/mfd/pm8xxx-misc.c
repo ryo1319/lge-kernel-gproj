@@ -1160,7 +1160,7 @@ int pm8xxx_hsed_bias_control(enum pm8xxx_hsed_bias bias, bool enable)
 }
 EXPORT_SYMBOL(pm8xxx_hsed_bias_control);
 
-/*LGE_CHANGE_S 2012-08-11 jungwoo.yun@lge.com */
+/*                                            */
 int pm8921_usb_pwr_enable(int enable)
 {
 	
@@ -1194,7 +1194,7 @@ int pm8921_usb_pwr_enable(int enable)
 
 }
 EXPORT_SYMBOL(pm8921_usb_pwr_enable);
-/*LGE_CHANGE_E 2012-08-11 jungwoo.yun@lge.com */
+/*                                            */
 
 static int __devinit pm8xxx_misc_probe(struct platform_device *pdev)
 {

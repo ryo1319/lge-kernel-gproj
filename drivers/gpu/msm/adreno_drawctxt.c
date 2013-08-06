@@ -152,8 +152,10 @@ int adreno_drawctxt_create(struct kgsl_device *device,
 
 	drawctxt = kzalloc(sizeof(struct adreno_context), GFP_KERNEL);
 
-	if (drawctxt == NULL)
+	if (drawctxt == NULL){
+		printk(KERN_ERR "adreno_drawctxt_create :: kzalloc failed. \n");
 		return -ENOMEM;
+	}
 
 	drawctxt->pagetable = pagetable;
 	drawctxt->bin_base_offset = 0;
@@ -170,8 +172,10 @@ int adreno_drawctxt_create(struct kgsl_device *device,
 		drawctxt->flags |= CTXT_FLAGS_PER_CONTEXT_TS;
 
 	ret = adreno_dev->gpudev->ctxt_create(adreno_dev, drawctxt);
-	if (ret)
+	if (ret){
+		printk(KERN_ERR "adreno_drawctxt_create :: gpudev->ctxt_create failed.: %d \n",ret);
 		goto err;
+	}
 
 	kgsl_sharedmem_writel(&device->memstore,
 			KGSL_MEMSTORE_OFFSET(drawctxt->id, ref_wait_ts),

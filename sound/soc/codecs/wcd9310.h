@@ -185,15 +185,15 @@ extern int tabla_hs_detect(struct snd_soc_codec *codec,
 			   const struct tabla_mbhc_config *cfg);
 
 #ifdef CONFIG_SWITCH_MAX1462X
-extern void set_headset_mic_bias_l10(int on); //[AUDIO_BSP], 20121025, gyuhwa.park@lge.com PMIC L10 Control
+extern void set_headset_mic_bias_l10(int on); //                                                           
 #endif
 #ifdef CONFIG_SWITCH_FSA8008
 /*
-* 2012-02-06, mint.choi@lge.com
-* Enable/disable fsa8008 mic bias when inserting and removing
-* this API called by fsa8008 driver
+                               
+                                                             
+                                   
 */
-extern void set_headset_mic_bias_l29(int on); //[AUDIO_BSP], 20120730, sehwan.lee@lge.com PMIC L29 Control(because headset noise)
+extern void set_headset_mic_bias_l29(int on); //                                                                                 
 extern void tabla_codec_micbias2_ctl(int enable); 
 #endif
 
@@ -266,9 +266,9 @@ extern void *tabla_mbhc_cal_btn_det_mp(const struct tabla_mbhc_btn_detect_cfg
 
 #ifdef CONFIG_LGE_AUX_NOISE
 				 /*
-				  * 2012-07-20, bob.cho@lge.com
-				  * this API control HPH PAs to remove aux noise
-				  */
+                                   
+                                                    
+      */
 				 enum tabla_hph_pa_ctl_num {
 					 TABLA_EVENT_CHARGER_CONNECT = 0,
 					 TABLA_EVENT_CHARGER_DISCONNECT,
@@ -276,5 +276,5 @@ extern void *tabla_mbhc_cal_btn_det_mp(const struct tabla_mbhc_btn_detect_cfg
 					 TABLA_EVENT_HEADSET_REMOVAL,
 				 };
 				 extern void tabla_codec_hph_pa_ctl(int state);
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 

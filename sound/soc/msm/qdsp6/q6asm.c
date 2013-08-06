@@ -3892,8 +3892,8 @@ static int __init q6asm_init(void)
 	memset(session, 0, sizeof(session));
 #ifdef CONFIG_DEBUG_FS
 	out_buffer = kmalloc(OUT_BUFFER_SIZE, GFP_KERNEL);
-/*	permission is changed S_IWUGO => S_IWUSR | S_IWGRP for CTS
-	bob.cho@lge.com, 02/07/2012	3457	      * bob.cho@lge.com, 02/07/2012
+/*                                                           
+                                                                     
 */	
 #ifdef CONFIG_LGE_AUDIO
 	out_dentry = debugfs_create_file("audio_out_latency_measurement_node",\

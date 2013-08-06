@@ -1118,6 +1118,13 @@ pktsetprio(void *pkt, bool update_vtag)
 		uint8 *ip_body = pktdata + sizeof(struct ether_header);
 		uint8 tos_tc = IP_TOS46(ip_body);
 		priority = (int)(tos_tc >> IPV4_TOS_PREC_SHIFT);
+#ifdef BG_PKTPRIO_OVERRIDE
+#ifdef CUSTOMER_HW10
+		if (priority == 2) {
+			priority = 0;
+		}
+#endif
+#endif
 		rc |= PKTPRIO_DSCP;
 	}
 

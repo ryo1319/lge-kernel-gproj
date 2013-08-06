@@ -16,6 +16,7 @@
 #include <linux/err.h>
 #include <linux/platform_device.h>
 #include <linux/sched.h>
+#include <linux/ratelimit.h>
 #include <linux/workqueue.h>
 #include <linux/pm_runtime.h>
 #include <linux/diagchar.h>
@@ -39,6 +40,9 @@
 #endif
 #include "diag_dci.h"
 
+#ifndef DIAG_DEBUG
+#include <mach/board_lge.h>
+#endif
 #define MODE_CMD		41
 #define RESET_ID		2
 #define ALL_EQUIP_ID		100
@@ -421,6 +425,16 @@ int diag_device_write(void *buf, int proc_num, struct diag_request *write_ptr)
 			print_hex_dump(KERN_DEBUG, "Written Packet Data to"
 					   " USB: ", 16, 1, DUMP_PREFIX_ADDRESS,
 					    buf, write_ptr->length, 1);
+#else
+			if(lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_56K || lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_910K || lge_get_boot_cable_type()==LGE_BOOT_LT_CABLE_130K){
+				if(((write_ptr->buf[0]) == 0xFA)||((write_ptr->buf[0])== 0xA1)){
+					printk(KERN_INFO "writing data to USB,"
+							"pkt length %d\n", write_ptr->length);
+					print_hex_dump(KERN_DEBUG, "Written Packet Data to"
+							" USB: ", 16, 1, DUMP_PREFIX_ADDRESS,
+							buf, (write_ptr->length > 16) ? 16:write_ptr->length , 1);
+				}
+			}
 #endif /* DIAG DEBUG */
 			err = usb_diag_write(driver->legacy_ch, write_ptr);
 		} else if (proc_num == QDSP_DATA) {
@@ -460,7 +474,8 @@ int diag_device_write(void *buf, int proc_num, struct diag_request *write_ptr)
 						diagmem_free(driver,
 							write_ptr_mdm,
 							POOL_TYPE_HSIC_WRITE);
-					pr_err("diag: HSIC write failure\n");
+						pr_err_ratelimited("diag: HSIC write failure, err: %d\n",
+							err);
 					}
 				} else {
 					pr_err("diag: allocate write fail\n");
@@ -1273,7 +1288,12 @@ static int diag_process_apps_pkt(unsigned char *buf, int len)
 				diag_send_msg_mask_update(driver->ch_wcnss_cntl,
 					 ssid_first, ssid_last, WCNSS_PROC);
 			ENCODE_RSP_AND_SEND(8 + ssid_range - 1);
+#ifndef CONFIG_LGE_SLATE
+      printk(KERN_INFO "[SLATE] Key Logging mask received. NOT L2S, returning..");
 			return 0;
+#else
+      printk(KERN_INFO "[SLATE] Key Logging mask received. Propagate this msg to APPS..");
+#endif
 		} else
 			buf = temp;
 #endif
@@ -1365,12 +1385,12 @@ static int diag_process_apps_pkt(unsigned char *buf, int len)
 	data_type = APPS_DATA;
 	
 	/* Dont send any command other than mode reset */
-/*	2012/10/05  bk.choi@lge.com ======== For sending RESET CMD to ATD in FRST 20121005 
+/*                                                                                    
 
-	if (chk_apps_master() && cmd_code == MODE_CMD) {
-		if (subsys_id != RESET_ID)
-			data_type = MODEM_DATA;
-	}
+                                                 
+                            
+                          
+  
 */
 	for (i = 0; i < diag_max_reg; i++) {
 		entry = driver->table[i];
@@ -1654,7 +1674,7 @@ static int diag_process_apps_pkt(unsigned char *buf, int len)
 	 /* Check for ID for NO MODEM present */
 	else if (chk_polling_response()) {
 		/* respond to 0x0 command */
-		//LGE_CHANGE_S, dong.kim@lge.com 20120414 VERNO cmd redefine
+		//                                                          
 		#if 0
 		if (*buf == 0x00) {
 			for (i = 0; i < 55; i++)
@@ -1670,7 +1690,7 @@ static int diag_process_apps_pkt(unsigned char *buf, int len)
 		#endif
 		/* respond to 0x7c command */
 		if (*buf == 0x7c) {
-		//LGE_CHANGE_E
+		//            
 			driver->apps_rsp_buf[0] = 0x7c;
 			for (i = 1; i < 8; i++)
 				driver->apps_rsp_buf[i] = 0;
@@ -1931,6 +1951,16 @@ int diagfwd_read_complete(struct diag_request *diag_read_ptr)
 		print_hex_dump(KERN_DEBUG, "Read Packet Data from USB: ", 16, 1,
 		       DUMP_PREFIX_ADDRESS, diag_read_ptr->buf,
 		       diag_read_ptr->actual, 1);
+#else
+		if(lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_56K || lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_910K ||lge_get_boot_cable_type()==LGE_BOOT_LT_CABLE_130K){
+			if(((diag_read_ptr->buf[0]) == 0xFA)||((diag_read_ptr->buf[0])== 0xA1)){
+				printk(KERN_INFO "read data from USB, pkt length %d",
+						diag_read_ptr->actual);
+				print_hex_dump(KERN_DEBUG, "Read Packet Data from USB: ", 16, 1,
+						DUMP_PREFIX_ADDRESS, diag_read_ptr->buf,
+						(diag_read_ptr->actual>16)?16:diag_read_ptr->actual, 1);
+			}
+		}
 #endif /* DIAG DEBUG */
 		if (driver->logging_mode == USB_MODE) {
 			if (status != -ECONNRESET && status != -ESHUTDOWN)

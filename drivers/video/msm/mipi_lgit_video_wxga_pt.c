@@ -16,7 +16,7 @@
  *
  */
 
-//[LGE_Update_Start] 20111006 [Alpha] seungseob.yeom@lge.com
+//                                                          
 //WXGA LCD (BSP_LCD_LCD Driver) ADD LCD Driver
 #include "msm_fb.h"
 #include "mipi_dsi.h"
@@ -116,4 +116,4 @@ static int __init mipi_video_lgit_wxga_pt_init(void)
 }
 
 module_init(mipi_video_lgit_wxga_pt_init);
-//[LGE_Update_End] 20111006 [Alpha] seungseob.yeom@lge.com
+//                                                        

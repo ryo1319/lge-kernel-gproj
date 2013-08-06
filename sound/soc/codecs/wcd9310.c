@@ -38,7 +38,7 @@
 #include <linux/suspend.h>
 #include "wcd9310.h"
 
-#include <linux/regulator/consumer.h> //[AUDIO_BSP], 20120730, sehwan.lee@lge.com PMIC L29 Control(because headset noise)
+#include <linux/regulator/consumer.h> //                                                                                 
 static int cfilt_adjust_ms = 10;
 module_param(cfilt_adjust_ms, int, 0644);
 MODULE_PARM_DESC(cfilt_adjust_ms, "delay after adjusting cfilt voltage in ms");
@@ -949,10 +949,10 @@ static const struct snd_kcontrol_new tabla_snd_controls[] = {
 	SOC_SINGLE_TLV("HPHR Volume", TABLA_A_RX_HPH_R_GAIN, 0, 12, 1,
 		line_gain),
 
-/* LGE_CHANGED_START 2012.05.03, sehwan.lee@lge.com
- * change the digital_gain's Min value -84 -> -60, because UCM off-line tunning Issue
+/*                                                 
+                                                                                     
  */ 
-#if defined(CONFIG_LGE_AUDIO) /* LGE_CODE */
+#if defined(CONFIG_LGE_AUDIO) /*          */
 	SOC_SINGLE_S8_TLV("RX1 Digital Volume", TABLA_A_CDC_RX1_VOL_CTL_B2_CTL,
 		-60, 40, digital_gain),
 	SOC_SINGLE_S8_TLV("RX2 Digital Volume", TABLA_A_CDC_RX2_VOL_CTL_B2_CTL,
@@ -1025,7 +1025,7 @@ static const struct snd_kcontrol_new tabla_snd_controls[] = {
 	SOC_SINGLE_S8_TLV("DEC10 Volume", TABLA_A_CDC_TX10_VOL_CTL_GAIN, -84,
 		40, digital_gain),
 #endif
-/* LGE_CHANGED_END 2012.05.03, sehwan.lee@lge.com */
+/*                                                */
 	SOC_SINGLE_S8_TLV("IIR1 INP1 Volume", TABLA_A_CDC_IIR1_GAIN_B1_CTL, -84,
 		40, digital_gain),
 	SOC_SINGLE_S8_TLV("IIR1 INP2 Volume", TABLA_A_CDC_IIR1_GAIN_B2_CTL, -84,
@@ -3818,8 +3818,8 @@ static void tabla_codec_calibrate_hs_polling(struct snd_soc_codec *codec)
 
 #ifdef CONFIG_LGE_AUX_NOISE
 /*
- * 2012-07-20, bob.cho@lge.com
- * this API control HPH PAs to remove aux noise
+                              
+                                               
  */
  static int is_force_enable_pin = 0;
  void tabla_codec_hph_pa_ctl(int state)
@@ -3893,7 +3893,7 @@ static void tabla_codec_calibrate_hs_polling(struct snd_soc_codec *codec)
 }
 
 EXPORT_SYMBOL_GPL(tabla_codec_hph_pa_ctl);
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 
 
 static int tabla_startup(struct snd_pcm_substream *substream,
@@ -3909,9 +3909,9 @@ static int tabla_startup(struct snd_pcm_substream *substream,
 
 #ifdef CONFIG_LGE_AUX_NOISE
 		/*
-		 * 2012-07-20, bob.cho@lge.com
-		 * when playback is start, revert force enable of HPH PAs.
-		 */
+                                
+                                                            
+   */
 		if(is_force_enable_pin && snd_codec) {
 			snd_soc_dapm_disable_pin(&snd_codec->dapm, "HPHL");
 			snd_soc_dapm_disable_pin(&snd_codec->dapm, "HPHR");
@@ -3919,7 +3919,7 @@ static int tabla_startup(struct snd_pcm_substream *substream,
 			snd_soc_update_bits(snd_codec, TABLA_A_RX_HPH_CNP_EN, 0x80, 0x80);
 			snd_soc_update_bits(snd_codec, TABLA_A_CP_EN, 0x01 , 0x00);
 		}
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 
 	return 0;
 }
@@ -3931,9 +3931,9 @@ static void tabla_shutdown(struct snd_pcm_substream *substream,
 {
 
 		/*
-		 * 2012-07-20, bob.cho@lge.com
-		 * when playback is end, start force enable of HPH PAs.
-		 */
+                                
+                                                         
+   */
 		if(is_force_enable_pin && snd_codec) {
 			snd_soc_update_bits(snd_codec, TABLA_A_RX_HPH_CNP_EN, 0xB0, 0xB0);
 			snd_soc_update_bits(snd_codec, TABLA_A_CP_EN, 0x01 , 0x01);
@@ -3943,7 +3943,7 @@ static void tabla_shutdown(struct snd_pcm_substream *substream,
 		}
 	
 }
-#endif /*CONFIG_LGE_AUX_NOISE*/
+#endif /*                    */
 
 static void tabla_shutdown(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
@@ -8149,14 +8149,15 @@ static void tabla_update_reg_address(struct tabla_priv *priv)
 
 #ifdef CONFIG_SWITCH_MAX1462X
 
-/* LGE_CHANGED_START 2012.10.25, gyuhwa.park@lge.com
- * PMIC L10 Control
+/*                                                  
+                   
  */ 
 static bool max1462x_mic_bias = false;
 
 void set_headset_mic_bias_l10(int on)
 {
 	int rc = -EINVAL;
+       int voltage_l10;
 	static struct regulator *vreg_l10;
 
 	if(!max1462x_mic_bias) {
@@ -8164,8 +8165,8 @@ void set_headset_mic_bias_l10(int on)
 		if (IS_ERR(vreg_l10)) {
 			pr_err("%s: regulator get of vreg_l10 failed (%ld)\n", __func__, PTR_ERR(vreg_l10)); 
 		}
-
-		rc = regulator_set_voltage(vreg_l10, 2800000, 2800000);
+              voltage_l10 = regulator_get_voltage(vreg_l10);
+		rc = regulator_set_voltage(vreg_l10, voltage_l10, voltage_l10);
 		if (rc) {
 			pr_err("%d: regulator set of vreg_l10 failed \n", rc); 
 		}
@@ -8186,15 +8187,15 @@ void set_headset_mic_bias_l10(int on)
  
 }
 
-/* LGE_CHANGED_END 2012.10.25, gyuhwa.park@lge.com */
+/*                                                 */
 
 #endif /* CONFIG_SWITCH_MAX1462X */
 
 #ifdef CONFIG_SWITCH_FSA8008
 /*
-* 2012-02-06, mint.choi@lge.com
-* Enable/disable fsa8008 mic bias when inserting and removing
-* this API called by fsa8008 driver
+                               
+                                                             
+                                   
 */
 
 void tabla_codec_micbias2_ctl(int enable)
@@ -8218,8 +8219,8 @@ void tabla_codec_micbias2_ctl(int enable)
 	}
 }
 
-/* LGE_CHANGED_START 2012.07.30, sehwan.lee@lge.com
- * PMIC L29 Control(because headset noise)
+/*                                                 
+                                          
  */ 
 static bool fsa8008_mic_bias = false;
 
@@ -8234,8 +8235,9 @@ void set_headset_mic_bias_l29(int on)
 			pr_err("%s: regulator get of vreg_l29 failed (%ld)\n", __func__, PTR_ERR(vreg_l29)); 
 		}
 
-//[LGE] seungkyu.joo, 2012-12-18 , HW Request for enabling apple headset mic
-#if defined(CONFIG_MACH_APQ8064_J1SK)|| defined(CONFIG_MACH_APQ8064_J1KT)|| defined(CONFIG_MACH_APQ8064_J1U)
+//                                                                          
+#if 1//defined(CONFIG_MACH_APQ8064_J1SK)|| defined(CONFIG_MACH_APQ8064_J1KT)|| defined(CONFIG_MACH_APQ8064_J1U)|| defined(CONFIG_MACH_APQ8064_J1A)
+	//||defined(CONFIG_MACH_APQ8064_J1R) || defined(CONFIG_MACH_APQ8064_J1B) || defined(CONFIG_MACH_APQ8064_J1TL) || defined(CONFIG_MACH_APQ8064_J1SP)
 		rc = regulator_set_voltage(vreg_l29, 2700000, 2700000);
 #else
 		rc = regulator_set_voltage(vreg_l29, 2000000, 2000000);
@@ -8260,7 +8262,7 @@ void set_headset_mic_bias_l29(int on)
 	}
  
 }
-/* LGE_CHANGED_END 2012.07.30, sehwan.lee@lge.com */
+/*                                                */
 
 EXPORT_SYMBOL_GPL(tabla_codec_micbias2_ctl);
 #endif /* CONFIG_SWITCH_FSA8008 */

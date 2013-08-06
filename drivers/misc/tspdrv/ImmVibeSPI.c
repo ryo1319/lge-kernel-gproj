@@ -37,9 +37,9 @@
 #include <mach/msm_iomap.h>
 #include <mach/msm_xo.h>
 
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [START]
+//                                                                         
 //#define EANBLE_LOG_VIB
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [END]
+//                                                                       
 #ifdef IMMVIBESPIAPI
 #undef IMMVIBESPIAPI
 #endif
@@ -151,19 +151,19 @@ static int vibratror_pwm_gpio_OnOFF(int OnOFF)
     gpio_motor_pwm = GPIO_LIN_MOTOR_PWM;
 
     if (OnOFF) {
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [START]
+//                                                                         
 #ifdef EANBLE_LOG_VIB
         printk("%s: configuration to pwm \n", __func__);
 #endif	// #ifdef EANBLE_LOG_VIB
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [END]
+//                                                                       
         rc = gpio_request(gpio_motor_pwm, "lin_motor_pwm");
         if (rc) {
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [START]
+//                                                                         
 #ifdef EANBLE_LOG_VIB
             printk("%s: Failed to get attn gpio %d. rc: %d.\n",
                     __func__, gpio_motor_pwm, rc);
 #endif	// #ifdef EANBLE_LOG_VIB
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [END]
+//                                                                       
             return rc;
         }
     }else {
@@ -212,20 +212,20 @@ static int vibrator_power_set(int enable)
 
 	if(enable)
 	{
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [START]
+//                                                                         
 #if 1 //def EANBLE_LOG_VIB
 		printk("vibrator_power_set() : vibrator enable\n");
 #endif	// #ifdef EANBLE_LOG_VIB
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [END]
+//                                                                       
 		rc = regulator_enable(vreg_l16);
 	}
 	else
 	{
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [START]
+//                                                                         
 #if 1 //def EANBLE_LOG_VIB
 		printk("vibrator_power_set() : vibrator disable\n");
 #endif	// #ifdef EANBLE_LOG_VIB
-//[AUDIO_BSP][Vibrator] gooyeon.jung@lge.com 2012-10-24 disable log [END]
+//                                                                       
 		rc = regulator_disable(vreg_l16);
 	}
 

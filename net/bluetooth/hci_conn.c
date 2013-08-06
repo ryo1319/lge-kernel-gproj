@@ -911,14 +911,14 @@ struct hci_conn *hci_connect(struct hci_dev *hdev, int type,
 	if (acl->state == BT_CONNECTED &&
 			(sco->state == BT_OPEN || sco->state == BT_CLOSED)) {
 		acl->power_save = 1;
-// [S] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project		
+//                                                                        
 // +s LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO - teddy.ju
 		hci_conn_enter_active_mode_no_timer(acl);
 /* Google Original
 		hci_conn_enter_active_mode(acl, 1);
 */		
 // +e LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO - teddy.ju
-// [E] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project
+//                                                                      
 
 		if (test_bit(HCI_CONN_MODE_CHANGE_PEND, &acl->pend)) {
 			/* defer SCO setup until mode change completed */
@@ -1111,7 +1111,7 @@ void hci_conn_enter_active_mode(struct hci_conn *conn, __u8 force_active)
 	}
 
 timer:
-// [S] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project
+//                                                                      
 // +s LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO - teddy.ju
 	BT_DBG("sco_last_tx : %ld, sco_num : %d", hdev->sco_last_tx, hdev->conn_hash.sco_num);
 	if(hdev->conn_hash.sco_num && conn->mode!= HCI_CM_SNIFF){
@@ -1120,7 +1120,7 @@ timer:
 		return;
 	}
 // +e LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO  - teddy.ju
-// [E] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project
+//                                                                      
 	if (hdev->idle_timeout > 0) {
 		spin_lock_bh(&conn->lock);
 		if (conn->conn_valid) {
@@ -1131,7 +1131,7 @@ timer:
 		spin_unlock_bh(&conn->lock);
 	}
 }
-// [S] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project
+//                                                                      
 // +s LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO - teddy.ju
 void hci_conn_enter_active_mode_no_timer(struct hci_conn *conn)
 {
@@ -1153,7 +1153,7 @@ void hci_conn_enter_active_mode_no_timer(struct hci_conn *conn)
 	}
 }
 // +e LGBT_COMMON_FUNCTION_NO_SNIFF_WHEN_OPEN_SCO - teddy.ju
-// [E] LGE_BT: MOD/ilbeom.kim/'12-09-18 - [GK] Merged based on G project
+//                                                                      
 
 static inline void hci_conn_stop_rssi_timer(struct hci_conn *conn)
 {

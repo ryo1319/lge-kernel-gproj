@@ -59,7 +59,6 @@ static struct vsycn_ctrl {
 	int blt_change;
 	int blt_free;
 	int blt_end;
-	int sysfs_created;
 	struct mutex update_lock;
 	struct completion ov_comp;
 	struct completion dmap_comp;
@@ -674,10 +673,12 @@ ssize_t mdp4_dsi_cmd_show_event(struct device *dev,
 	vctrl->wait_vsync_cnt++;
 	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
 
-	ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
-		msecs_to_jiffies(VSYNC_PERIOD * 2));
-	if (ret <= 0)
-		return -EBUSY;
+        ret = wait_for_completion_interruptible_timeout(&vctrl->vsync_comp,
+               msecs_to_jiffies(VSYNC_PERIOD * 4));
+        if (ret <= 0) {
+               vctrl->wait_vsync_cnt = 0;
+               return -EBUSY;
+        }
 
 	spin_lock_irqsave(&vctrl->spin_lock, flags);
 	vsync_tick = ktime_to_ns(vctrl->vsync_time);
@@ -1070,6 +1071,16 @@ int mdp4_dsi_cmd_off(struct platform_device *pdev)
 	if (vctrl->vsync_enabled) {
 		vsync_irq_disable(INTR_PRIMARY_RDPTR, MDP_PRIM_RDPTR_TERM);
 		vctrl->vsync_enabled = 0;
+	}
+
+	undx =  vctrl->update_ndx;
+	vp = &vctrl->vlist[undx];
+	if (vp->update_cnt) {
+		/*
+		 * pipe's iommu will be freed at next overlay play
+		 * and iommu_drop statistic will be increased by one
+		 */
+		vp->update_cnt = 0;     /* empty queue */
 	}
 
 	undx =  vctrl->update_ndx;

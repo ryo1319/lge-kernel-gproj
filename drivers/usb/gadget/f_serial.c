@@ -98,7 +98,7 @@ static inline struct f_gser *port_to_gser(struct gserial *p)
 #define GS_NOTIFY_MAXPACKET     16
 #else
 #define GS_NOTIFY_MAXPACKET		10	/* notification + 2 bytes */
-#endif /* CONFIG_USB_G_LGE_ANDROID */
+#endif /*                          */
 #endif
 /*-------------------------------------------------------------------------*/
 

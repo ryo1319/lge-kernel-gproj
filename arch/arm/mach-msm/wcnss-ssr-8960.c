@@ -187,7 +187,7 @@ static int riva_ramdump(int enable, const struct subsys_desc *subsys)
 {
 	pr_debug("%s: enable[%d]\n", MODULE_NAME, enable);
 	//if (enable)
-	if(true)	// bluetooth.kang@lge.com  always enable riva ramdump
+	if(true)	//                                                   
 		return do_ramdump(riva_ramdump_dev,
 				riva_segments,
 				ARRAY_SIZE(riva_segments));
@@ -248,7 +248,7 @@ static int __init riva_ssr_module_init(void)
 		goto out;
 	}
 	ret = request_irq(RIVA_APSS_WDOG_BITE_RESET_RDY_IRQ,
-			riva_wdog_bite_irq_hdlr, IRQF_TRIGGER_HIGH,
+			riva_wdog_bite_irq_hdlr, IRQF_TRIGGER_RISING,
 				"riva_wdog", NULL);
 
 	if (ret < 0) {

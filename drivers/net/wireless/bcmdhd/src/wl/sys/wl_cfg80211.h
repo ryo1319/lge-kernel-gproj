@@ -580,6 +580,9 @@ struct wl_priv {
 	u8 block_gon_req_tx_count;
 	u8 block_gon_req_rx_count;
 #endif /* WL_CFG80211_GON_COLLISION */
+#if defined(CONFIG_LGE_BCM433X_PATCH) // modified by MJ : [CSP#618771] TV connection issue 2013-02
+	bool p2p_prb_notified;
+#endif
 	s32(*state_notifier) (struct wl_priv *wl,
 		struct net_info *_net_info, enum wl_status state, bool set);
 	unsigned long interrested_state;

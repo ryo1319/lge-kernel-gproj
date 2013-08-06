@@ -2292,8 +2292,10 @@ static int a3xx_create_gmem_shadow(struct adreno_device *adreno_dev,
 	result = kgsl_allocate(&drawctxt->context_gmem_shadow.gmemshadow,
 		drawctxt->pagetable, drawctxt->context_gmem_shadow.size);
 
-	if (result)
+	if (result){
+		printk(KERN_ERR "a3xx_create_gmem_shadow :: kgsl_allocate failed : %d \n",result);
 		return result;
+	}
 
 	build_quad_vtxbuff(drawctxt, &drawctxt->context_gmem_shadow,
 		&tmp_ctx.cmd);
@@ -2326,16 +2328,20 @@ static int a3xx_drawctxt_create(struct adreno_device *adreno_dev,
 	ret = kgsl_allocate(&drawctxt->gpustate,
 		drawctxt->pagetable, CONTEXT_SIZE);
 
-	if (ret)
+	if (ret){
+		printk(KERN_ERR "a3xx_drawctxt_create :: kgsl_allocate failed. \n");
 		return ret;
+	}
 
 	kgsl_sharedmem_set(&drawctxt->gpustate, 0, 0, CONTEXT_SIZE);
 	tmp_ctx.cmd = drawctxt->gpustate.hostptr + CMD_OFFSET;
 
 	if (!(drawctxt->flags & CTXT_FLAGS_PREAMBLE)) {
 		ret = a3xx_create_gpustate_shadow(adreno_dev, drawctxt);
-		if (ret)
+		if (ret){
+			printk(KERN_ERR "a3xx_drawctxt_create :: a3xx_create_gpustate_shadow failed : %d \n",ret);
 			goto done;
+		}
 
 		drawctxt->flags |= CTXT_FLAGS_SHADER_SAVE;
 	}
@@ -2570,9 +2576,14 @@ static void a3xx_cp_callback(struct adreno_device *adreno_dev, int irq)
 				KGSL_MEMSTORE_OFFSET(KGSL_MEMSTORE_GLOBAL,
 					current_context));
 		if (context_id < KGSL_MEMSTORE_MAX) {
+			/* reset per context ts_cmp_enable */		
 			kgsl_sharedmem_writel(&device->memstore,
 					KGSL_MEMSTORE_OFFSET(context_id,
 						ts_cmp_enable), 0);
+			/* Always reset global timestamp ts_cmp_enable */
+			kgsl_sharedmem_writel(&device->memstore,
+				KGSL_MEMSTORE_OFFSET(KGSL_MEMSTORE_GLOBAL,
+					ts_cmp_enable), 0);
 			wmb();
 		}
 		KGSL_CMD_WARN(device, "ringbuffer rb interrupt\n");

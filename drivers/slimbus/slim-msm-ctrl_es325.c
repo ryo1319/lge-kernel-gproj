@@ -1658,7 +1658,7 @@ static int msm_slim_rx_msgq_thread(void *data)
 				laddr = (u8)((buffer[0] >> 16) & 0xff);
 				sat = addr_to_sat(dev, laddr);
 			}
-// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
+//                                                                         
 /* QCT slimbus controller were
 *   the first device to REPORT_PRESENT fails
 *   to get an ASSIGN_LOGICAL_ADDRESS response.
@@ -1669,7 +1669,7 @@ static int msm_slim_rx_msgq_thread(void *data)
 		}
 		if ((index * 4) >= msg_len) {
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
+//                                                                         
 			index = 0;
 			if (sat) {
 				msm_sat_enqueue(sat, buffer, msg_len);

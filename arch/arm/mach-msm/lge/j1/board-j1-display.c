@@ -54,9 +54,9 @@ extern int set_qlut_kcal_values(int kcal_r, int kcal_g, int kcal_b);
 extern int refresh_qlut_display(void);
 #else
 #error only kcal by Qucalcomm LUT is supported now!!!
-#endif //CONFIG_LGE_QC_LCDC_LUT
-#endif //CONFIG_LGE_KCAL
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif //                      
+#endif //               
+#endif //                            
 
 #ifdef CONFIG_FB_MSM_TRIPLE_BUFFER
 /* prim = 1366 x 768 x 3(bpp) x 3(pages) */
@@ -88,7 +88,7 @@ extern int refresh_qlut_display(void);
 #ifdef LGE_DSDR_KERNEL_SUPPORT
 #define MSM_FB_EXT_BUF_SIZE \
         (roundup((1920 * 1088 * 4), 4096) * 3) /* 4 bpp x 3 page */
-#else  /* LGE_DSDR_KERNEL_SUPPORT */
+#else  /*                         */
 #ifdef CONFIG_FB_MSM_HDMI_MSM_PANEL
 #define MSM_FB_EXT_BUF_SIZE \
 		(roundup((1920 * 1088 * 2), 4096) * 1) /* 2 bpp x 1 page */
@@ -98,8 +98,8 @@ extern int refresh_qlut_display(void);
 #else
 #define MSM_FB_EXT_BUF_SIZE	0
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL */
-#endif /* LGE_DSDR_KERNEL_SUPPORT */
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif /*                         */
+#endif //                            
 
 #if defined(CONFIG_MACH_LGE)
 #ifdef CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
@@ -114,7 +114,7 @@ extern int refresh_qlut_display(void);
 #else
 #define MSM_FB_WFD_BUF_SIZE     0
 #endif //CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif //                            
 
 #if defined(CONFIG_MACH_LGE)
 #define MSM_FB_SIZE \
@@ -122,7 +122,7 @@ extern int refresh_qlut_display(void);
 		MSM_FB_EXT_BUF_SIZE + MSM_FB_WFD_BUF_SIZE, 4096)
 #else //Qualcomm original
 #define MSM_FB_SIZE roundup(MSM_FB_PRIM_BUF_SIZE, 4096)
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif //                            
 
 #ifdef CONFIG_FB_MSM_OVERLAY0_WRITEBACK
 #if defined(CONFIG_MACH_LGE)
@@ -138,7 +138,7 @@ extern int refresh_qlut_display(void);
 	#endif
 #else //Qualcomm original
 #define MSM_FB_OVERLAY0_WRITEBACK_SIZE roundup((1376 * 768 * 3 * 2), 4096)
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif //                            
 #else
 #define MSM_FB_OVERLAY0_WRITEBACK_SIZE (0)
 #endif  /* CONFIG_FB_MSM_OVERLAY0_WRITEBACK */
@@ -152,9 +152,9 @@ extern int refresh_qlut_display(void);
 #if defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_WXGA_PT)
 #define LGIT_IEF
 #endif
-//LGE_UPDATE_S  hojin.ryu@lge.com 20120629 IEF Switch define for camera preview
+//                                                                             
 #define LGIT_IEF_SWITCH
-//LGE_UPDATE_S  hojin.ryu@lge.com 20120629
+//                                        
 
 static struct resource msm_fb_resources[] = {
 	{
@@ -192,7 +192,7 @@ unsigned char apq8064_mhl_display_enabled(void)
 }
 
 static void set_mdp_clocks_for_wuxga(void);
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 
 static int msm_fb_detect_panel(const char *name)
 {
@@ -242,7 +242,7 @@ static int msm_fb_detect_panel(const char *name)
 
 #else
 	return 0;
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 }
 
 static struct msm_fb_platform_data msm_fb_pdata = {
@@ -396,7 +396,7 @@ static struct platform_device kcal_platrom_device = {
 		.platform_data = &kcal_pdata,
 	}
 };
-#endif /* CONFIG_LGE_KCAL */
+#endif /*                 */
 
 static struct resource hdmi_msm_resources[] = {
 	{
@@ -947,7 +947,7 @@ static int mipi_dsi_panel_power(int on)
 
 	return 0;
 }
-#endif //#if defined(CONFIG_MACH_LGE)
+#endif //                            
 
 static char mipi_dsi_splash_is_enabled(void)
 {
@@ -1159,7 +1159,7 @@ static struct platform_device mipi_dsi_toshiba_panel_device = {
 	}
 };
 
-#endif  /* LGE Not Used */
+#endif  /*              */
 
 static struct msm_bus_vectors dtv_bus_init_vectors[] = {
 	{
@@ -1739,7 +1739,7 @@ static int mipi_lgit_backlight_level(int level, int max, int min)
 	lm3530_lcd_backlight_set_level(level);
 	return 0;
 }
-//LGE_CHANGE_S [hj.eum@lge.com]  2012_02_06, for making one source of DSV feature.
+//                                                                                
 char lcd_mirror [2] = {0x36, 0x02};
 
 // values of DSV setting START
@@ -1756,13 +1756,13 @@ static char n_gamma_g_setting[10] = {0xD3, 0x72, 0x15, 0x76, 0x00, 0x00, 0x00, 0
 static char p_gamma_b_setting[10] = {0xD4, 0x72, 0x15, 0x76, 0x00, 0x00, 0x00, 0x50, 0x30, 0x02};
 static char n_gamma_b_setting[10] = {0xD5, 0x72, 0x15, 0x76, 0x00, 0x00, 0x00, 0x50, 0x30, 0x02};
 
-//LGE_UPDATE_S hojin.ryu@lge.com 20120629 
+//                                        
 #if defined(LGIT_IEF)
 static char ief_on_set0[2] = {0xE0, 0x07};
 static char ief_cabc_set[6] = {0xC8, 0x22, 0x22, 0x22, 0x33, 0x93};//MIE ON
 static char ief_on_set4[4] = {0xE4, 0x02, 0x82, 0x82};
 static char ief_on_set5[4] = {0xE5, 0x01, 0x82, 0x80};
-static char ief_on_set6[4] = {0xE6, 0x04, 0x05, 0x07};
+static char ief_on_set6[4] = {0xE6, 0x04, 0x00, 0x00};
 
 static char ief_off_set0[2] = {0xE0, 0x00};
 static char ief_off_set4[4] = {0xE4, 0x00, 0x00, 0x00};
@@ -1773,7 +1773,7 @@ static char ief_set1[5] = {0xE1, 0x00, 0x00, 0x01, 0x01};
 static char ief_set2[3] = {0xE2, 0x01, 0x0F};
 static char ief_set3[6] = {0xE3, 0x00, 0x00, 0x31, 0x35, 0x00};
 #endif
-//LGE_UPDATE_E hojin.ryu@lge.com 20120629
+//                                       
 
 static char osc_setting[4] =     {0xC0, 0x00, 0x0A, 0x10};
 static char power_setting3[13] = {0xC3, 0x00, 0x88, 0x03, 0x20, 0x01, 0x57, 0x4F, 0x33,0x02,0x38,0x38,0x00};
@@ -1883,7 +1883,7 @@ static struct dsi_cmd_desc lgit_power_off_set_2[] = {
 
 // values of normal setting START(not DSV)
 
-//LGE_UPDATE_S hojin.ryu@lge.com 20120629 IEF function On/Off sets are added for camera preview
+//                                                                                             
 #ifdef LGIT_IEF_SWITCH
 static struct dsi_cmd_desc lgit_ief_off_set[] = {		
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 0, sizeof(ief_off_set6),ief_off_set6},
@@ -1903,7 +1903,7 @@ static struct dsi_cmd_desc lgit_ief_on_set[] = {
 	{DTYPE_GEN_LWRITE, 1, 0, 0, 0, sizeof(ief_on_set6),ief_on_set6},
 };
 #endif
-//LGE_UPDATE_E hojin.ryu@lge.com 20120629
+//                                       
 
 static struct msm_panel_common_pdata mipi_lgit_pdata = {
 	.backlight_level = mipi_lgit_backlight_level,
@@ -1933,7 +1933,7 @@ static struct platform_device mipi_dsi_lgit_panel_device = {
 		.platform_data = &mipi_lgit_pdata,
 	}
 };
-//LGE_UPDATE_E hojin.ryu@lge.com 20120629
+//                                       
 #elif defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_PT) ||\
 	defined(CONFIG_FB_MSM_MIPI_LGIT_VIDEO_FHD_INVERSE_PT)
 static char exit_sleep_mode[2]={0x11,0x00};
@@ -1957,7 +1957,7 @@ void __init apq8064_init_fb(void)
 
 #ifndef CONFIG_MACH_LGE
 	platform_device_register(&lvds_chimei_panel_device);
-#endif /* CONFIG_MACH_LGE*/
+#endif /*                */
 
 #ifdef CONFIG_FB_MSM_WRITEBACK_MSM_PANEL
 	platform_device_register(&wfd_panel_device);
@@ -1976,12 +1976,12 @@ void __init apq8064_init_fb(void)
 		platform_device_register(&mipi_dsi_toshiba_panel_device);
 	if (machine_is_mpq8064_dtv())
 		platform_device_register(&lvds_frc_panel_device);
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 
 	msm_fb_register_device("mdp", &mdp_pdata);
 #ifndef CONFIG_MACH_LGE
 	msm_fb_register_device("lvds", &lvds_pdata);
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 	msm_fb_register_device("mipi_dsi", &mipi_dsi_pdata);
 	platform_device_register(&hdmi_msm_device);
 	msm_fb_register_device("dtv", &dtv_pdata);
@@ -2058,7 +2058,7 @@ void __init apq8064_set_display_params(char *prim_panel, char *ext_panel,
 	msm_fb_pdata.ext_resolution = resolution;
         hdmi_msm_data.is_mhl_enabled = mhl_display_enabled;
 }
-#endif /* CONFIG_MACH_LGE */
+#endif /*                 */
 
 #define I2C_SURF 1
 #define I2C_FFA  (1 << 1)

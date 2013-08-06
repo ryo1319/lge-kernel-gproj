@@ -213,13 +213,13 @@ enum msm_camera_vreg_name_t {
 	CAM_VIO,
 	CAM_VANA,
 	CAM_VAF,
-/*LGE_CHANGE_S, For GK/GV 13M & 2.4M camera driver, 2012.09.11, gayoung85.lee@lge.com */	
+/*                                                                                    */	
 	CAM_ISP_CORE,
 	CAM_ISP_HOST,
 	CAM_ISP_RAM,
 	CAM_ISP_CAMIF,
 	CAM_ISP_SYS,
-/*LGE_CHANGE_E, For GK/GV 13M & 2.4M camera driver, 2012.09.11, gayoung85.lee@lge.com */	
+/*                                                                                    */	
 };
 
 struct msm_camera_sensor_platform_info {
@@ -432,10 +432,6 @@ struct msm_panel_common_pdata {
 	void *color_engine_off;
 	ssize_t color_engine_off_size;
 #endif //CONFIG_LGIT_COLOR_ENGINE_SWITCH
-#if defined(CONFIG_LGE_R63311_BACKLIGHT_CABC)
-    void *cabc_off;
-    ssize_t cabc_off_size;
-#endif // CABC apply
 #endif
 	void *power_off_set_1;
 	void *power_off_set_2;

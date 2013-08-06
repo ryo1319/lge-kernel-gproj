@@ -1020,6 +1020,11 @@ struct axi_ctrl_t {
 	struct vfe_share_ctrl_t *share_ctrl;
 	struct device *iommu_ctx_imgwr;
 	struct device *iommu_ctx_misc;
+/*                                                                  */
+#ifdef LGE_GK_CAMERA_BSP
+	struct mutex state_mutex;
+#endif
+/*                                                                */
 };
 
 struct vfe32_ctrl_type {

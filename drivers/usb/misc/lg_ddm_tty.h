@@ -17,4 +17,4 @@ struct ddm_tty {
 extern struct ddm_tty *lge_ddm_tty;
 
 #endif
-#endif /*TTY_LGE_DDM_H_ */
+#endif /*               */
