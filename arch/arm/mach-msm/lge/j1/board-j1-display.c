@@ -1492,10 +1492,6 @@ error:
 	return rc;
 }
 
-#if defined (CONFIG_BACKLIGHT_LM3533)
-extern void lm3533_lcd_backlight_set_level( int level);
-#endif /* CONFIG_BACKLIGHT_LMXXXX */
-
 #if defined(CONFIG_FB_MSM_MIPI_HITACHI_VIDEO_HD_PT)
 static int mipi_hitachi_backlight_level(int level, int max, int min)
 { 
@@ -1723,6 +1719,10 @@ static struct msm_panel_common_pdata mipi_hitachi_pdata = {
 	.power_off_set_1 = hitachi_power_off_set,
 	.power_on_set_size_1 = ARRAY_SIZE(hitachi_power_on_set),
 	.power_off_set_size_1 = ARRAY_SIZE(hitachi_power_off_set),
+#if defined(CONFIG_LGE_BACKLIGHT_CABC)
+	.bl_pwm_disable = lm3533_lcd_backlight_pwm_disable,
+#endif
+	.bl_on_status = lm3533_lcd_backlight_on_status,
 };
 
 static struct platform_device mipi_dsi_hitachi_panel_device = {
@@ -2107,7 +2107,8 @@ static struct backlight_platform_data lm3533_data = {
 	.min_brightness = 0x05,
 	.max_brightness = 0xFF,
 	.default_brightness = 0x9C,
-	//.factory_brightness = 0x45,
+	.blmap = NULL,
+	.blmap_size = 0,
 };
 #endif
 static struct i2c_board_info msm_i2c_backlight_info[] = {

@@ -85,6 +85,9 @@ int mipi_hitachi_lcd_off(struct platform_device *pdev)
 	struct msm_fb_data_type *mfd;
 	int cnt = 0;
 
+	if (mipi_hitachi_pdata->bl_pwm_disable)
+		mipi_hitachi_pdata->bl_pwm_disable();
+
 	mfd = platform_get_drvdata(pdev);
 	if (!mfd)
 		return -ENODEV;
@@ -116,6 +119,11 @@ int mipi_hitachi_lcd_off_for_shutdown(void)
 	MIPI_OUTP(MIPI_DSI_BASE + 0x38, 0x14000000);//LP mode
 
 	return 0;
+}
+
+static int mipi_hitachi_backlight_on_status(void)
+{
+	return (mipi_hitachi_pdata->bl_on_status());
 }
 
 static void mipi_hitachi_set_backlight_board(struct msm_fb_data_type *mfd)
@@ -290,6 +298,7 @@ static struct msm_fb_panel_data hitachi_panel_data = {
 	.on		= mipi_hitachi_lcd_on,
 	.off		= mipi_hitachi_lcd_off,
 	.set_backlight = mipi_hitachi_set_backlight_board,
+	.get_backlight_on_status = mipi_hitachi_backlight_on_status,
 };
 
 static int ch_used[3];

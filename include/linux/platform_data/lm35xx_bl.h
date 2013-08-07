@@ -21,6 +21,12 @@ void lm3530_lcd_backlight_pwm_disable(void);
 int lm3530_lcd_backlight_on_status(void);
 #endif
 
+#ifdef CONFIG_BACKLIGHT_LM3533
+void lm3533_lcd_backlight_set_level(int level);
+void lm3533_lcd_backlight_pwm_disable(void);
+int lm3533_lcd_backlight_on_status(void);
+#endif
+
 struct backlight_platform_data {
 	void (*platform_init)(void);
 	int gpio;

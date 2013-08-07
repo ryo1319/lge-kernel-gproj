@@ -240,15 +240,11 @@ static void msm_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	/* This maps android backlight level 0 to 255 into
 	   driver backlight level 0 to bl_max with rounding */
 
-#if defined(CONFIG_BACKLIGHT_LM3533)
-	bl_lvl = value;
-#else
 	bl_lvl = (2 * value * mfd->panel_info.bl_max + MAX_BACKLIGHT_BRIGHTNESS)
 		/(2 * MAX_BACKLIGHT_BRIGHTNESS);
 
 	if (!bl_lvl && value)
 		bl_lvl = 1;
-#endif
 
 	down(&mfd->sem);
 	msm_fb_set_backlight(mfd, bl_lvl);
