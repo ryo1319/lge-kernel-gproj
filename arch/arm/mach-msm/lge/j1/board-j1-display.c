@@ -2100,11 +2100,11 @@ static struct backlight_platform_data lm3530_data = {
 static struct backlight_platform_data lm3533_data = {
 	.gpio = PM8921_GPIO_PM_TO_SYS(24),
 #if defined(CONFIG_LGE_BACKLIGHT_CABC)
-	.max_current = 0x17 | PWM_SIMPLE_EN,
+	.max_current = 0x9C | PWM_SIMPLE_EN,
 #else
 	.max_current = 0x17,
 #endif
-	.min_brightness = 0x05,
+	.min_brightness = 0x9C,
 	.max_brightness = 0xFF,
 	.default_brightness = 0x9C,
 	.blmap = NULL,

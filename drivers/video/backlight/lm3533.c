@@ -144,7 +144,7 @@ static void lm3533_backlight_on(struct i2c_client *client, int level)
 	}
 
 	if (first_boot) {
-		lm3533_write_reg(dev->client, 0x1F, dev->max_current);
+		lm3533_write_reg(dev->client, 0x17, dev->max_current);
 		first_boot = false;
 	}
 
@@ -206,7 +206,7 @@ void lm3533_lcd_backlight_pwm_disable(void)
 	if (backlight_status == BL_OFF)
 		return;
 
-	lm3533_write_reg(client, 0x10, dev->max_current & 0x1F);
+	lm3533_write_reg(client, 0x17, dev->max_current & 0x1F);
 }
 EXPORT_SYMBOL(lm3533_lcd_backlight_pwm_disable);
 
