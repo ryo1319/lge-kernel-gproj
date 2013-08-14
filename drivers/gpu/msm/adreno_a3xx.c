@@ -2292,10 +2292,8 @@ static int a3xx_create_gmem_shadow(struct adreno_device *adreno_dev,
 	result = kgsl_allocate(&drawctxt->context_gmem_shadow.gmemshadow,
 		drawctxt->pagetable, drawctxt->context_gmem_shadow.size);
 
-	if (result){
-		printk(KERN_ERR "a3xx_create_gmem_shadow :: kgsl_allocate failed : %d \n",result);
+	if (result)
 		return result;
-	}
 
 	build_quad_vtxbuff(drawctxt, &drawctxt->context_gmem_shadow,
 		&tmp_ctx.cmd);
@@ -2328,20 +2326,16 @@ static int a3xx_drawctxt_create(struct adreno_device *adreno_dev,
 	ret = kgsl_allocate(&drawctxt->gpustate,
 		drawctxt->pagetable, CONTEXT_SIZE);
 
-	if (ret){
-		printk(KERN_ERR "a3xx_drawctxt_create :: kgsl_allocate failed. \n");
+	if (ret)
 		return ret;
-	}
 
 	kgsl_sharedmem_set(&drawctxt->gpustate, 0, 0, CONTEXT_SIZE);
 	tmp_ctx.cmd = drawctxt->gpustate.hostptr + CMD_OFFSET;
 
 	if (!(drawctxt->flags & CTXT_FLAGS_PREAMBLE)) {
 		ret = a3xx_create_gpustate_shadow(adreno_dev, drawctxt);
-		if (ret){
-			printk(KERN_ERR "a3xx_drawctxt_create :: a3xx_create_gpustate_shadow failed : %d \n",ret);
+		if (ret)
 			goto done;
-		}
 
 		drawctxt->flags |= CTXT_FLAGS_SHADER_SAVE;
 	}
@@ -2361,7 +2355,7 @@ static void a3xx_drawctxt_save(struct adreno_device *adreno_dev,
 {
 	struct kgsl_device *device = &adreno_dev->dev;
 
-	if (context == NULL || (context->flags & CTXT_FLAGS_BEING_DESTOYED))
+	if (context == NULL || (context->flags & CTXT_FLAGS_BEING_DESTROYED))
 		return;
 
 	if (context->flags & CTXT_FLAGS_GPU_HANG)
@@ -2414,8 +2408,6 @@ static void a3xx_drawctxt_restore(struct adreno_device *adreno_dev,
 				adreno_dev->drawctxt_active->id);
 		return;
 	}
-
-	KGSL_CTXT_INFO(device, "context flags %08x\n", context->flags);
 
 	cmds[0] = cp_nop_packet(1);
 	cmds[1] = KGSL_CONTEXT_TO_MEM_IDENTIFIER;
@@ -2571,22 +2563,30 @@ static void a3xx_cp_callback(struct adreno_device *adreno_dev, int irq)
 	struct kgsl_device *device = &adreno_dev->dev;
 
 	if (irq == A3XX_INT_CP_RB_INT) {
-		unsigned int context_id;
+		unsigned int context_id, timestamp;
 		kgsl_sharedmem_readl(&device->memstore, &context_id,
 				KGSL_MEMSTORE_OFFSET(KGSL_MEMSTORE_GLOBAL,
 					current_context));
+
+		kgsl_sharedmem_readl(&device->memstore, &timestamp,
+				KGSL_MEMSTORE_OFFSET(context_id,
+					eoptimestamp));
+
 		if (context_id < KGSL_MEMSTORE_MAX) {
-			/* reset per context ts_cmp_enable */		
+			/* reset per context ts_cmp_enable */
 			kgsl_sharedmem_writel(&device->memstore,
 					KGSL_MEMSTORE_OFFSET(context_id,
 						ts_cmp_enable), 0);
 			/* Always reset global timestamp ts_cmp_enable */
 			kgsl_sharedmem_writel(&device->memstore,
-				KGSL_MEMSTORE_OFFSET(KGSL_MEMSTORE_GLOBAL,
-					ts_cmp_enable), 0);
+					KGSL_MEMSTORE_OFFSET(
+						KGSL_MEMSTORE_GLOBAL,
+						ts_cmp_enable), 0);
 			wmb();
 		}
-		KGSL_CMD_WARN(device, "ringbuffer rb interrupt\n");
+
+		KGSL_CMD_WARN(device, "<%d:0x%x> ringbuffer interrupt\n",
+				context_id, timestamp);
 	}
 
 	wake_up_interruptible_all(&device->wait_queue);

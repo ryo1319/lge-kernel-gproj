@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -102,6 +102,23 @@
 #define PCIE20_PHYS   0x1b500000
 #define PCIE20_SIZE   SZ_4K
 #define MSM8064_RPM_MASTER_STATS_BASE	0x10BB00
+#define MSM8064_PC_CNTR_PHYS	(APQ8064_IMEM_PHYS + 0x664)
+#define MSM8064_PC_CNTR_SIZE		0x40
+
+static struct resource msm8064_resources_pccntr[] = {
+	{
+		.start	= MSM8064_PC_CNTR_PHYS,
+		.end	= MSM8064_PC_CNTR_PHYS + MSM8064_PC_CNTR_SIZE,
+		.flags	= IORESOURCE_MEM,
+	},
+};
+
+struct platform_device msm8064_pc_cntr = {
+	.name		= "pc-cntr",
+	.id		= -1,
+	.num_resources	= ARRAY_SIZE(msm8064_resources_pccntr),
+	.resource	= msm8064_resources_pccntr,
+};
 
 static struct msm_watchdog_pdata msm_watchdog_pdata = {
 	.pet_time = 10000,
@@ -154,6 +171,10 @@ struct platform_device apq8064_device_dmov = {
 	.dev = {
 		.platform_data = &msm_dmov_pdata,
 	},
+};
+struct platform_device adsp_loader_device = {
+	.name	= "adsp-loader",
+	.id	= -1,
 };
 
 static struct resource resources_uart_gsbi1[] = {
@@ -1613,6 +1634,7 @@ struct msm_vidc_platform_data apq8064_vidc_platform_data = {
 	.disable_fullhd = 0,
 	.cont_mode_dpb_count = 18,
 	.fw_addr = 0x9fe00000,
+	.enable_sec_metadata = 1,
 };
 
 struct platform_device apq8064_msm_device_vidc = {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2011-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2011-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -30,6 +30,7 @@
 #include <linux/android_pmem.h>
 #endif
 #include <linux/cyttsp-qc.h>
+#include <linux/dma-contiguous.h>
 #include <linux/dma-mapping.h>
 #include <linux/platform_data/qcom_crypto_device.h>
 #include <linux/platform_data/qcom_wcnss_device.h>
@@ -155,7 +156,7 @@ struct sx150x_platform_data msm8960_sx150x_data[] = {
 #define MSM_ION_MM_SIZE            0x3800000 /* Need to be multiple of 64K */
 #define MSM_ION_SF_SIZE            0x0
 #define MSM_ION_QSECOM_SIZE        0x780000 /* (7.5MB) */
-#define MSM_ION_HEAP_NUM	7
+#define MSM_ION_HEAP_NUM	8
 #else
 #define MSM_ION_MM_SIZE            MSM_PMEM_ADSP_SIZE
 #define MSM_ION_SF_SIZE            MSM_PMEM_SIZE
@@ -175,6 +176,7 @@ struct sx150x_platform_data msm8960_sx150x_data[] = {
 							HOLE_SIZE))
 #define MAX_FIXED_AREA_SIZE	0x10000000
 #define MSM8960_FW_START	MSM8960_FIXED_AREA_START
+#define MSM_ION_ADSP_SIZE	SZ_8M
 
 static unsigned msm_ion_sf_size = MSM_ION_SF_SIZE;
 #else
@@ -362,6 +364,7 @@ static struct ion_cp_heap_pdata cp_mm_msm8960_ion_pdata = {
 	.fixed_position = FIXED_MIDDLE,
 	.iommu_map_all = 1,
 	.iommu_2x_map_domain = VIDEO_DOMAIN,
+	.is_cma = 1,
 };
 
 static struct ion_cp_heap_pdata cp_mfc_msm8960_ion_pdata = {
@@ -386,6 +389,26 @@ static struct ion_co_heap_pdata fw_co_msm8960_ion_pdata = {
 };
 #endif
 
+static u64 msm_dmamask = DMA_BIT_MASK(32);
+
+static struct platform_device ion_mm_heap_device = {
+	.name = "ion-mm-heap-device",
+	.id = -1,
+	.dev = {
+		.dma_mask = &msm_dmamask,
+		.coherent_dma_mask = DMA_BIT_MASK(32),
+	}
+};
+
+static struct platform_device ion_adsp_heap_device = {
+	.name = "ion-adsp-heap-device",
+	.id = -1,
+	.dev = {
+		.dma_mask = &msm_dmamask,
+		.coherent_dma_mask = DMA_BIT_MASK(32),
+	}
+};
+
 /**
  * These heaps are listed in the order they will be allocated. Due to
  * video hardware restrictions and content protection the FW heap has to
@@ -397,9 +420,7 @@ static struct ion_co_heap_pdata fw_co_msm8960_ion_pdata = {
  * to each other.
  * Don't swap the order unless you know what you are doing!
  */
-static struct ion_platform_data msm8960_ion_pdata = {
-	.nr = MSM_ION_HEAP_NUM,
-	.heaps = {
+struct ion_platform_heap msm8960_heaps[] = {
 		{
 			.id	= ION_SYSTEM_HEAP_ID,
 			.type	= ION_HEAP_TYPE_SYSTEM,
@@ -413,6 +434,7 @@ static struct ion_platform_data msm8960_ion_pdata = {
 			.size	= MSM_ION_MM_SIZE,
 			.memory_type = ION_EBI_TYPE,
 			.extra_data = (void *) &cp_mm_msm8960_ion_pdata,
+			.priv	= &ion_mm_heap_device.dev,
 		},
 		{
 			.id	= ION_MM_FIRMWARE_HEAP_ID,
@@ -461,8 +483,21 @@ static struct ion_platform_data msm8960_ion_pdata = {
 			.memory_type = ION_EBI_TYPE,
 			.extra_data = (void *) &co_msm8960_ion_pdata,
 		},
+		{
+			.id     = ION_ADSP_HEAP_ID,
+			.type   = ION_HEAP_TYPE_DMA,
+			.name   = ION_ADSP_HEAP_NAME,
+			.size   = MSM_ION_ADSP_SIZE,
+			.memory_type = ION_EBI_TYPE,
+			.extra_data = (void *) &co_msm8960_ion_pdata,
+			.priv	= &ion_adsp_heap_device.dev,
+		},
 #endif
-	}
+};
+
+static struct ion_platform_data msm8960_ion_pdata = {
+	.nr = MSM_ION_HEAP_NUM,
+	.heaps = msm8960_heaps,
 };
 
 static struct platform_device msm8960_ion_dev = {
@@ -545,40 +580,21 @@ static void __init reserve_ion_memory(void)
 {
 #if defined(CONFIG_ION_MSM) && defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
 	unsigned int i;
-	unsigned int reusable_count = 0;
+	int ret;
 	unsigned int fixed_size = 0;
 	unsigned int fixed_low_size, fixed_middle_size, fixed_high_size;
 	unsigned long fixed_low_start, fixed_middle_start, fixed_high_start;
+	unsigned long cma_alignment;
+	unsigned int low_use_cma = 0;
+	unsigned int middle_use_cma = 0;
+	unsigned int high_use_cma = 0;
 
 	adjust_mem_for_liquid();
-	msm8960_fmem_pdata.size = 0;
-	msm8960_fmem_pdata.reserved_size_low = 0;
-	msm8960_fmem_pdata.reserved_size_high = 0;
-	msm8960_fmem_pdata.align = PAGE_SIZE;
 	fixed_low_size = 0;
 	fixed_middle_size = 0;
 	fixed_high_size = 0;
 
-	/* We only support 1 reusable heap. Check if more than one heap
-	 * is specified as reusable and set as non-reusable if found.
-	 */
-	for (i = 0; i < msm8960_ion_pdata.nr; ++i) {
-		const struct ion_platform_heap *heap =
-						&(msm8960_ion_pdata.heaps[i]);
-
-		if (heap->type == ION_HEAP_TYPE_CP && heap->extra_data) {
-			struct ion_cp_heap_pdata *data = heap->extra_data;
-
-			reusable_count += (data->reusable) ? 1 : 0;
-
-			if (data->reusable && reusable_count > 1) {
-				pr_err("%s: Too many heaps specified as "
-					"reusable. Heap %s was not configured "
-					"as reusable.\n", __func__, heap->name);
-				data->reusable = 0;
-			}
-		}
-	}
+	cma_alignment = PAGE_SIZE << max(MAX_ORDER, pageblock_order);
 
 	for (i = 0; i < msm8960_ion_pdata.nr; ++i) {
 		struct ion_platform_heap *heap =
@@ -586,15 +602,13 @@ static void __init reserve_ion_memory(void)
 		int align = SZ_4K;
 		int iommu_map_all = 0;
 		int adjacent_mem_id = INVALID_HEAP_ID;
+		int use_cma = 0;
 
 		if (heap->extra_data) {
 			int fixed_position = NOT_FIXED;
-			int mem_is_fmem = 0;
 
-			switch (heap->type) {
+			switch ((int) heap->type) {
 			case ION_HEAP_TYPE_CP:
-				mem_is_fmem = ((struct ion_cp_heap_pdata *)
-					heap->extra_data)->mem_is_fmem;
 				fixed_position = ((struct ion_cp_heap_pdata *)
 					heap->extra_data)->fixed_position;
 				align = ((struct ion_cp_heap_pdata *)
@@ -602,10 +616,17 @@ static void __init reserve_ion_memory(void)
 				iommu_map_all =
 					((struct ion_cp_heap_pdata *)
 					heap->extra_data)->iommu_map_all;
+				if (((struct ion_cp_heap_pdata *)
+					heap->extra_data)->is_cma) {
+					heap->size = ALIGN(heap->size,
+							cma_alignment);
+					use_cma = 1;
+				}
 				break;
+			case ION_HEAP_TYPE_DMA:
+					use_cma = 1;
+				/* Purposely fall through here */
 			case ION_HEAP_TYPE_CARVEOUT:
-				mem_is_fmem = ((struct ion_co_heap_pdata *)
-					heap->extra_data)->mem_is_fmem;
 				fixed_position = ((struct ion_co_heap_pdata *)
 					heap->extra_data)->fixed_position;
 				adjacent_mem_id = ((struct ion_co_heap_pdata *)
@@ -623,45 +644,76 @@ static void __init reserve_ion_memory(void)
 				}
 			}
 
-			if (mem_is_fmem && adjacent_mem_id != INVALID_HEAP_ID)
-				msm8960_fmem_pdata.align = align;
-
 			if (fixed_position != NOT_FIXED)
 				fixed_size += heap->size;
 			else
 				reserve_mem_for_ion(MEMTYPE_EBI1, heap->size);
 
-			if (fixed_position == FIXED_LOW)
+			if (fixed_position == FIXED_LOW) {
 				fixed_low_size += heap->size;
-			else if (fixed_position == FIXED_MIDDLE)
+				low_use_cma = use_cma;
+			} else if (fixed_position == FIXED_MIDDLE) {
 				fixed_middle_size += heap->size;
-			else if (fixed_position == FIXED_HIGH)
+				middle_use_cma = use_cma;
+			} else if (fixed_position == FIXED_HIGH) {
 				fixed_high_size += heap->size;
-
-			if (mem_is_fmem)
-				msm8960_fmem_pdata.size += heap->size;
+				high_use_cma = use_cma;
+			} else if (use_cma) {
+				/*
+				 * Heaps that use CMA but are not part of the
+				 * fixed set. Create wherever.
+				 */
+				dma_declare_contiguous(
+					heap->priv,
+					heap->size,
+					0,
+					0xb0000000);
+			}
 		}
 	}
 
 	if (!fixed_size)
 		return;
 
-	if (msm8960_fmem_pdata.size) {
-		msm8960_fmem_pdata.reserved_size_low = fixed_low_size +
-							HOLE_SIZE;
-		msm8960_fmem_pdata.reserved_size_high = fixed_high_size;
-	}
-
-	/* Since the fixed area may be carved out of lowmem,
-	 * make sure the length is a multiple of 1M.
+	/*
+	 * Given the setup for the fixed area, we can't round up all sizes.
+	 * Some sizes must be set up exactly and aligned correctly. Incorrect
+	 * alignments are considered a configuration issue
 	 */
-	fixed_size = (fixed_size + MSM_MM_FW_SIZE + SECTION_SIZE - 1)
-		& SECTION_MASK;
-	msm8960_reserve_fixed_area(fixed_size);
 
 	fixed_low_start = MSM8960_FIXED_AREA_START;
+	if (low_use_cma) {
+		BUG_ON(!IS_ALIGNED(fixed_low_start, cma_alignment));
+		BUG_ON(!IS_ALIGNED(fixed_low_size + HOLE_SIZE, cma_alignment));
+	} else {
+		BUG_ON(!IS_ALIGNED(fixed_low_size + HOLE_SIZE, SECTION_SIZE));
+		ret = memblock_remove(fixed_low_start,
+				      fixed_low_size + HOLE_SIZE);
+		BUG_ON(ret);
+	}
+
 	fixed_middle_start = fixed_low_start + fixed_low_size + HOLE_SIZE;
+	if (middle_use_cma) {
+		BUG_ON(!IS_ALIGNED(fixed_middle_start, cma_alignment));
+		BUG_ON(!IS_ALIGNED(fixed_middle_size, cma_alignment));
+	} else {
+		BUG_ON(!IS_ALIGNED(fixed_middle_size, SECTION_SIZE));
+		ret = memblock_remove(fixed_middle_start, fixed_middle_size);
+		BUG_ON(ret);
+	}
+
 	fixed_high_start = fixed_middle_start + fixed_middle_size;
+	if (high_use_cma) {
+		fixed_high_size = ALIGN(fixed_high_size, cma_alignment);
+		BUG_ON(!IS_ALIGNED(fixed_high_start, cma_alignment));
+	} else {
+		/* This is the end of the fixed area so it's okay to round up */
+		fixed_high_size = ALIGN(fixed_high_size, SECTION_SIZE);
+		ret = memblock_remove(fixed_high_start, fixed_high_size);
+		BUG_ON(ret);
+	}
+
+
 
 	for (i = 0; i < msm8960_ion_pdata.nr; ++i) {
 		struct ion_platform_heap *heap = &(msm8960_ion_pdata.heaps[i]);
@@ -670,13 +722,14 @@ static void __init reserve_ion_memory(void)
 			int fixed_position = NOT_FIXED;
 			struct ion_cp_heap_pdata *pdata = NULL;
 
-			switch (heap->type) {
+			switch ((int) heap->type) {
 			case ION_HEAP_TYPE_CP:
 				pdata =
 				(struct ion_cp_heap_pdata *)heap->extra_data;
 				fixed_position = pdata->fixed_position;
 				break;
 			case ION_HEAP_TYPE_CARVEOUT:
+			case ION_HEAP_TYPE_DMA:
 				fixed_position = ((struct ion_co_heap_pdata *)
 					heap->extra_data)->fixed_position;
 				break;
@@ -690,6 +743,14 @@ static void __init reserve_ion_memory(void)
 				break;
 			case FIXED_MIDDLE:
 				heap->base = fixed_middle_start;
+				if (middle_use_cma) {
+					ret = dma_declare_contiguous(
+						&ion_mm_heap_device.dev,
+						heap->size,
+						fixed_middle_start,
+						0xa0000000);
+					WARN_ON(ret);
+				}
 				pdata->secure_base = fixed_middle_start
 							- HOLE_SIZE;
 				pdata->secure_size = HOLE_SIZE + heap->size;
@@ -821,19 +882,6 @@ static void __init msm8960_reserve(void)
 {
 	msm8960_set_display_params(prim_panel_name, ext_panel_name);
 	msm_reserve();
-	if (msm8960_fmem_pdata.size) {
-#if defined(CONFIG_ION_MSM) && defined(CONFIG_MSM_MULTIMEDIA_USE_ION)
-		if (reserve_info->fixed_area_size) {
-			msm8960_fmem_pdata.phys =
-				reserve_info->fixed_area_start + MSM_MM_FW_SIZE;
-			pr_info("mm fw at %lx (fixed) size %x\n",
-				reserve_info->fixed_area_start, MSM_MM_FW_SIZE);
-			pr_info("fmem start %lx (fixed) size %lx\n",
-				msm8960_fmem_pdata.phys,
-				msm8960_fmem_pdata.size);
-		}
-#endif
-	}
 }
 
 static int msm8960_change_memory_power(u64 start, u64 size,
@@ -2837,6 +2885,7 @@ static struct platform_device *common_devices[] __initdata = {
 	&msm8960_cache_dump_device,
 	&msm8960_iommu_domain_device,
 	&msm_tsens_device,
+	&msm8960_pc_cntr,
 };
 
 static struct platform_device *cdp_devices[] __initdata = {

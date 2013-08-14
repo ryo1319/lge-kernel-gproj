@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -69,7 +69,7 @@ static void *res_trk_pmem_map
 	if (res_trk_get_enable_ion() && addr->alloc_handle) {
 		kernel_vaddr = (unsigned long *) ion_map_kernel(
 					ddl_context->video_ion_client,
-					addr->alloc_handle, UNCACHED);
+					addr->alloc_handle);
 		if (IS_ERR_OR_NULL(kernel_vaddr)) {
 			DDL_MSG_ERROR("%s():DDL ION client map failed\n",
 						 __func__);
@@ -84,7 +84,7 @@ static void *res_trk_pmem_map
 				0,
 				&iova,
 				&buffer_size,
-				UNCACHED, 0);
+				0, 0);
 		if (ret || !iova) {
 			DDL_MSG_ERROR(
 			"%s():DDL ION client iommu map failed, ret = %d iova = 0x%lx\n",
@@ -209,7 +209,7 @@ static int res_trk_pmem_alloc
 			addr->alloc_handle = ion_alloc(
 					ddl_context->video_ion_client,
 					 alloc_size, SZ_4K,
-					res_trk_get_mem_type());
+					res_trk_get_mem_type(), 0);
 			if (IS_ERR_OR_NULL(addr->alloc_handle)) {
 				DDL_MSG_ERROR("%s() :DDL ION alloc failed\n",
 						__func__);
@@ -749,6 +749,9 @@ void res_trk_init(struct device *device, u32 irq)
 			resource_context.vidc_platform_data->disable_dmx;
 			resource_context.disable_fullhd =
 			resource_context.vidc_platform_data->disable_fullhd;
+			resource_context.enable_sec_metadata =
+			resource_context.vidc_platform_data->
+				enable_sec_metadata;
 #ifdef CONFIG_MSM_BUS_SCALING
 			resource_context.vidc_bus_client_pdata =
 			resource_context.vidc_platform_data->
@@ -892,6 +895,10 @@ void res_trk_set_mem_type(enum ddl_mem_area mem_type)
 u32 res_trk_get_disable_fullhd(void)
 {
 	return resource_context.disable_fullhd;
+}
+u32 res_trk_get_enable_sec_metadata(void)
+{
+	return resource_context.enable_sec_metadata;
 }
 
 int res_trk_enable_iommu_clocks(void)

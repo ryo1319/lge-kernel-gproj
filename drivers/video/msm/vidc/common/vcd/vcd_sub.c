@@ -92,7 +92,7 @@ static int vcd_pmem_alloc(size_t sz, u8 **kernel_vaddr, u8 **phy_addr,
 	} else {
 		map_buffer->alloc_handle = ion_alloc(
 			    cctxt->vcd_ion_client, sz, SZ_4K,
-			    memtype);
+			    memtype, 0);
 		if (!map_buffer->alloc_handle) {
 			pr_err("%s() ION alloc failed", __func__);
 			goto bailout;
@@ -105,8 +105,7 @@ static int vcd_pmem_alloc(size_t sz, u8 **kernel_vaddr, u8 **phy_addr,
 		}
 		*kernel_vaddr = (u8 *) ion_map_kernel(
 				cctxt->vcd_ion_client,
-				map_buffer->alloc_handle,
-				ionflag);
+				map_buffer->alloc_handle);
 		if (!(*kernel_vaddr)) {
 			pr_err("%s() ION map failed", __func__);
 			goto ion_free_bailout;
@@ -120,7 +119,7 @@ static int vcd_pmem_alloc(size_t sz, u8 **kernel_vaddr, u8 **phy_addr,
 				0,
 				(unsigned long *)&iova,
 				(unsigned long *)&buffer_size,
-				UNCACHED, 0);
+				0, 0);
 			if (ret || !iova) {
 				pr_err(
 				"%s() ION iommu map failed, ret = %d, iova = 0x%lx",
@@ -2317,8 +2316,16 @@ u32 vcd_handle_frame_done(
 
 	if (cctxt->decoding)
 		op_frm->vcd_frm.frame = transc->frame;
-	else
+	else {
 		transc->frame = op_frm->vcd_frm.frame;
+		if ((transc->flags & VCD_FRAME_FLAG_EOS) &&
+			!(op_frm->vcd_frm.flags & VCD_FRAME_FLAG_EOS)) {
+			op_frm->vcd_frm.flags |= VCD_FRAME_FLAG_EOS;
+			VCD_MSG_HIGH("%s: add EOS flag to the output "\
+				"from transc(0x%x)",
+				__func__, (u32)transc);
+		}
+	}
 	transc->frame_done = true;
 
 	if (transc->input_done && transc->frame_done) {

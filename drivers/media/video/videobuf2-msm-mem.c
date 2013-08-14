@@ -56,7 +56,7 @@ static unsigned long msm_mem_allocate(struct videobuf2_contig_pmem *mem)
 		goto client_failed;
 	}
 	mem->ion_handle = ion_alloc(mem->client, mem->size, SZ_4K,
-		(0x1 << ION_CP_MM_HEAP_ID | 0x1 << ION_IOMMU_HEAP_ID));
+		(0x1 << ION_CP_MM_HEAP_ID | 0x1 << ION_IOMMU_HEAP_ID), 0);
 	if (IS_ERR((void *)mem->ion_handle)) {
 		pr_err("%s Could not allocate\n", __func__);
 		goto alloc_failed;
@@ -64,7 +64,7 @@ static unsigned long msm_mem_allocate(struct videobuf2_contig_pmem *mem)
 	rc = ion_map_iommu(mem->client, mem->ion_handle,
 			-1, 0, SZ_4K, 0,
 			(unsigned long *)&phyaddr,
-			(unsigned long *)&len, UNCACHED, 0);
+			(unsigned long *)&len, 0, 0);
 	if (rc < 0) {
 		pr_err("%s Could not get physical address\n", __func__);
 		goto phys_failed;
@@ -191,16 +191,8 @@ int videobuf2_pmem_contig_user_get(struct videobuf2_contig_pmem *mem,
 		pr_err("%s ION import failed\n", __func__);
 		return PTR_ERR(mem->ion_handle);
 	}
-/*                                                                */
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
-	//use delayed unmapping.. because iommu fault is occured...
 	rc = ion_map_iommu(client, mem->ion_handle, domain_num, 0,
-		SZ_4K, 0, (unsigned long *)&mem->phyaddr, &len, UNCACHED, ION_IOMMU_UNMAP_DELAYED);
-#else
-	rc = ion_map_iommu(client, mem->ion_handle, domain_num, 0,
-		SZ_4K, 0, (unsigned long *)&mem->phyaddr, &len, UNCACHED, 0);
-#endif
-/*                                                              */
+		SZ_4K, 0, (unsigned long *)&mem->phyaddr, &len, 0, 0);
 	if (rc < 0)
 		ion_free(client, mem->ion_handle);
 #elif CONFIG_ANDROID_PMEM
@@ -228,24 +220,14 @@ int videobuf2_pmem_contig_user_get(struct videobuf2_contig_pmem *mem,
 }
 EXPORT_SYMBOL_GPL(videobuf2_pmem_contig_user_get);
 
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 void videobuf2_pmem_contig_user_put(struct videobuf2_contig_pmem *mem,
-       struct ion_client *client, int domain_num, int is_closing)
-#else
-void videobuf2_pmem_contig_user_put(struct videobuf2_contig_pmem *mem,
-       struct ion_client *client, int domain_num)
-#endif
+				struct ion_client *client, int domain_num)
 {
 	if (mem->is_userptr) {
 #ifdef CONFIG_MSM_MULTIMEDIA_USE_ION
 		ion_unmap_iommu(client, mem->ion_handle,
 				domain_num, 0);
-/*                                                               */
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
-		if (is_closing != 1)
-#endif
 		ion_free(client, mem->ion_handle);
-/*                                                             */
 #elif CONFIG_ANDROID_PMEM
 		put_pmem_file(mem->file);
 #endif
@@ -360,12 +342,12 @@ unsigned long videobuf2_to_pmem_contig(struct vb2_buffer *vb,
 {
 	struct videobuf2_contig_pmem *mem;
 	mem = vb2_plane_cookie(vb, plane_no);
-//                                                      
+//Start LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		if(mem == NULL){
 			pr_err("%s:mem is NULL \n",__func__);
 			return 0;
-		}
-//                                                     
+		}		
+//End  LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com	
 	BUG_ON(!mem);
 	MAGIC_CHECK(mem->magic, MAGIC_PMEM);
 	return mem->mapped_phyaddr;

@@ -95,21 +95,13 @@ static int msm_slim_3_rx_ch = 1;
 
 static int msm_btsco_rate = BTSCO_RATE_8KHZ;
 static int msm_btsco_ch = 1;
+static int msm_hdmi_rx_ch = 2;
 
-#if 0
-//                                                                                  
-static int msm_auxpcm_rate = BTSCO_RATE_8KHZ;
-//                                                                                
-#endif
-
+static int hdmi_rate_variable;
 static int rec_mode = INCALL_REC_MONO;
 
 static struct clk *codec_clk;
 static int clk_users;
-
-#ifdef CONFIG_WCD9310_MBHC
-static int msm_headset_gpios_configured;
-#endif
 
 static struct snd_soc_jack hs_jack;
 static struct snd_soc_jack button_jack;
@@ -521,11 +513,11 @@ static const struct snd_soc_dapm_widget apq8064_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Handset SubMic", NULL),
 #endif
 
-//                                                                                                   
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) ) 
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT) )
 	SND_SOC_DAPM_MIC("Handset 3rdMic", NULL),
 #endif
-//                                                                                                 
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
 
 
 	/*********** Digital Mics ***************/
@@ -556,12 +548,12 @@ static const struct snd_soc_dapm_route apq8064_common_audio_map[] = {
 	{"Ext Spk Top", NULL, "LINEOUT5"},
 #endif
 
-//                                                                                                   
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) )
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT) )
 	{"AMIC5", NULL, "MIC BIAS4 External"},
 	{"MIC BIAS4 External", NULL, "Handset 3rdMic"},
 #endif
-//                                                                                                 
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
 
 
 	/************   Analog MIC Paths  ************/
@@ -703,11 +695,16 @@ static const struct snd_soc_dapm_route apq8064_liquid_cdp_audio_map[] = {
 static const char *spk_function[] = {"Off", "On"};
 static const char *slim0_rx_ch_text[] = {"One", "Two"};
 static const char *slim0_tx_ch_text[] = {"One", "Two", "Three", "Four"};
+static const char *hdmi_rx_ch_text[] = {"Two", "Three", "Four", "Five",
+	"Six", "Seven", "Eight"};
+static const char * const hdmi_rate[] = {"Default", "Variable"};
 
 static const struct soc_enum msm_enum[] = {
 	SOC_ENUM_SINGLE_EXT(2, spk_function),
 	SOC_ENUM_SINGLE_EXT(2, slim0_rx_ch_text),
 	SOC_ENUM_SINGLE_EXT(4, slim0_tx_ch_text),
+	SOC_ENUM_SINGLE_EXT(7, hdmi_rx_ch_text),
+	SOC_ENUM_SINGLE_EXT(2, hdmi_rate),
 };
 
 static const char *btsco_rate_text[] = {"8000", "16000"};
@@ -716,12 +713,12 @@ static const struct soc_enum msm_btsco_enum[] = {
 };
 
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static const char *auxpcm_rate_text[] = {"8000", "16000"};
 static const struct soc_enum msm_auxpcm_enum[] = {
 		SOC_ENUM_SINGLE_EXT(2, auxpcm_rate_text),
 };
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
 static int msm_slim_0_rx_ch_get(struct snd_kcontrol *kcontrol,
@@ -809,7 +806,7 @@ static int msm_btsco_rate_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static int msm_auxpcm_rate_get(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
@@ -837,7 +834,7 @@ static int msm_auxpcm_rate_put(struct snd_kcontrol *kcontrol,
 					msm_auxpcm_rate);
 	return 0;
 }
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
 static int msm_incall_rec_mode_get(struct snd_kcontrol *kcontrol,
@@ -857,6 +854,40 @@ static int msm_incall_rec_mode_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
+static int msm_hdmi_rx_ch_get(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	pr_debug("%s: msm_hdmi_rx_ch  = %d\n", __func__,
+			msm_hdmi_rx_ch);
+	ucontrol->value.integer.value[0] = msm_hdmi_rx_ch - 2;
+	return 0;
+}
+
+static int msm_hdmi_rx_ch_put(struct snd_kcontrol *kcontrol,
+	struct snd_ctl_elem_value *ucontrol)
+{
+	msm_hdmi_rx_ch = ucontrol->value.integer.value[0] + 2;
+
+	pr_debug("%s: msm_hdmi_rx_ch = %d\n", __func__,
+		msm_hdmi_rx_ch);
+	return 1;
+}
+	
+static int msm_hdmi_rate_put(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
+{
+	hdmi_rate_variable = ucontrol->value.integer.value[0];
+	pr_debug("%s: hdmi_rate_variable = %d\n", __func__, hdmi_rate_variable);
+	return 0;
+}
+
+static int msm_hdmi_rate_get(struct snd_kcontrol *kcontrol,
+				struct snd_ctl_elem_value *ucontrol)
+{
+	ucontrol->value.integer.value[0] = hdmi_rate_variable;
+	return 0;
+}
+
 static const struct snd_kcontrol_new tabla_msm_controls[] = {
 	SOC_ENUM_EXT("Speaker Function", msm_enum[0], msm_get_spk,
 		msm_set_spk),
@@ -870,33 +901,12 @@ static const struct snd_kcontrol_new tabla_msm_controls[] = {
 			msm_incall_rec_mode_get, msm_incall_rec_mode_put),
 	SOC_ENUM_EXT("SLIM_3_RX Channels", msm_enum[1],
 		msm_slim_3_rx_ch_get, msm_slim_3_rx_ch_put),
-#if 0
-	SOC_ENUM_EXT("AUX PCM SampleRate", msm_auxpcm_enum[0],
-		msm_auxpcm_rate_get, msm_auxpcm_rate_put),
-#endif
+	SOC_ENUM_EXT("HDMI_RX Channels", msm_enum[3],
+		msm_hdmi_rx_ch_get, msm_hdmi_rx_ch_put),
+	SOC_ENUM_EXT("HDMI RX Rate", msm_enum[4],
+					msm_hdmi_rate_get,
+					msm_hdmi_rate_put),
 };
-
-#if 0
-//                                                                                  
-static const struct snd_kcontrol_new auxpcm_rate_mixer_controls[] = {
-	SOC_ENUM_EXT("AUX PCM SampleRate", msm_auxpcm_enum[0],
-		msm_auxpcm_rate_get, msm_auxpcm_rate_put),
-};
-
-static int msm_auxpcm_init(struct snd_soc_pcm_runtime *rtd)
-{
-       int err = 0;
-       struct snd_soc_platform *platform = rtd->platform;
-
-       err = snd_soc_add_platform_controls(platform,
-               auxpcm_rate_mixer_controls,
-               ARRAY_SIZE(auxpcm_rate_mixer_controls));
-       if (err < 0)
-               return err;
-       return 0;
-}
-//                                                                                
-#endif
 
 static void *def_tabla_mbhc_cal(void)
 {
@@ -947,20 +957,20 @@ static void *def_tabla_mbhc_cal(void)
 	btn_low = tabla_mbhc_cal_btn_det_mp(btn_cfg, TABLA_BTN_DET_V_BTN_LOW);
 	btn_high = tabla_mbhc_cal_btn_det_mp(btn_cfg, TABLA_BTN_DET_V_BTN_HIGH);
 	btn_low[0] = -50;
-	btn_high[0] = 20;
-	btn_low[1] = 21;
-	btn_high[1] = 62;
-	btn_low[2] = 62;
-	btn_high[2] = 104;
-	btn_low[3] = 105;
-	btn_high[3] = 143;
-	btn_low[4] = 144;
-	btn_high[4] = 181;
-	btn_low[5] = 182;
-	btn_high[5] = 218;
-	btn_low[6] = 219;
-	btn_high[6] = 254;
-	btn_low[7] = 255;
+	btn_high[0] = 10;
+	btn_low[1] = 11;
+	btn_high[1] = 52;
+	btn_low[2] = 53;
+	btn_high[2] = 94;
+	btn_low[3] = 95;
+	btn_high[3] = 133;
+	btn_low[4] = 134;
+	btn_high[4] = 171;
+	btn_low[5] = 172;
+	btn_high[5] = 208;
+	btn_low[6] = 209;
+	btn_high[6] = 244;
+	btn_low[7] = 245;
 	btn_high[7] = 330;
 	n_ready = tabla_mbhc_cal_btn_det_mp(btn_cfg, TABLA_BTN_DET_N_READY);
 	n_ready[0] = 80;
@@ -1450,6 +1460,24 @@ static int msm_slim_4_tx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	return 0;
 }
 
+static int msm_slim_4_rx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
+			struct snd_pcm_hw_params *params)
+{
+	struct snd_interval *rate = hw_param_interval(params,
+			SNDRV_PCM_HW_PARAM_RATE);
+
+	struct snd_interval *channels = hw_param_interval(params,
+			SNDRV_PCM_HW_PARAM_CHANNELS);
+
+	rate->min = rate->max = 48000;
+	channels->min = channels->max = 1;
+
+	pr_debug("%s channels->min %u channels->max %u ()\n", __func__,
+			channels->min, channels->max);
+	return 0;
+}
+
+
 static int msm_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 			struct snd_pcm_hw_params *params)
 {
@@ -1475,7 +1503,11 @@ static int msm_hdmi_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	pr_debug("%s channels->min %u channels->max %u ()\n", __func__,
 			channels->min, channels->max);
 
-	rate->min = rate->max = 48000;
+	if (!hdmi_rate_variable)
+		rate->min = rate->max = 48000;
+	channels->min = channels->max = msm_hdmi_rx_ch;
+	if (channels->max < 2)
+		channels->min = channels->max = 2;
 
 	return 0;
 }
@@ -1508,11 +1540,11 @@ static int msm_auxpcm_be_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	/* PCM only supports mono output with 8khz sample rate */
 	rate->min = rate->max = 8000;
 #else
-	//                                                                                  
+	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 	pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_btsco_rate);
 	//pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_auxpcm_rate);
 	rate->min = rate->max = msm_btsco_rate; //msm_auxpcm_rate;
-	//                                                                                
+	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 	channels->min = channels->max = 1;
 
@@ -2015,11 +2047,6 @@ static struct snd_soc_dai_link msm_dai[] = {
 		.platform_name = "msm-pcm-routing",
 		.codec_name = "msm-stub-codec.1",
 		.codec_dai_name = "msm-stub-rx",
-#if 0
-		//                                                                                  
-		//.init = &msm_auxpcm_init,
-		//                                                                                
-#endif
 		.no_pcm = 1,
 		.be_id = MSM_BACKEND_DAI_AUXPCM_RX,
 		.be_hw_params_fixup = msm_auxpcm_be_params_fixup,
@@ -2124,7 +2151,7 @@ static struct snd_soc_dai_link msm_dai[] = {
 		.codec_dai_name = "msm-stub-rx",
 		.no_pcm = 1,
 		.be_id = MSM_BACKEND_DAI_SLIMBUS_4_RX,
-		.be_hw_params_fixup = msm_be_hw_params_fixup,
+		.be_hw_params_fixup = msm_slim_4_rx_be_hw_params_fixup,
 		.ops = &msm_slimbus_4_be_ops,
 		.ignore_pmdown_time = 1, /* this dainlink has playback support */
 	},
@@ -2195,60 +2222,6 @@ static struct snd_soc_card snd_soc_card_msm = {
 
 static struct platform_device *msm_snd_device;
 
-#ifdef CONFIG_WCD9310_MBHC
-static int msm_configure_headset_mic_gpios(void)
-{
-	int ret;
-	struct pm_gpio param = {
-		.direction      = PM_GPIO_DIR_OUT,
-		.output_buffer  = PM_GPIO_OUT_BUF_CMOS,
-		.output_value   = 1,
-		.pull	   = PM_GPIO_PULL_NO,
-		.vin_sel	= PM_GPIO_VIN_S4,
-		.out_strength   = PM_GPIO_STRENGTH_MED,
-		.function       = PM_GPIO_FUNC_NORMAL,
-	};
-
-	ret = gpio_request(PM8921_GPIO_PM_TO_SYS(23), "AV_SWITCH");
-	if (ret) {
-		pr_err("%s: Failed to request gpio %d\n", __func__,
-			PM8921_GPIO_PM_TO_SYS(23));
-		return ret;
-	}
-
-	ret = pm8xxx_gpio_config(PM8921_GPIO_PM_TO_SYS(23), &param);
-	if (ret)
-		pr_err("%s: Failed to configure gpio %d\n", __func__,
-			PM8921_GPIO_PM_TO_SYS(23));
-	else
-		gpio_direction_output(PM8921_GPIO_PM_TO_SYS(23), 0);
-
-	ret = gpio_request(PM8921_GPIO_PM_TO_SYS(35), "US_EURO_SWITCH");
-	if (ret) {
-		pr_err("%s: Failed to request gpio %d\n", __func__,
-			PM8921_GPIO_PM_TO_SYS(35));
-		gpio_free(PM8921_GPIO_PM_TO_SYS(23));
-		return ret;
-	}
-	ret = pm8xxx_gpio_config(PM8921_GPIO_PM_TO_SYS(35), &param);
-	if (ret)
-		pr_err("%s: Failed to configure gpio %d\n", __func__,
-			PM8921_GPIO_PM_TO_SYS(35));
-	else
-		gpio_direction_output(PM8921_GPIO_PM_TO_SYS(35), 0);
-	return 0;
-}
-
-static void msm_free_headset_mic_gpios(void)
-{
-
-	if (msm_headset_gpios_configured) {
-		gpio_free(PM8921_GPIO_PM_TO_SYS(23));
-		gpio_free(PM8921_GPIO_PM_TO_SYS(35));
-	}
-}
-#endif
-
 static int __init msm_audio_init(void)
 {
 	int ret;
@@ -2285,16 +2258,9 @@ static int __init msm_audio_init(void)
 		return ret;
 	}
 
-#ifdef CONFIG_WCD9310_MBHC
-	if (msm_configure_headset_mic_gpios()) {
-		pr_err("%s Fail to configure headset mic gpios\n", __func__);
-		msm_headset_gpios_configured = 0;
-	} else
-		msm_headset_gpios_configured = 1;
-#endif
-
 	mutex_init(&cdc_mclk_mutex);
 	atomic_set(&auxpcm_rsc_ref, 0);
+
 	return ret;
 
 }
