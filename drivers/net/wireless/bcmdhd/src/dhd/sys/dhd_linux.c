@@ -374,7 +374,7 @@ module_param(op_mode, int, 0644);
 extern int wl_control_wl_start(struct net_device *dev);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 struct semaphore dhd_registration_sem;
-#ifndef CUSTOMER_HW10 //                                                           
+#ifndef CUSTOMER_HW10 //moon-wifi@lge.com by kwisuk.kwon 20120208 : F260S TD 302818
 struct semaphore dhd_chipup_sem;
 #endif
 int dhd_registration_check = FALSE;
@@ -1570,6 +1570,17 @@ dhd_sendpkt(dhd_pub_t *dhdp, int ifidx, void *pktbuf)
 #endif /* !CUSTOMER_HW4 */
 		pktsetprio(pktbuf, FALSE);
 
+#ifdef BG_PKTPRIO_OVERRIDE
+#ifdef CUSTOMER_HW10
+	if (dhdp->op_mode & DHD_FLAG_HOSTAP_MODE) {
+		if (PKTPRIO(pktbuf) == 2) {
+			PKTSETPRIO(pktbuf, 0);
+		}
+	}
+#endif
+#endif
+
+
 #ifdef PROP_TXSTATUS
 	if (dhdp->wlfc_state) {
 		/* store the interface ID */
@@ -2211,18 +2222,9 @@ dhd_dpc_thread(void *data)
 	complete(&tsk->completed);
 #endif
 
-	//                                                                                                    
-	{
-		struct cpumask cpus;
-		DHD_ERROR(("%s: Enter  Set CPU Affinity only to cpu0\n", __func__));
-		cpumask_clear(&cpus);
-		cpumask_set_cpu(0, &cpus);				
-		if (sched_setaffinity(current->pid, &cpus))
-			DHD_ERROR(("%s: dhd_dpc() set CPU affinity failed\n",__func__));
-		else
-			DHD_ERROR(("%s: dhd_dpc() set CPU affinity Succeed	PID = %d\n",__func__, current->pid));
-	}
-	//                                                                                                     
+#ifdef CUSTOM_DPC_CPUCORE
+	set_cpus_allowed_ptr(current, cpumask_of(CUSTOM_DPC_CPUCORE));
+#endif
 
 	/* Run until signal received */
 	while (1) {
@@ -3062,7 +3064,7 @@ dhd_osl_detach(osl_t *osh)
 #if 1 && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	dhd_registration_check = FALSE;
 	up(&dhd_registration_sem);
-#ifndef CUSTOMER_HW10	//                                                           
+#ifndef CUSTOMER_HW10	//moon-wifi@lge.com by kwisuk.kwon 20120208 : F260S TD 302818
 #if	defined(BCMLXSDMMC)
 	up(&dhd_chipup_sem);
 #endif
@@ -3585,7 +3587,7 @@ bool dhd_is_concurrent_mode(dhd_pub_t *dhd)
 }
 
 
-/*                                     */
+/* LGE_patch : S : config file setting */
 #if defined(CONFIG_LGE_BCM433X_PATCH)
 #include <linux/fs.h>
 #include <linux/ctype.h>
@@ -3606,6 +3608,7 @@ static int dhd_preinit_proc(dhd_pub_t *dhd, int ifidx, char *name, char *value)
 	int roam_env_mode = AP_ENV_INDETERMINATE;
 #endif /* ROAM_AP_ENV_DETECTION */
 
+printk("dhd preinit: %s\n",name);
 	if (!strcmp(name, "country")) {
 		revstr = strchr(value, '/');
 		if (revstr) {
@@ -3806,6 +3809,7 @@ static int dhd_preinit_config(dhd_pub_t *dhd, int ifidx)
 		(len = dhd_os_get_image_block(buf, stat.size, fp)) < 0)
 		goto err;
 
+printk("dhd preinit: %d\n",__LINE__);
 	buf[stat.size] = '\0';
 	for (p = buf; *p; p++) {
 		if (isspace(*p))
@@ -3816,6 +3820,7 @@ static int dhd_preinit_config(dhd_pub_t *dhd, int ifidx)
 				p++;
 				for (value = p; *p && !isspace(*p); p++);
 				*p = '\0';
+printk("dhd preinit: %s:%s\n",name, value);
 				if ((ret = dhd_preinit_proc(dhd, ifidx, name, value)) < 0) {
 					printk(KERN_ERR "%s: %s=%s\n",
 							bcmerrorstr(ret), name, value);
@@ -3837,8 +3842,8 @@ err:
 	ret = -1;
 	goto out;
 }
-#endif /*                          */
-/*                                     */
+#endif /* CONFIG_LGE_BCM433X_PATCH */
+/* LGE_patch : E : config file setting */
 
 #if !defined(AP) && defined(WLP2P)
 /* From Android JerryBean release, the concurrent mode is enabled by default and the firmware
@@ -4389,9 +4394,9 @@ dhd_preinit_ioctls(dhd_pub_t *dhd)
 	dhd_wl_ioctl_cmd(dhd, WLC_SET_VAR, iovbuf, sizeof(iovbuf), TRUE, 0);
 #endif /* ENABLE_BCN_LI_BCN_WAKEUP */
 
-#if defined(CONFIG_LGE_BCM433X_PATCH)	/*                                 */
+#if defined(CONFIG_LGE_BCM433X_PATCH)	/* LGE_patch : config file setting */
 	dhd_preinit_config(dhd, 0);
-#endif /*                          */
+#endif /* CONFIG_LGE_BCM433X_PATCH */
 
 	/* query for 'ver' to get version info from firmware */
 	memset(buf, 0, sizeof(buf));
@@ -4956,7 +4961,7 @@ dhd_module_init(void)
 {
 	int error = 0;
 
-//                                                           
+//moon-wifi@lge.com by kwisuk.kwon 20120208 : F260S TD 302818
 //#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 #if !defined(CUSTOMER_HW10) && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	int retry = POWERUP_MAX_RETRY;
@@ -4983,7 +4988,7 @@ dhd_module_init(void)
 	} while (0);
 #endif 
 
-//                                                           
+//moon-wifi@lge.com by kwisuk.kwon 20120208 : F260S TD 302818
 //#if 1 && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 #if !defined(CUSTOMER_HW10) && defined(BCMLXSDMMC) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27))
 	do {

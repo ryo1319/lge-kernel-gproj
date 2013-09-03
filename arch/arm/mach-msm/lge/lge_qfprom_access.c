@@ -11,14 +11,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-/*                                                                                       
+/*=======================================================================================
 
-                                
+                   		 WARNING !!
 
-                                                                                      
-                                                            
+ If you modify this file, it may give rise to serious Factory mass-production problem,
+ Sure please contact us security team. [lg-security@lge.com]
 
-                                                                                       */
+=======================================================================================*/
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/device.h>

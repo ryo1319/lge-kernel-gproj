@@ -73,7 +73,7 @@ struct msm_gpiomux_config apq8064_ethernet_configs[] = {
 	},
 };
 #endif
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 #if CONFIG_SWITCH_MAX1462X
 static struct gpiomux_setting ear_key_int = {
@@ -92,9 +92,9 @@ struct msm_gpiomux_config apq8064_earjack_configs[] = {
 	},
 };
 #endif
-//                                                                   
+// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
-//                                             
+//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 /*static struct gpiomux_setting gsbi6 = {
 	.func = GPIOMUX_FUNC_2,
@@ -144,9 +144,9 @@ static struct gpiomux_setting bt_wakeup_suspend_cfg = {
 	.drv = GPIOMUX_DRV_2MA,
 	.pull = /*GPIOMUX_PULL_UP,*/ GPIOMUX_PULL_NONE,
 };
-#endif /*                      */
-//                                           
-//                                                                   
+#endif /* CONFIG_LGE_BLUESLEEP */
+//END: 0019632 chanha.park@lge.com 2012-05-31
+// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
 
 #if defined(CONFIG_LGE_BROADCAST_TDMB) 
 static struct gpiomux_setting gsbi5_spi_config= {
@@ -172,7 +172,7 @@ static struct gpiomux_setting dmb_int_pin = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_UP,
 };
-#endif /*                      */
+#endif /* CONFIG_LGE_BROADCAST */
 
 
 #ifdef CONFIG_MSM_VCAP
@@ -504,7 +504,7 @@ static struct gpiomux_setting gsbi7_func2_cfg = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_NONE,
 };
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 #if defined(CONFIG_LGE_IRRC)
 static struct gpiomux_setting gsbi7_irrc_TXD = {
@@ -532,7 +532,7 @@ static struct gpiomux_setting gsbi3_active_cfg = {
 	.pull = GPIOMUX_PULL_NONE,
 };
 
-//                                                                          
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [START]
 #if defined (CONFIG_SLIMPORT_ANX7808)
 static struct gpiomux_setting slimport_suspend_cfg = {
 	.func = GPIOMUX_FUNC_GPIO,
@@ -541,7 +541,7 @@ static struct gpiomux_setting slimport_suspend_cfg = {
 	.dir = GPIOMUX_IN,
 };
 #endif
-//                                                                        
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [END]
 
 static struct gpiomux_setting hdmi_suspend_1_cfg = {
 	.func = GPIOMUX_FUNC_GPIO,
@@ -789,8 +789,8 @@ static struct msm_gpiomux_config apq8064_hdmi_configs[] __initdata = {
 	},
 };
 
-//                                                                          
-//                                                          
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [START]
+//2012-11-22 soodong.kim@lge.com : HW revision check [START]
 #if defined (CONFIG_SLIMPORT_ANX7808)
 static struct msm_gpiomux_config apq8064_slimport_configs1[] __initdata = {
 	{
@@ -810,8 +810,8 @@ static struct msm_gpiomux_config apq8064_slimport_configs2[] __initdata = {
 };
 
 #endif
-//                                                        
-//                                                                        
+//2012-11-22 soodong.kim@lge.com : HW revision check [END]
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [END]
 
 #if !defined (CONFIG_MACH_LGE)
 static struct msm_gpiomux_config apq8064_mhl_configs[] __initdata = {
@@ -876,7 +876,7 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 			[GPIOMUX_ACTIVE] = &gsbi4_uart_active
 		},
 	},
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 	
 #if defined(CONFIG_LGE_BROADCAST_TDMB) 
 	{
@@ -925,7 +925,7 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &dmb_ctrl_pin,
 		},
 	},	
-#endif /*                      */
+#endif /* CONFIG_LGE_BROADCAST */
 	
 #if !defined(CONFIG_MACH_LGE)
 #if defined(CONFIG_KS8851) || defined(CONFIG_KS8851_MODULE)
@@ -996,7 +996,7 @@ static struct msm_gpiomux_config apq8064_non_mi2s_gsbi_configs[] __initdata = {
 		},
 	},
 };
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 static struct msm_gpiomux_config apq8064_gsbi1_i2c_2ma_configs[] __initdata = {
 	{
@@ -1152,7 +1152,7 @@ static struct gpiomux_setting ap2mdm_wakeup = {
 	.pull = GPIOMUX_PULL_DOWN,
 };
 
-//                                                                         
+// LGE_START // featuring GPIO(MDM2AP_HSIC_READY) configuration for BCM4334
 static struct msm_gpiomux_config mdm_configs_bcm[] __initdata = {
 	/* AP2MDM_STATUS */
 	{
@@ -1205,7 +1205,7 @@ static struct msm_gpiomux_config mdm_configs_bcm[] __initdata = {
 		}
 	},
 };
-//                                                                       
+// LGE_END // featuring GPIO(MDM2AP_HSIC_READY) configuration for BCM4334
 
 
 static struct msm_gpiomux_config mdm_configs[] __initdata = {
@@ -1424,8 +1424,8 @@ static struct msm_gpiomux_config apq8064_mi2s_configs[] __initdata = {
 	},
 };
 
-//                                                                   
-//                                             
+// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
+//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
 #if 0
@@ -1492,9 +1492,9 @@ static struct msm_gpiomux_config bt_pcm_configs[] __initdata = {
 	}
 };
 
-//                                           
-#endif /*                      */
-//                                                                   
+//END: 0019632 chanha.park@lge.com 2012-05-31
+#endif /* CONFIG_LGE_BLUESLEEP */
+// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
 
 static struct msm_gpiomux_config apq8064_mic_i2s_configs[] __initdata = {
 	{
@@ -1603,8 +1603,8 @@ static struct msm_gpiomux_config wcnss_5wire_interface[] = {
 };
 #endif
 
-//                                                                   
-//                                             
+// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
+//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
 static struct msm_gpiomux_config msm8960_bt_host_wakeup_configs[] __initdata = {
@@ -1626,9 +1626,9 @@ static struct msm_gpiomux_config msm8960_bt_wakeup_configs[] __initdata = {
 		},
 	},
 };
-#endif //                     
-//                                           
-//                                                                   
+#endif // CONFIG_LGE_BLUESLEEP
+//END: 0019632 chanha.park@lge.com 2012-05-31
+// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
 
 static struct msm_gpiomux_config mpq8064_gsbi5_i2c_configs[] __initdata = {
 	{
@@ -1773,7 +1773,7 @@ static struct msm_gpiomux_config apq8064_sdc2_not_configs[] __initdata = {
 	},
 };
 
-//                                                                                                     
+// 20121106 changduk.ryu@lge.com [START] remove GPIO 62 pin configuration NFC VEN used the pin in rev E
 static struct msm_gpiomux_config apq8064_sdc2_not_configs_rev_e[] __initdata = {
 	{
 		.gpio      = 59,
@@ -1804,7 +1804,7 @@ static struct msm_gpiomux_config apq8064_sdc2_not_configs_rev_e[] __initdata = {
 		},
 	},	
 };
-//                                                                                                    
+// 20121106 changduk.ryu@lge.com [END]  remove GPIO 62 pin configuration NFC VEN used the pin in rev E
 
 
 #endif
@@ -1897,7 +1897,7 @@ static struct msm_gpiomux_config apq8064_sdc3_configs[] __initdata = {
 		},
 	},
 };
-//                                             
+//20120112 jungyub.jee@lge.com SD detect change
 #if defined(CONFIG_MACH_APQ8064_GKATT)
 
 static struct gpiomux_setting apq8064_sdc3_card_det_cfg_chg = {
@@ -1922,7 +1922,7 @@ static struct msm_gpiomux_config apq8064_sdc3_configs_chg[] __initdata = {
 		},
 	},
 };
-//                                             
+//20120112 jungyub.jee@lge.com SD detect change
 
 
 #ifdef CONFIG_LGE_WIRELESS_CHARGER
@@ -1989,7 +1989,7 @@ static struct msm_gpiomux_config mpq8064_uartdm_configs[] __initdata = {
 };
 #endif
 
-/*                                  */
+/* ehee.lee@lge.com [START] for NFC */
 #if defined(CONFIG_LGE_NFC)
 static struct gpiomux_setting nfc_pn544_ven_cfg = {
 	.func = GPIOMUX_FUNC_GPIO,
@@ -2012,12 +2012,12 @@ static struct gpiomux_setting nfc_pn544_firm_cfg = {
 	.dir = GPIOMUX_OUT_LOW,
 };
 #endif
-/*                                */ 
+/* ehee.lee@lge.com [END] for NFC */ 
 
 
 
-/*                                  */
-/*                                */
+/* ehee.lee@lge.com [START] for NFC */
+/* #ifndef CONFIG_LGE_FELICA_KDDI */
 #if !defined(CONFIG_LGE_FELICA_KDDI) && !defined(CONFIG_LGE_FELICA_DCM)
 #if defined(CONFIG_LGE_NFC)
 static struct msm_gpiomux_config apq8064_nfc_configs[] __initdata = {
@@ -2062,8 +2062,8 @@ static struct msm_gpiomux_config apq8064_nfc_configs_rev_e[] __initdata = {
 	},
 };
 #endif
-#endif//                                                      
-/*                                */ 
+#endif//endif of CONFIG_LGE_FELICA_KDDI, CONFIG_LGE_FELICA_DCM
+/* ehee.lee@lge.com [END] for NFC */ 
 
 #ifdef CONFIG_BATTERY_MAX17043
 static struct gpiomux_setting fuelgauge_max17048_cfg= {
@@ -2088,7 +2088,7 @@ void __init apq8064_init_gpiomux(void)
 {
 	int rc;
 	int platform_version = socinfo_get_platform_version();
-	hw_rev_type lge_bd_rev = HW_REV_EVB1;//                                             
+	hw_rev_type lge_bd_rev = HW_REV_EVB1;//20120112 jungyub.jee@lge.com SD detect change
 
 	rc = msm_gpiomux_init(NR_GPIO_IRQS);
 	if (rc) {
@@ -2175,7 +2175,7 @@ void __init apq8064_init_gpiomux(void)
 		if (SOCINFO_VERSION_MINOR(platform_version) == 1)
 			msm_gpiomux_install(mdm_i2s_configs,
 					ARRAY_SIZE(mdm_i2s_configs));
-		//                                                                         
+		// LGE_START // featuring GPIO(MDM2AP_HSIC_READY) configuration for BCM4334
 		else{
 			lge_bd_rev = lge_get_board_revno();
 			if ((lge_bd_rev >= HW_REV_C) && (lge_bd_rev != HW_REV_F))
@@ -2185,7 +2185,7 @@ void __init apq8064_init_gpiomux(void)
 			msm_gpiomux_install(mdm_configs,
 					ARRAY_SIZE(mdm_configs));
 			}
-		//                                                                       
+		// LGE_END // featuring GPIO(MDM2AP_HSIC_READY) configuration for BCM4334
 	}
 
 
@@ -2204,7 +2204,7 @@ void __init apq8064_init_gpiomux(void)
 		msm_gpiomux_install(apq8064_hsic_configs,
 				ARRAY_SIZE(apq8064_hsic_configs));
 #endif
-/*                                  */
+/* ehee.lee@lge.com [START] for NFC */
 #if defined(CONFIG_LGE_NFC)
 	lge_bd_rev = lge_get_board_revno();
 	if ((int)lge_bd_rev == HW_REV_E || (int)lge_bd_rev == HW_REV_C|| (int)lge_bd_rev == HW_REV_D||(int)lge_bd_rev == HW_REV_1_0)
@@ -2218,10 +2218,10 @@ void __init apq8064_init_gpiomux(void)
 		ARRAY_SIZE(apq8064_nfc_configs));
 	}
 #endif
-/*                                */ 
+/* ehee.lee@lge.com [END] for NFC */ 
 
-//                                                                   
-//                                             
+// [S] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
+//BEGIN: 0019632 chanha.park@lge.com 2012-05-31
 //ADD: 0019632: [F200][BT] Bluetooth board bring-up
 #ifdef CONFIG_LGE_BLUESLEEP
 	msm_gpiomux_install(bt_pcm_configs,
@@ -2237,16 +2237,16 @@ void __init apq8064_init_gpiomux(void)
 	msm_gpiomux_install(msm8960_bt_wakeup_configs,
 			ARRAY_SIZE(msm8960_bt_wakeup_configs));
 #endif
-//                                           
-//                                                                   
+//END: 0019632 chanha.park@lge.com 2012-05-31
+// [E] LGE_BT: ADD/ilbeom.kim/'12-10-24 - [GK] BRCM Solution bring-up
 	if (machine_is_apq8064_cdp() || machine_is_apq8064_liquid())
 		msm_gpiomux_install(apq8064_mxt_configs,
 			ARRAY_SIZE(apq8064_mxt_configs));
 
 	msm_gpiomux_install(apq8064_hdmi_configs,
 			ARRAY_SIZE(apq8064_hdmi_configs));
-//                                                                          
-//                                                          
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [START]
+//2012-11-22 soodong.kim@lge.com : HW revision check [START]
 #if defined (CONFIG_SLIMPORT_ANX7808)
     if( ( lge_get_board_revno() == HW_REV_F ||
           lge_get_board_revno() == HW_REV_B ||
@@ -2259,8 +2259,8 @@ void __init apq8064_init_gpiomux(void)
     }
     pr_err("[Slimport] revision = %d gpiomux install complete!\n", lge_get_board_revno());
 #endif
-//                                                        
-//                                                                        
+//2012-11-22 soodong.kim@lge.com : HW revision check [END]
+//2012-10-30 soodong.kim@lge.com : set GPIO initial value to PULL_UP [END]
 
 #if !defined (CONFIG_MACH_LGE)
 	if (apq8064_mhl_display_enabled())
@@ -2277,7 +2277,7 @@ void __init apq8064_init_gpiomux(void)
 			     ARRAY_SIZE(apq8064_sdc2_configs));
 #else
 
-//                                                   
+//20121106 changduk.ryu@lge.com [Start] Rev E Setting
 	lge_bd_rev = lge_get_board_revno();
 	if ((int)lge_bd_rev == HW_REV_E)
 		msm_gpiomux_install(apq8064_sdc2_not_configs_rev_e,
@@ -2285,14 +2285,14 @@ void __init apq8064_init_gpiomux(void)
 	else
 		msm_gpiomux_install(apq8064_sdc2_not_configs,
 				     ARRAY_SIZE(apq8064_sdc2_not_configs));
-//                                                 
+//20121106 changduk.ryu@lge.com [End] Rev E Setting
 #endif
 
 #ifdef CONFIG_MMC_MSM_SDC4_SUPPORT
 	 msm_gpiomux_install(apq8064_sdc4_configs,
 			     ARRAY_SIZE(apq8064_sdc4_configs));
 #endif
-//                                             
+//20120112 jungyub.jee@lge.com SD detect change
 	lge_bd_rev = lge_get_board_revno();
 
 	 if (lge_bd_rev == HW_REV_F) 
@@ -2320,6 +2320,6 @@ void __init apq8064_init_gpiomux(void)
 				ARRAY_SIZE(apq8064_fuel_gauge_configs));
 #endif
 
-//                                             
+//20120112 jungyub.jee@lge.com SD detect change
 
 }

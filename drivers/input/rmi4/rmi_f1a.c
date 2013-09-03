@@ -563,7 +563,7 @@ static int rmi_f1a_register_device(struct rmi_function_container *fc)
 	set_bit(EV_SYN, input_dev->evbit);
 	set_bit(EV_KEY, input_dev->evbit);
 
-//                     
+//woochang.chun@lge.com
 #if 1 //(LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
 	set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
 #endif

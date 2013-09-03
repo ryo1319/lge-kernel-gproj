@@ -17,9 +17,9 @@
  */
 
 /* 
-                                   
-                                   
-                                       
+ * DGMS MC-C05702-7 : Apply Autorun
+ * CONFIG_USB_G_LGE_ANDROID_AUTORUN
+ * CONFIG_USB_G_LGE_ANDROID_AUTORUN_LGE
  */
 
 /* #define DEBUG */
@@ -381,7 +381,7 @@ static void android_work(struct work_struct *data)
 			 dev->connected, dev->sw_connected, cdev->config);
 	}
 
-#if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_LGE_PM) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GK_KR) && !defined(CONFIG_MACH_APQ8064_GKOPENHK) && !defined(CONFIG_MACH_APQ8064_GKOPENTW) && !defined(CONFIG_MACH_APQ8064_GKSHBSG) && !defined(CONFIG_MACH_APQ8064_GKOPENEU) && !defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_LGE_PM) && !defined(CONFIG_MACH_APQ8064_GKGLOBAL)
         if (lge_pm_get_cable_type() == CABLE_56K &&
             lge_get_boot_mode() == LGE_BOOT_MODE_NORMAL &&
             uevent_envp == connected)
@@ -1535,7 +1535,7 @@ static struct android_usb_function rndis_qc_function = {
 	.unbind_config	= rndis_qc_function_unbind_config,
 	.attributes	= rndis_function_attributes,
 };
-#endif /*                          */
+#endif /* CONFIG_USB_G_LGE_ANDROID */
 
 #ifdef CONFIG_USB_G_LGE_ANDROID
 static const char lge_vendor_name[] = "LGE";
@@ -1780,7 +1780,7 @@ static struct android_usb_function charge_only_function = {
 	.cleanup	= charge_only_function_cleanup,
 	.bind_config	= charge_only_function_bind_config,
 };
-#endif /*                                  */
+#endif /* CONFIG_USB_G_LGE_ANDROID_AUTORUN */
 
 static int accessory_function_init(struct android_usb_function *f,
 					struct usb_composite_dev *cdev)
@@ -2558,7 +2558,7 @@ field ## _store(struct device *dev, struct device_attribute *attr,	\
 	return size;							\
 }									\
 static DEVICE_ATTR(field, S_IRUGO | S_IWUSR, field ## _show, field ## _store);
-#endif /*                          */
+#endif /* CONFIG_USB_G_LGE_ANDROID */
 
 DESCRIPTOR_ATTR(idVendor, "%04x\n")
 DESCRIPTOR_ATTR(idProduct, "%04x\n")
@@ -2733,7 +2733,7 @@ static void android_lge_factory_bind(struct usb_composite_dev *cdev)
 	android_enable(dev);
 	dev->enabled = true;
 }
-#endif /*                                           */
+#endif /* CONFIG_USB_G_LGE_ANDROID && CONFIG_LGE_PM */
 
 static int android_bind_config(struct usb_configuration *c)
 {
@@ -2800,7 +2800,7 @@ static int android_bind(struct usb_composite_dev *cdev)
 	device_desc.iProduct = id;
 
 #ifdef CONFIG_USB_G_LGE_ANDROID
-	/*                                */
+	/* Default string as LGE products */
 	ret = lgeusb_get_manufacturer_name(lge_manufacturer);
 	if (!ret)
 		strlcpy(manufacturer_string, lge_manufacturer,

@@ -35,7 +35,7 @@
 #include "board-j1.h"
 #else
 #include "board-8064.h"
-#endif //                            
+#endif //#if defined(CONFIG_MACH_LGE)
 
 struct pm8xxx_gpio_init {
 	unsigned			gpio;
@@ -122,14 +122,14 @@ struct pm8xxx_mpp_init {
 #ifdef CONFIG_LGE_PM
 /* Initial PM8921 GPIO configurations */
 static struct pm8xxx_gpio_init pm8921_gpios[] __initdata = {
-//                       
+// LGE_BROADCAST_ONESEG {
 // TDMBG, 1-Seg & MMBi different RF S/W problem
 #if defined(CONFIG_LGE_BROADCAST_TDMB)
 	PM8921_GPIO_OUTPUT(11, 0, HIGH), /* DMB Retractble Ant. Select */
 	PM8921_GPIO_OUTPUT(12, 1, HIGH), /* Ear Retractble Ant. Select */
 #endif
 
-//                               
+// eric0.kim@lge.com [2012.08.07]
 #if 0
 #if defined(CONFIG_LGE_BROADCAST_ONESEG) && defined(CONFIG_LGE_BROADCAST_ONESEG_FC8150) //GJ_KDDI
 
@@ -140,14 +140,14 @@ static struct pm8xxx_gpio_init pm8921_gpios[] __initdata = {
 	PM8921_GPIO_OUTPUT(11, 1, HIGH),
 	PM8921_GPIO_OUTPUT(12, 0, HIGH),
 #endif
-#endif //                                                                                   
+#endif //defined(CONFIG_LGE_BROADCAST_ONESEG) && defined(CONFIG_LGE_BROADCAST_ONESEG_FC8150)
 #endif
 
 
 #if defined(CONFIG_LGE_BROADCAST_ONESEG) && defined(CONFIG_LGE_BROADCAST_ONESEG_MB86A35S) //GJ_DCM
 	PM8921_GPIO_OUTPUT(11, 1, HIGH), /* DMB Retractble Ant. Select */
-#endif //                                                                                     
-//                       
+#endif //defined(CONFIG_LGE_BROADCAST_ONESEG) && defined(CONFIG_LGE_BROADCAST_ONESEG_MB86A35S)
+// LGE_BROADCAST_ONESEG }
 
 #if defined(CONFIG_LGE_IRDA)
 	PM8921_GPIO_OUTPUT(17, 0, HIGH), /* APQ_IRDA_PWDN */
@@ -184,7 +184,7 @@ static struct pm8xxx_gpio_init pm8921_gpios[] __initdata = {
 	PM8921_GPIO_OUTPUT(13, 0, HIGH),               /* PCIE_CLK_PWR_EN */
         PM8921_GPIO_INPUT(12, PM_GPIO_PULL_UP_30),     /* PCIE_WAKE_N */
 };
-#endif //                            
+#endif //#if defined(CONFIG_MACH_LGE)
 
 #ifndef CONFIG_LGE_PM
 static struct pm8xxx_gpio_init pm8921_mtp_kp_gpios[] __initdata = {
@@ -523,7 +523,7 @@ static struct pm8xxx_adc_amux apq8064_pm8921_adc_channels_data[] = {
 		ADC_DECIMATION_TYPE2, ADC_SCALE_DEFAULT},
 	{"xo_therm", CHANNEL_MUXOFF, CHAN_PATH_SCALING1, AMUX_RSV0,
 		ADC_DECIMATION_TYPE2, ADC_SCALE_XOTHERM},
-/*                                                          */
+/* 2012-06-05 cs.kim@lge.com implement Thermal Profile log. */
 	{"pa_therm0", ADC_MPP_1_AMUX3, CHAN_PATH_SCALING1, AMUX_RSV1,
 		ADC_DECIMATION_TYPE2, ADC_SCALE_APQ_THERM},
 	{"usb_id_device", ADC_MPP_1_AMUX6, CHAN_PATH_SCALING1, AMUX_RSV1,
@@ -607,12 +607,12 @@ static struct pm8921_charger_platform_data apq8064_pm8921_chg_pdata __devinitdat
 	.vin_min			= 4400,
 #ifdef CONFIG_LGE_CHARGER_TEMP_SCENARIO
 	/* Configuration of cool and warm thresholds (JEITA compliance only) */
-/*                                                                         */
+/* CONFIG_LGE_PM Start Qulcomm charging scenario off kwangjae1.lee@lge.com */
 	.cool_temp		= 0, /* 10 */	/* 10 degree celsius */
 	.warm_temp		= 0, /* 40 */	/* 40 degree celsius */
 	.cool_bat_chg_current	= 350,	/* 350 mA (max value = 2A) */
 	.warm_bat_chg_current	= 350,
-/*                                                                       */
+/* CONFIG_LGE_PM end Qulcomm charging scenario off kwangjae1.lee@lge.com */
 #if defined(CONFIG_MACH_APQ8064_J1SP)
 	.temp_level_1		= 520, //origin 530
 /* Add temp for charing scenario on SPRINT */
@@ -653,7 +653,7 @@ static struct pm8921_charger_platform_data apq8064_pm8921_chg_pdata __devinitdat
 	 */
 #if defined(CONFIG_MACH_APQ8064_J1D)||defined(CONFIG_MACH_APQ8064_J1KD)
 	.max_bat_chg_current	= 1500,
-#elif defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#elif defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	.max_bat_chg_current	= 1800,
 #else
 	.max_bat_chg_current	= 1350,
@@ -665,7 +665,7 @@ static struct pm8921_charger_platform_data apq8064_pm8921_chg_pdata __devinitdat
 	.thermal_levels		= ARRAY_SIZE(apq8064_pm8921_therm_mitigation),
 	/* for led on, off control */
 	.led_src_config = LED_SRC_5V,
-	/*                                                         */
+	/*LGE_CHANGE_E, jungwoo.yun@lge.com for led on, off control*/
 /* Be omitted OCT code */
 	.rconn_mohm    = 18,
 #ifdef CONFIG_LGE_PM
@@ -744,13 +744,13 @@ apq8064_pm8921_bms_pdata __devinitdata = {
 };
 
 #ifdef CONFIG_LGE_PM
-/*                                                */
+/* LGE_CHANGE, mg.jeong@lge.com, 12-02-25, Reason */
 static unsigned int keymap[] = {
 	KEY(0, 0, KEY_VOLUMEUP),
 	KEY(0, 1, KEY_VOLUMEDOWN),
 	//KEY(0, 2, KEY_CAMERA_SNAPSHOT),
 	//KEY(0, 3, KEY_CAMERA_FOCUS),
-#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	KEY(1, 1, KEY_HOMEPAGE),
 	KEY(1, 0, KEY_BACK), //KEY_QUICK_CLIP - > 2012-07-16 temp code for touch fw
 #endif
@@ -764,7 +764,7 @@ static struct matrix_keymap_data keymap_data = {
 static struct pm8xxx_keypad_platform_data keypad_data = {
 	.input_name             = "keypad_8064",
 	.input_phys_device      = "keypad_8064/input0",
-#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GKKT)||defined(CONFIG_MACH_APQ8064_GKSK)||defined(CONFIG_MACH_APQ8064_GKU)||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	.num_rows				= 2,
 	.num_cols				= 5,
 #else
@@ -779,7 +779,7 @@ static struct pm8xxx_keypad_platform_data keypad_data = {
 	.wakeup                 = 1,
 	.keymap_data            = &keymap_data,
 };
-#endif //                            
+#endif //#if defined(CONFIG_MACH_LGE)
 
 static struct pm8921_platform_data
 apq8064_pm8921_platform_data __devinitdata = {
@@ -860,7 +860,7 @@ void __init apq8064_init_pmic(void)
 	}
 
 #if !defined(CONFIG_MACH_LGE)
-/*                                                             */
+/* LGE_S jungshik.park@lge.com 2012-04-18 for lge battery type */
 	if (machine_is_apq8064_mtp()) {
 		apq8064_pm8921_bms_pdata.battery_type = BATT_PALLADIUM;
 	} else if (machine_is_apq8064_liquid()) {
@@ -868,7 +868,7 @@ void __init apq8064_init_pmic(void)
 	} else if (machine_is_apq8064_cdp()) {
 		apq8064_pm8921_chg_pdata.has_dc_supply = true;
 	}
-/*                                                             */
+/* LGE_E jungshik.park@lge.com 2012-04-18 for lge battery type */
 #endif
 
 	apq8064_pm8921_adc_pdata.apq_therm = true;

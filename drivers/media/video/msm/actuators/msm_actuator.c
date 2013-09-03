@@ -168,23 +168,23 @@ static int32_t msm_actuator_write_focus(
 	int16_t next_lens_pos = 0;
 	uint16_t damping_code_step = 0;
 	uint16_t wait_time = 0;
-/*                                                                 */
+/* LGE_CHANGE_S, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
     uint16_t AF_offset_direction=0;
 	uint16_t AF_offset = 0;
-/*                                                                 */
+/* LGE_CHANGE_E, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 
 	damping_code_step = damping_params->damping_step;
 	wait_time = damping_params->damping_delay;
 
-       //                                                                                          
-	//                                                                                             
+       // Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
+	// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 	//printk("damping_code_step = %d\n",damping_code_step);
 	//printk("wait_time = %d\n",wait_time);
 	//printk("curr_lens_pos = %d\n",curr_lens_pos);
 	//printk("sign_direction = %d\n",sign_direction);
 	//printk("code_boundary = %d\n",code_boundary);
 	//printk("damping_params->hw_params = %d\n",damping_params->hw_params);
-	//                                                                                        
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
 
 	if (damping_code_step ==0)
 	{
@@ -196,7 +196,7 @@ static int32_t msm_actuator_write_focus(
 		printk("[ERROR][%s] wait_time = %d ---> 4500\n",__func__,damping_code_step);
 		wait_time = 4500;
 	}
-	//                                                                                           
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 
 	/* Write code based on damping_code_step in a loop */
 	if (!use_eeprom_make_table)
@@ -219,8 +219,8 @@ static int32_t msm_actuator_write_focus(
 			curr_lens_pos = next_lens_pos;
 		}
 	}
-//                                                                                          
-/*                                                                 */
+// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
+/* LGE_CHANGE_S, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 			//printk("#### code_boundary : %d, a_ctrl->af_status = %d ####\n", code_boundary, a_ctrl->af_status);
 			if((a_ctrl->af_status==6)  && (a_ctrl->AF_defocus_enable==1))  //af_status : 6 = Last AF
 			{
@@ -247,8 +247,8 @@ static int32_t msm_actuator_write_focus(
 				printk("#### Last AF 1, code : %d, offset : %d !!! ####\n", code_boundary, a_ctrl->AF_LG_defocus_offset);
 			}
 			//printk("#### %s : code_boundary = %d, state = %d ####\n",__func__, code_boundary, a_ctrl->af_status);
-/*                                                                 */
-//                                                                                        
+/* LGE_CHANGE_E, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
+// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
 
 	if (curr_lens_pos != code_boundary) {
 		rc = a_ctrl->func_tbl->
@@ -303,29 +303,29 @@ static int32_t msm_actuator_move_focus(
 	int dir = move_params->dir;
 	int32_t num_steps = move_params->num_steps;
 
-    //                                                                                             
+    // Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 	int count_actuator_write = 0;
-	 //                                                                                          
+	 // Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
 	//printk("%s: a_ctrl->curr_region_index = %d\n",__func__,a_ctrl->curr_region_index);
-	//                                                                                           
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 	CDBG("%s called, dir %d, num_steps %d\n",
 		__func__,
 		dir,
 		num_steps);
-	//                                                                                        
-       /*                                                                 */
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
+       /* LGE_CHANGE_S, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 	a_ctrl->af_status = move_params->af_status;
-/*                                                                 */
+/* LGE_CHANGE_E, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 
 	if (dest_step_pos == a_ctrl->curr_step_pos)
 		return rc;
 
 	curr_lens_pos = a_ctrl->step_position_table[a_ctrl->curr_step_pos];
 	a_ctrl->i2c_tbl_index = 0;
-	//                                                                                          
+	// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
 	printk("curr_step_pos =%d dest_step_pos =%d curr_lens_pos=%d\n",
 		a_ctrl->curr_step_pos, dest_step_pos, curr_lens_pos);
-	//                                                                                        
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2013-01-05 Rearrange too many log & unused code
 
 	while (a_ctrl->curr_step_pos != dest_step_pos) {
 		step_boundary =
@@ -334,13 +334,13 @@ static int32_t msm_actuator_move_focus(
 		if ((dest_step_pos * sign_dir) <=
 			(step_boundary * sign_dir)) {
 
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			target_step_pos = dest_step_pos;
 			target_lens_pos =
 				a_ctrl->step_position_table[target_step_pos];
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
 			if (copy_from_user(&damping_param,
 					(void *)usr_damping_param,
@@ -350,19 +350,19 @@ static int32_t msm_actuator_move_focus(
 						__func__, (void *)usr_damping_param ) ;
 				return -EFAULT;
 			}
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			//pr_err("%s:[1] usr_damping_param = %p", __func__, usr_damping_param);
 			//pr_err("%s:[1] &(move_params->ringing_params[a_ctrl->curr_region_index]) = %p\n",  __func__, &(move_params->ringing_params[a_ctrl->curr_region_index]));
 			rc = a_ctrl->func_tbl->
 				actuator_write_focus(
 					a_ctrl,
 					curr_lens_pos,
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 //					&(move_params->
 //						ringing_params[a_ctrl->
 //						curr_region_index]),
 					&damping_param, // namkyu2.kang
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 					sign_dir,
 					target_lens_pos);
 			if (rc < 0) {
@@ -371,19 +371,19 @@ static int32_t msm_actuator_move_focus(
 				return rc;
 			}
 			curr_lens_pos = target_lens_pos;
-			//                                                                                             
+			// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 			count_actuator_write ++;
 			//printk("%s count_actuator_write = %d\n",__func__,count_actuator_write);
-			//                                                                                           
+			// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 
 		} else {
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			struct damping_params_t damping_param, *usr_damping_param ; // namkyu2.kang
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			target_step_pos = step_boundary;
 			target_lens_pos =
 				a_ctrl->step_position_table[target_step_pos];
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			usr_damping_param = &(move_params->ringing_params[a_ctrl->curr_region_index]) ;
 			if (copy_from_user(&damping_param,
 					(void *)usr_damping_param,
@@ -393,19 +393,19 @@ static int32_t msm_actuator_move_focus(
 						__func__, (void *)usr_damping_param ) ;
 				return -EFAULT;
 			}
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 			//pr_err("%s:[2] usr_damping_param = %p", __func__, usr_damping_param);
 			//pr_err("%s:[2] &(move_params->ringing_params[a_ctrl->curr_region_index]) = %p\n",  __func__, &(move_params->ringing_params[a_ctrl->curr_region_index]));
 			rc = a_ctrl->func_tbl->
 				actuator_write_focus(
 					a_ctrl,
 					curr_lens_pos,
-/*                                                                                               */
+/* LGE_CHANGE_S, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 //					&(move_params->
 //						ringing_params[a_ctrl->
 //						curr_region_index]),
 					&damping_param, // namkyu2.kang
-/*                                                                                               */
+/* LGE_CHANGE_E, fix kernel crash while AF from namkyu2.kang, 2012.01.21, jungryoul.choi@lge.com */
 					sign_dir,
 					target_lens_pos);
 			if (rc < 0) {
@@ -416,7 +416,7 @@ static int32_t msm_actuator_move_focus(
 			curr_lens_pos = target_lens_pos;
 
 			a_ctrl->curr_region_index += sign_dir;
-			//                                                                                             
+			// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 			if (a_ctrl->curr_region_index >= 2)
 			{
 			 printk("[ERROR][%s] a_ctrl->curr_region_index = %d ---> 1\n",__func__,a_ctrl->curr_region_index);
@@ -429,16 +429,16 @@ static int32_t msm_actuator_move_focus(
 			}
 			count_actuator_write ++;
 			//printk("%s count_actuator_write = %d\n",__func__,count_actuator_write);
-			//                                                                                           
+			// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 		}
 		a_ctrl->curr_step_pos = target_step_pos;
-		//                                                                                             
+		// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 		if (count_actuator_write > 2)
 		{
 		   printk("[ERROR][%s] count_actuator_write = %d ---> break\n",__func__,count_actuator_write);
 		   break;
 	    }
-		//                                                                                           
+		// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-08-10 Add log for debug AF issue & WorkAround
 	}
 
 	rc = msm_camera_i2c_write_table_w_microdelay(&a_ctrl->i2c_client,
@@ -454,12 +454,12 @@ static int32_t msm_actuator_move_focus(
 	return rc;
 }
 
-//                                                                               
+// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_actuator_set_info_t *set_info);
 
 #define ACT_MIN_MOVE_RANGE	200 // TBD
-#define ACT_POSTURE_MARGIN   100 //                                                           
+#define ACT_POSTURE_MARGIN   100 //100 /* LGE_CHANGE modified 2012.8.30 sungmin.woo@lge.com */
 
 #if defined(CONFIG_IMX091)
     extern uint8_t imx091_afcalib_data[8];
@@ -469,9 +469,9 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
     extern uint8_t imx111_afcalib_data[4];
 #endif // #if defined(CONFIG_IMX111)
 
-/*                                                                 */
+/* LGE_CHANGE_S, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 extern uint8_t imx091_af_defocus_data[11];
-/*                                                                 */
+/* LGE_CHANGE_E, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_actuator_set_info_t *set_info)
 {
@@ -489,7 +489,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	a_ctrl->step_position_table = NULL;
 
 	CDBG("%s called\n", __func__);
-    //                                                                         
+    // Start LGE_BSP_CAMERA::seongjo.kim@lge.com EEPROM Enable at IMX111&IMX091
 	// set act_start, act_macro
 	#if defined(CONFIG_IMX091)
 	act_start = (uint16_t)(imx091_afcalib_data[1] << 8) |
@@ -498,7 +498,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 			imx091_afcalib_data[2];
 	printk("[QCTK_EEPROM][IMX091] %s: act_start = %d\n",__func__,act_start);
 	printk("[QCTK_EEPROM][IMX091] %s: act_macro = %d\n",__func__,act_macro);
-/*                                                                 */
+/* LGE_CHANGE_S, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
     printk("####  imx091_af_defocus_data 0 = %x ####\n",imx091_af_defocus_data[0]);
     printk("####  imx091_af_defocus_data 1 = %x ####\n",imx091_af_defocus_data[1]);
     printk("####  imx091_af_defocus_data 2 = %x ####\n",imx091_af_defocus_data[2]);
@@ -521,7 +521,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
     printk("####  AF_defocus_offset = %d ####\n",a_ctrl->AF_defocus_offset);
 	printk("####  AF_LG_center_best_code = %d ####\n",a_ctrl->AF_LG_center_best_code);
     printk("####  AF_LG_defocus_offset = %d ####\n",a_ctrl->AF_LG_defocus_offset);
-/*                                                                 */
+/* LGE_CHANGE_E, AF offset enable, 2012-09-28, sungmin.woo@lge.com */
 	#elif defined(CONFIG_IMX111)
 	act_start = (uint16_t)(imx111_afcalib_data[1] << 8) |
 			imx111_afcalib_data[0];
@@ -530,7 +530,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	printk("[QCTK_EEPROM][IMX111] %s: act_start = %d\n",__func__,act_start);
 	printk("[QCTK_EEPROM][IMX111] %s: act_macro = %d\n",__func__,act_macro);
 	#endif
-	//                                                                       
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com EEPROM Enable at IMX111&IMX091
 
 	/* Fill step position table */
 	a_ctrl->step_position_table =
@@ -555,7 +555,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	printk("[QCTK_EEPROM] a_ctrl->total_steps = %d\n",a_ctrl->total_steps);
 	printk("[QCTK_EEPROM] set_info->af_tuning_params.total_steps = %d\n",set_info->af_tuning_params.total_steps);
 
-    //                                                                                                 
+    // Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-11-23 Unnecessary action remove when using eeprom
 	if (move_range < ACT_MIN_MOVE_RANGE)
 	{
 	    printk("[QTCK_EEPROM] Not use eeprom\n");
@@ -567,7 +567,7 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 	    printk("[QTCK_EEPROM] Use eeprom\n");
 		use_eeprom_make_table = 1;
 	}
-	//                                                                                               
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-11-23 Unnecessary action remove when using eeprom
 
 	for (step_index = 2;step_index < set_info->af_tuning_params.total_steps;step_index++) {
 		a_ctrl->step_position_table[step_index]
@@ -575,14 +575,14 @@ static int32_t msm_actuator_init_step_table_use_eeprom(struct msm_actuator_ctrl_
 			/ (set_info->af_tuning_params.total_steps - 1) + a_ctrl->step_position_table[1];
 	}
 
-/*                                                                   */
+/* LGE_CHANGE_S, revert to original, 2012-04-27, sungmin.woo@lge.com */
 	printk("Actuator Clibration table: start(%d),macro(%d) ==============\n",
 	act_start, act_macro);
 
 	for (step_index = 0; step_index < a_ctrl->total_steps; step_index++)
 		printk("step_position_table[%d]= %d\n",step_index,
 		a_ctrl->step_position_table[step_index]);
-/*                                                                   */
+/* LGE_CHANGE_E, revert to original, 2012-04-27, sungmin.woo@lge.com */
 	return rc;
 
 act_cal_fail:
@@ -590,7 +590,7 @@ act_cal_fail:
 	rc = msm_actuator_init_step_table(a_ctrl, set_info);
 	return rc;
 }
-//                                                                             
+// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 
 static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 	struct msm_actuator_set_info_t *set_info)
@@ -648,12 +648,12 @@ static int32_t msm_actuator_init_step_table(struct msm_actuator_ctrl_t *a_ctrl,
 			}
 		}
 	}
-	//                                                                               
+	// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 	printk("[AF] Actuator Clibration table: not apply calibration data ==============\n");
 	for (step_index = 0; step_index < set_info->af_tuning_params.total_steps; step_index++)
 		printk("[AF] step_position_table[%d]= %d\n",step_index,
 		a_ctrl->step_position_table[step_index]);
-	//                                                                             
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 
 	for (i=0; i<set_info->af_tuning_params.total_steps; i++) {
 		printk("%s: Step_Pos_Table[%d]:%d\n", __func__, i,
@@ -1022,9 +1022,9 @@ static struct msm_actuator_ctrl_t msm_actuator_t = {
 static struct msm_actuator msm_vcm_actuator_table = {
 	.act_type = ACTUATOR_VCM,
 	.func_tbl = {
-		//                                                                               
+		// Start LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 		.actuator_init_step_table = msm_actuator_init_step_table_use_eeprom,
-		//                                                                             
+		// End LGE_BSP_CAMERA::seongjo.kim@lge.com 2012-07-20 Apply AF calibration data
 		.actuator_move_focus = msm_actuator_move_focus,
 		.actuator_write_focus = msm_actuator_write_focus,
 		.actuator_set_default_focus = msm_actuator_set_default_focus,

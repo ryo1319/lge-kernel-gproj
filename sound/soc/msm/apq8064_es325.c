@@ -34,12 +34,12 @@
 #include <sound/tpa2028d.h>
 #endif
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Check external EC reference from codec
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 #include <sound/es325-export.h>
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 /* 8064 machine driver */
 
@@ -103,17 +103,17 @@ static int msm_slim_3_rx_ch = 1;
 
 static int msm_btsco_rate = BTSCO_RATE_8KHZ;
 static int msm_btsco_ch = 1;
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 static int msm_slimbus_sample_rate = 48000;
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static int msm_auxpcm_rate = BTSCO_RATE_8KHZ;
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
 static int rec_mode = INCALL_REC_MONO;
@@ -535,11 +535,11 @@ static const struct snd_soc_dapm_widget apq8064_dapm_widgets[] = {
 	SND_SOC_DAPM_MIC("Handset SubMic", NULL),
 #endif
 
-//                                                                                                   
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) )
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GV_KR)||defined(CONFIG_MACH_APQ8064_GKGLOBAL))
 	SND_SOC_DAPM_MIC("Handset 3rdMic", NULL),
 #endif
-//                                                                                                 
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
 
 
 	/*********** Digital Mics ***************/
@@ -570,12 +570,12 @@ static const struct snd_soc_dapm_route apq8064_common_audio_map[] = {
 	{"Ext Spk Top", NULL, "LINEOUT5"},
 #endif
 
-//                                                                                                   
-#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GKOPENHK)||defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG)||defined(CONFIG_MACH_APQ8064_GKOPENEU)||defined(CONFIG_MACH_APQ8064_GKTCLMX) )
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [START]
+#if defined(CONFIG_SND_SOC_3rd_MIC_AMIC) && ( defined(CONFIG_MACH_APQ8064_GVDCM)||defined(CONFIG_MACH_APQ8064_GK_KR)||defined(CONFIG_MACH_APQ8064_GKATT)||defined(CONFIG_MACH_APQ8064_GV_KR)||defined(CONFIG_MACH_APQ8064_GKGLOBAL))
 	{"AMIC5", NULL, "MIC BIAS4 External"},
 	{"MIC BIAS4 External", NULL, "Handset 3rdMic"},
 #endif
-//                                                                                                 
+//[AUDIO_BSP][3rd MIC] gooyeon.jung@lge.com 2012-09-28 enable MIC_BIAS4 connected to 3rd MIC. [END]
 
 
 	/************   Analog MIC Paths  ************/
@@ -729,7 +729,7 @@ static const struct soc_enum msm_btsco_enum[] = {
 		SOC_ENUM_SINGLE_EXT(2, btsco_rate_text),
 };
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 static const char *slimbus_sample_rate_text[] = {"8000", "16000", "48000"};
@@ -737,15 +737,15 @@ static const struct soc_enum msm_slimbus_sample_rate_enum[] = {
 		SOC_ENUM_SINGLE_EXT(3, slimbus_sample_rate_text),
 };
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static const char *auxpcm_rate_text[] = {"8000", "16000"};
 static const struct soc_enum msm_auxpcm_enum[] = {
 		SOC_ENUM_SINGLE_EXT(2, auxpcm_rate_text),
 };
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
 static int msm_slim_0_rx_ch_get(struct snd_kcontrol *kcontrol,
@@ -833,7 +833,7 @@ static int msm_btsco_rate_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static int msm_auxpcm_rate_get(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
@@ -861,10 +861,10 @@ static int msm_auxpcm_rate_put(struct snd_kcontrol *kcontrol,
 					msm_auxpcm_rate);
 	return 0;
 }
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 static int msm_slimbus_sample_rate_get(struct snd_kcontrol *kcontrol,
@@ -896,7 +896,7 @@ static int msm_slimbus_sample_rate_put(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 static int msm_incall_rec_mode_get(struct snd_kcontrol *kcontrol,
 					struct snd_ctl_elem_value *ucontrol)
@@ -928,13 +928,13 @@ static const struct snd_kcontrol_new tabla_msm_controls[] = {
 			msm_incall_rec_mode_get, msm_incall_rec_mode_put),
 	SOC_ENUM_EXT("SLIM_3_RX Channels", msm_enum[1],
 		msm_slim_3_rx_ch_get, msm_slim_3_rx_ch_put),
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	SOC_ENUM_EXT("SLIMBus SampleRate", msm_slimbus_sample_rate_enum[0],
 		msm_slimbus_sample_rate_get, msm_slimbus_sample_rate_put),
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if 0
 	SOC_ENUM_EXT("AUX PCM SampleRate", msm_auxpcm_enum[0],
 		msm_auxpcm_rate_get, msm_auxpcm_rate_put),
@@ -942,7 +942,7 @@ static const struct snd_kcontrol_new tabla_msm_controls[] = {
 };
 
 #if 0
-//                                                                                  
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 static const struct snd_kcontrol_new auxpcm_rate_mixer_controls[] = {
 	SOC_ENUM_EXT("AUX PCM SampleRate", msm_auxpcm_enum[0],
 		msm_auxpcm_rate_get, msm_auxpcm_rate_put),
@@ -960,7 +960,7 @@ static int msm_auxpcm_init(struct snd_soc_pcm_runtime *rtd)
                return err;
        return 0;
 }
-//                                                                                
+//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 
 static void *def_tabla_mbhc_cal(void)
@@ -1050,12 +1050,12 @@ static int msm_hw_params(struct snd_pcm_substream *substream,
 	unsigned int rx_ch[SLIM_MAX_RX_PORTS], tx_ch[SLIM_MAX_TX_PORTS];
 	unsigned int rx_ch_cnt = 0, tx_ch_cnt = 0;
 	unsigned int num_tx_ch = 0;
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Check external EC reference from codec
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	int es325_tx1_enabled = es325_get_tx1_enabled();
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -1084,7 +1084,7 @@ static int msm_hw_params(struct snd_pcm_substream *substream,
 		}
 	} else {
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 		if (codec_dai->id  == 2 || codec_dai->id == 12)
 			num_tx_ch =  msm_slim_0_tx_ch;
@@ -1108,7 +1108,7 @@ static int msm_hw_params(struct snd_pcm_substream *substream,
 			num_tx_ch =  msm_slim_0_rx_ch;
 		}
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 		pr_debug("%s: %s_tx_dai_id_%d_ch=%d\n", __func__,
 			codec_dai->name, codec_dai->id, num_tx_ch);
@@ -1460,13 +1460,13 @@ static int msm_slim_0_rx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_interval *channels = hw_param_interval(params,
 			SNDRV_PCM_HW_PARAM_CHANNELS);
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	pr_debug("%s() sample rate(%d)\n", __func__, msm_slimbus_sample_rate);
 	rate->min = rate->max = msm_slimbus_sample_rate;//48000;
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 	channels->min = channels->max = msm_slim_0_rx_ch;
 
 	return 0;
@@ -1481,13 +1481,13 @@ static int msm_slim_0_tx_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	struct snd_interval *channels = hw_param_interval(params,
 			SNDRV_PCM_HW_PARAM_CHANNELS);
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 // Changed SLIMBus Sample Rate 48KHz to 8KHz via eS325, Power consumption
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	pr_debug("%s() sample rate(%d)\n", __func__, msm_slimbus_sample_rate);
 	rate->min = rate->max = msm_slimbus_sample_rate;//48000;
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 	channels->min = channels->max = msm_slim_0_tx_ch;
 
 	return 0;
@@ -1605,11 +1605,11 @@ static int msm_auxpcm_be_params_fixup(struct snd_soc_pcm_runtime *rtd,
 	/* PCM only supports mono output with 8khz sample rate */
 	rate->min = rate->max = 8000;
 #else
-	//                                                                                  
+	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 	pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_btsco_rate);
 	//pr_debug("%s: auxpcm rate set = %d\n", __func__, msm_auxpcm_rate);
 	rate->min = rate->max = msm_btsco_rate; //msm_auxpcm_rate;
-	//                                                                                
+	//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 	channels->min = channels->max = 1;
 
@@ -2113,9 +2113,9 @@ static struct snd_soc_dai_link msm_dai[] = {
 		.codec_name = "msm-stub-codec.1",
 		.codec_dai_name = "msm-stub-rx",
 #if 0
-		//                                                                                  
+		//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [START]
 		//.init = &msm_auxpcm_init,
-		//                                                                                
+		//[AUDIO_BSP][WB BT] junday.lee@lge.com 2012-11-29 Support WB Aux PCM BT SOC [END]
 #endif
 		.no_pcm = 1,
 		.be_id = MSM_BACKEND_DAI_AUXPCM_RX,

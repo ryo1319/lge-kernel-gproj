@@ -205,12 +205,26 @@ enum {
 	ES325_TWO_MIC_VOIP_FT,
 	ES325_TWO_MIC_CT_LOW_NS,
 	ES325_ONE_MIC_DV_LOW_NS,
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 	
+	ES325_TWO_MIC_CT_WB,
+	ES325_TWO_MIC_FT_WB,
+	ES325_TWO_MIC_CT_LOW_NS_WB,
+	ES325_ONE_MIC_DV_LOW_NS_WB,
+#endif	
 	ES325_BOTTOM_MIC_SEALED,
 	ES325_TOP_MIC_SEALED,
 	ES325_DUMMY,
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL)	
+	ES325_NB,
+	ES325_WB,
+#endif	
 	ES325_STOP
 };
 
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL)	
+static bool is_wideband = false;
+static long route_num_old = ES325_STOP;
+#endif
 static long es325_internal_route_num = ES325_STOP+1;
 static u8 es325_internal_route_configs[ES325_STOP+1][60] = {
 	{ // 1-Mic Close Talk
@@ -325,6 +339,36 @@ static u8 es325_internal_route_configs[ES325_STOP+1][60] = {
 #endif /* SPLIT_ROUTE_AND_ALGO_PRESET */
 	0xff					/* End of Command */
 	},
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 		
+	{ // WB 2-mic CT High
+	0x90, 0x31, 0x00, 0x01, /* Route Preset */
+#if defined(SPLIT_ROUTE_AND_ALGO_PRESET)
+	0x90, 0x31, 0x00, 0x2C, /* Algo Preset */
+#endif /* SPLIT_ROUTE_AND_ALGO_PRESET */
+	0xff					/* End of Command */
+	},	
+	{ // WB 2-mic FT High
+	0x90, 0x31, 0x00, 0x03, /* Route Preset */
+#if defined(SPLIT_ROUTE_AND_ALGO_PRESET)
+	0x90, 0x31, 0x00, 0x2D, /* Algo Preset */
+#endif /* SPLIT_ROUTE_AND_ALGO_PRESET */
+	0xff					/* End of Command */	
+	},	
+	{ // WB 2-mic CT Low NS
+	0x90, 0x31, 0x00, 0x01, /* Route Preset */
+#if defined(SPLIT_ROUTE_AND_ALGO_PRESET)
+	0x90, 0x31, 0x00, 0x2E, /* Algo Preset */
+#endif /* SPLIT_ROUTE_AND_ALGO_PRESET */
+	0xff					/* End of Command */	
+	},	
+	{ // WB 1-mic DV Low NS
+	0x90, 0x31, 0x00, 0x02, /* Route Preset */
+#if defined(SPLIT_ROUTE_AND_ALGO_PRESET)
+	0x90, 0x31, 0x00, 0x2F, /* Algo Preset */
+#endif /* SPLIT_ROUTE_AND_ALGO_PRESET */
+	0xff					/* End of Command */	
+	},	
+#endif	
 	{ // Bottom MIC Sealed Test
 	0xb0, 0x5c, 0x00, 0x01,
 	0xb0, 0x5a, 0x28, 0xa0,
@@ -353,6 +397,16 @@ static u8 es325_internal_route_configs[ES325_STOP+1][60] = {
 	0x90, 0x31, 0x00, 0x0E, /* Route Preset */
 	0xff					/* End of Command */
 	},
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 	
+	{ // NB
+	0x90, 0x31, 0x00, 0x0E, /* Route Preset */
+	0xff					/* End of Command */
+	},
+	{ // WB
+	0x90, 0x31, 0x00, 0x0E, /* Route Preset */
+	0xff					/* End of Command */
+	},
+#endif	
 	{ // Clearing Route(STOP)
 	0x90, 0x31, 0x00, 0x0F, /* Route Preset */
 	0xff					/* End of Command */
@@ -1355,7 +1409,7 @@ static int es325_write(struct snd_soc_codec *codec, unsigned int reg,
 	unsigned int access = reg & ES325_ACCESS_MASK;
 	char msg[16];
 	char *msg_ptr;
-	int msg_len;
+	int msg_len = 0;
 	int i;
 	int rc;
 
@@ -2232,6 +2286,9 @@ CODEC_SLEEP_EXIT:
 		es325->power_state = ES325_POWER_SLEEP;
 		dev_info(dev, "%s() Entered sleep state. power_state=%d\n",
 			__func__, es325->power_state);
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 					
+		is_wideband = false;
+#endif		
 	} else
 		dev_warn(dev, "%s() Failed to enter sleep state. power_state=%d  rc=%d\n",
 			__func__, es325->power_state, rc);
@@ -2565,14 +2622,81 @@ static int es325_put_internal_route_config(struct snd_kcontrol *kcontrol,
 
 	if(route_num > ES325_STOP)
 		return 0;
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 	
+
+	if (route_num == ES325_NB) {
+		is_wideband = false;
+		if (es325_rx1_route_ena == 1 && es325_rx2_route_ena == 1 && es325_tx1_route_ena == 1) {
+			if (route_num_old == ES325_TWO_MIC_CT_WB) {
+				pr_info("%s : 2-mic CT Handover WB -> NB\n", __func__);
+				route_num = ES325_TWO_MIC_CT;
+			} else if (route_num_old == ES325_TWO_MIC_CT_LOW_NS_WB) {
+				pr_info("%s : 2-mic CT LOW NS Handover WB -> NB\n", __func__);
+				route_num = ES325_TWO_MIC_CT_LOW_NS;
+			} else if (route_num_old == ES325_TWO_MIC_FT_WB) {
+				pr_info("%s : 2-mic FT Handover WB -> NB\n", __func__);
+				route_num = ES325_TWO_MIC_FT;
+			} else if (route_num_old == ES325_ONE_MIC_DV_LOW_NS_WB) {
+				pr_info("%s : 1-mic DV Handover WB -> NB\n", __func__);
+				route_num = ES325_ONE_MIC_DV_LOW_NS;
+			} else {
+				pr_info("%s : Narrowband to Narrowband case -> No Change :: sungmin test\n", __func__);
+				route_num = route_num_old;
+			}
+		} else {
+			pr_info("%s() : sungmin : AMR Codec type is changed but Voice call is NOT activated.", __func__);
+			return 0;
+		}
+	} else if (route_num == ES325_WB) {
+		is_wideband = true;
+		if (es325_rx1_route_ena == 1 && es325_rx2_route_ena == 1 && es325_tx1_route_ena == 1) {
+			if (route_num_old == ES325_TWO_MIC_CT) {
+				pr_info("%s : 2-mic CT Handover NB -> WB\n", __func__);
+				route_num = ES325_TWO_MIC_CT_WB;
+			} else if (route_num_old == ES325_TWO_MIC_CT_LOW_NS) {
+				pr_info("%s : 2-mic CT LOW NS Handover NB -> WB\n", __func__);
+				route_num = ES325_TWO_MIC_CT_LOW_NS_WB;
+			} else if (route_num_old == ES325_TWO_MIC_FT) {
+				pr_info("%s : 2-mic FT Handover NB -> WB\n", __func__);
+				route_num = ES325_TWO_MIC_FT_WB;
+			} else if (route_num_old == ES325_ONE_MIC_DV_LOW_NS) {
+				pr_info("%s : 1-mic DV Handover NB -> WB\n", __func__);
+				route_num = ES325_ONE_MIC_DV_LOW_NS_WB;
+			} else {
+				pr_info("%s : Wideband to Wideband case -> No Change :: sungmin test\n", __func__);
+				route_num = route_num_old;
+			}
+		} else {
+			pr_info("%s() : sungmin : AMR Codec type is changed but Voice call is NOT activated.", __func__);
+			return 0;
+		}
+	}
+	
+	if (is_wideband) {
+		if (route_num == ES325_TWO_MIC_CT) {
+			route_num = ES325_TWO_MIC_CT_WB;
+		} else if (route_num == ES325_TWO_MIC_CT_LOW_NS) {
+			route_num = ES325_TWO_MIC_CT_LOW_NS_WB;
+		} else if (route_num == ES325_TWO_MIC_FT) {
+			route_num = ES325_TWO_MIC_FT_WB;
+		} else if (route_num == ES325_ONE_MIC_DV_LOW_NS) {
+			route_num = ES325_ONE_MIC_DV_LOW_NS_WB;
+		}
+	} 
+#endif
 
 	if(es325_internal_route_num != route_num) {
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 	
+		es325_internal_route_num = route_num_old = route_num;
+#else
 		es325_internal_route_num = route_num;
+#endif
+		
 		/* Flag to setup slimbus channel for es325 */
-		/*                  
-                             
-                      
-  */
+		/* jeremy.pi@lge.com
+		*   blocked ch mapping flag
+		*   controled by UCM
+		*/
 //		es325_rx1_route_ena = 1;
 //		es325_tx1_route_ena = 1;
 //		es325_rx2_route_ena = 1;
@@ -2593,8 +2717,7 @@ static int es325_put_internal_route_config(struct snd_kcontrol *kcontrol,
 							msg[0], msg[1], msg[2], msg[3]);
 				}
 			}
-		}
-		else {
+		} else {
 			/* Flag to setup slimbus channel for without es325 */
 			// lock power lock
 			es325_rx1_route_ena = 0;
@@ -2828,8 +2951,16 @@ static const char *es325_internal_route_configs_text[ES325_STOP+1] = {
 	"ONE MIC ASR",
 	"TWO MIC VOIP CT",			"TWO MIC VOIP FT",
 	"TWO MIC CT LOW NS",		"ONE MIC DV LOW NS",
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 		
+	"TWO MIC CT WB",			"TWO MIC FT WB",
+	"TWO MIC CT LOW NS WB",			"ONE MIC DV LOW NS WB", 
+#endif	
 	"BOTTOM MIC SEALED",		"TOP MIC SEALED",
 	"DUMMY",
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL) // 2013.04.29 _change GKGlobal feature : defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX) || defined(CONFIG_MACH_APQ8064_GKOPENBR) || defined(CONFIG_MACH_APQ8064_GKOPENESA) || defined(CONFIG_MACH_APQ8064_GKOPENAME) || defined(CONFIG_MACH_APQ8064_GKOPENIL) 	
+	"NB",
+	"WB",
+#endif	
 	"STOP"
 };
 
@@ -4033,7 +4164,7 @@ static int es325_i2c_probe(struct i2c_client *i2c,
 {
 	struct esxxx_platform_data *pdata = i2c->dev.platform_data;
 	struct es325_priv *es325;
-	const char *filename = "audience-es325-fw.bin";
+	const char *filename = CONFIG_EXTRA_FIRMWARE;
 	int rc;
 
 	dev_dbg(&i2c->dev, "%s(): entry\n", __func__);
@@ -4151,7 +4282,7 @@ static struct i2c_driver es325_i2c_driver = {
 static int es325_slim_probe(struct slim_device *sbdev)
 {
 	struct esxxx_platform_data *pdata = sbdev->dev.platform_data;
-	const char *filename = "audience-es325-fw.bin";
+	const char *filename = CONFIG_EXTRA_FIRMWARE;
 	int rc;
 	int cnt = 0;
 
@@ -4409,4 +4540,4 @@ MODULE_DESCRIPTION("ASoC ES325 driver");
 MODULE_AUTHOR("Greg Clemson <gclemson@audience.com>");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS("platform:es325-codec");
-MODULE_FIRMWARE("audience-es325-fw.bin");
+MODULE_FIRMWARE(CONFIG_EXTRA_FIRMWARE);

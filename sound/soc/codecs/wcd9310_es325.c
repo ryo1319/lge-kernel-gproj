@@ -37,13 +37,13 @@
 #include <linux/wakelock.h>
 #include <linux/suspend.h>
 #include "wcd9310.h"
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 #include <sound/es325-export.h>
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
-#include <linux/regulator/consumer.h> //                                                                                 
+#include <linux/regulator/consumer.h> //[AUDIO_BSP], 20120730, sehwan.lee@lge.com PMIC L29 Control(because headset noise)
 static int cfilt_adjust_ms = 10;
 module_param(cfilt_adjust_ms, int, 0644);
 MODULE_PARM_DESC(cfilt_adjust_ms, "delay after adjusting cfilt voltage in ms");
@@ -954,10 +954,10 @@ static const struct snd_kcontrol_new tabla_snd_controls[] = {
 	SOC_SINGLE_TLV("HPHR Volume", TABLA_A_RX_HPH_R_GAIN, 0, 12, 1,
 		line_gain),
 
-/*                                                 
-                                                                                     
+/* LGE_CHANGED_START 2012.05.03, sehwan.lee@lge.com
+ * change the digital_gain's Min value -84 -> -60, because UCM off-line tunning Issue
  */ 
-#if defined(CONFIG_LGE_AUDIO) /*          */
+#if defined(CONFIG_LGE_AUDIO) /* LGE_CODE */
 	SOC_SINGLE_S8_TLV("RX1 Digital Volume", TABLA_A_CDC_RX1_VOL_CTL_B2_CTL,
 		-60, 40, digital_gain),
 	SOC_SINGLE_S8_TLV("RX2 Digital Volume", TABLA_A_CDC_RX2_VOL_CTL_B2_CTL,
@@ -1030,7 +1030,7 @@ static const struct snd_kcontrol_new tabla_snd_controls[] = {
 	SOC_SINGLE_S8_TLV("DEC10 Volume", TABLA_A_CDC_TX10_VOL_CTL_GAIN, -84,
 		40, digital_gain),
 #endif
-/*                                                */
+/* LGE_CHANGED_END 2012.05.03, sehwan.lee@lge.com */
 	SOC_SINGLE_S8_TLV("IIR1 INP1 Volume", TABLA_A_CDC_IIR1_GAIN_B1_CTL, -84,
 		40, digital_gain),
 	SOC_SINGLE_S8_TLV("IIR1 INP2 Volume", TABLA_A_CDC_IIR1_GAIN_B2_CTL, -84,
@@ -3823,8 +3823,8 @@ static void tabla_codec_calibrate_hs_polling(struct snd_soc_codec *codec)
 
 #ifdef CONFIG_LGE_AUX_NOISE
 /*
-                              
-                                               
+ * 2012-07-20, bob.cho@lge.com
+ * this API control HPH PAs to remove aux noise
  */
  static int is_force_enable_pin = 0;
  void tabla_codec_hph_pa_ctl(int state)
@@ -3898,7 +3898,7 @@ static void tabla_codec_calibrate_hs_polling(struct snd_soc_codec *codec)
 }
 
 EXPORT_SYMBOL_GPL(tabla_codec_hph_pa_ctl);
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 
 
 static int tabla_startup(struct snd_pcm_substream *substream,
@@ -3914,9 +3914,9 @@ static int tabla_startup(struct snd_pcm_substream *substream,
 
 #ifdef CONFIG_LGE_AUX_NOISE
 		/*
-                                
-                                                            
-   */
+		 * 2012-07-20, bob.cho@lge.com
+		 * when playback is start, revert force enable of HPH PAs.
+		 */
 		if(is_force_enable_pin && snd_codec) {
 			snd_soc_dapm_disable_pin(&snd_codec->dapm, "HPHL");
 			snd_soc_dapm_disable_pin(&snd_codec->dapm, "HPHR");
@@ -3924,7 +3924,7 @@ static int tabla_startup(struct snd_pcm_substream *substream,
 			snd_soc_update_bits(snd_codec, TABLA_A_RX_HPH_CNP_EN, 0x80, 0x80);
 			snd_soc_update_bits(snd_codec, TABLA_A_CP_EN, 0x01 , 0x00);
 		}
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 
 	return 0;
 }
@@ -3936,9 +3936,9 @@ static void tabla_shutdown(struct snd_pcm_substream *substream,
 {
 
 		/*
-                                
-                                                         
-   */
+		 * 2012-07-20, bob.cho@lge.com
+		 * when playback is end, start force enable of HPH PAs.
+		 */
 		if(is_force_enable_pin && snd_codec) {
 			snd_soc_update_bits(snd_codec, TABLA_A_RX_HPH_CNP_EN, 0xB0, 0xB0);
 			snd_soc_update_bits(snd_codec, TABLA_A_CP_EN, 0x01 , 0x01);
@@ -3948,7 +3948,7 @@ static void tabla_shutdown(struct snd_pcm_substream *substream,
 		}
 	
 }
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 
 static void tabla_shutdown(struct snd_pcm_substream *substream,
 		struct snd_soc_dai *dai)
@@ -3962,12 +3962,12 @@ static void tabla_shutdown(struct snd_pcm_substream *substream,
 	if (tabla->intf_type != WCD9XXX_INTERFACE_TYPE_SLIMBUS)
 		return;
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	pr_debug("%s(): id = %d ch_mask = %d name = %s\n" , __func__,
 		 dai->id, tabla->dai[dai->id-1].ch_mask, tabla->codec->name);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 	if (dai->id <= NUM_CODEC_DAIS) {
 		if (tabla->dai[dai->id-1].ch_mask) {
@@ -4104,12 +4104,12 @@ static int tabla_set_channel_map(struct snd_soc_dai *dai,
 
 	if (dai->id == AIF1_PB || dai->id == AIF2_PB || dai->id == AIF3_PB) {
 		for (i = 0; i < rx_num; i++) {
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			pr_debug("%s(): rx ch_num[%d]\n",
 					__func__, rx_slot[i]);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 			tabla->dai[dai->id - 1].ch_num[i]  = rx_slot[i];
 			tabla->dai[dai->id - 1].ch_act = 0;
 			tabla->dai[dai->id - 1].ch_tot = rx_num;
@@ -4130,7 +4130,7 @@ static int tabla_set_channel_map(struct snd_soc_dai *dai,
 		}
 
 		tabla->dai[dai->id - 1].ch_act = 0;
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 		for (i = 0; i < tx_num; i++) {
 			tabla->dai[dai->id - 1].ch_num[i]  = tx_slot[i];
@@ -4140,7 +4140,7 @@ static int tabla_set_channel_map(struct snd_soc_dai *dai,
 		for (i = 0; i < tx_num; i++)
 			tabla->dai[dai->id - 1].ch_num[i]  = tx_slot[i];
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 	}
 	return 0;
 }
@@ -4161,11 +4161,11 @@ static int tabla_get_channel_map(struct snd_soc_dai *dai,
 		return -EINVAL;
 	}
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	pr_info("GAC:%s(): dai->id = %d\n", __func__, dai->id);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 	/* for virtual port, codec driver needs to do
 	 * housekeeping, for now should be ok
 	 */
@@ -4564,7 +4564,7 @@ static int tabla_hw_params(struct snd_pcm_substream *substream,
 	return 0;
 }
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 static int tabla_es325_hw_params(struct snd_pcm_substream *substream,
 		struct snd_pcm_hw_params *params,
@@ -4647,7 +4647,7 @@ static struct snd_soc_dai_ops tabla_dai_ops = {
 	.get_channel_map = tabla_get_channel_map,
 };
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 static struct snd_soc_dai_driver tabla_dai[] = {
 	{
@@ -4840,11 +4840,11 @@ static int tabla_codec_enable_slimrx(struct snd_soc_dapm_widget *w,
 				break;
 			}
 		}
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 		pr_info("%s: act=%d tot=%d\n", __func__, tabla_p->dai[j].ch_act, tabla_p->dai[j].ch_tot);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 		if (tabla_p->dai[j].ch_act == tabla_p->dai[j].ch_tot) {
 			ret = tabla_codec_enable_chmask(tabla_p,
 							SND_SOC_DAPM_POST_PMU,
@@ -4853,12 +4853,12 @@ static int tabla_codec_enable_slimrx(struct snd_soc_dapm_widget *w,
 					tabla_p->dai[j].ch_num,
 					tabla_p->dai[j].ch_tot,
 					tabla_p->dai[j].rate);
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			ret = es325_remote_cfg_slim_rx(tabla_dai[j].id);
 			pr_info("%s: ret=%d, ch_num=%d, rate=%d \n", __func__, ret, *(tabla_p->dai[j].ch_num), tabla_p->dai[j].rate);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 		}
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -4875,11 +4875,11 @@ static int tabla_codec_enable_slimrx(struct snd_soc_dapm_widget *w,
 			}
 		}
 		if (!tabla_p->dai[j].ch_act) {
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			ret = es325_remote_close_slim_rx(tabla_dai[j].id);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 			ret = wcd9xxx_close_slim_sch_rx(tabla,
 						tabla_p->dai[j].ch_num,
 						tabla_p->dai[j].ch_tot);
@@ -4957,11 +4957,11 @@ static int tabla_codec_enable_slimtx(struct snd_soc_dapm_widget *w,
 						tabla_p->dai[j].ch_num,
 						tabla_p->dai[j].ch_tot,
 						tabla_p->dai[j].rate);
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			ret = es325_remote_cfg_slim_tx(tabla_dai[j].id);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 		}
 		break;
 	case SND_SOC_DAPM_POST_PMD:
@@ -4977,11 +4977,11 @@ static int tabla_codec_enable_slimtx(struct snd_soc_dapm_widget *w,
 			}
 		}
 		if (!tabla_p->dai[j].ch_act) {
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 			ret = es325_remote_close_slim_tx(tabla_dai[j].id);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 			ret = wcd9xxx_close_slim_sch_tx(tabla,
 						tabla_p->dai[j].ch_num,
 						tabla_p->dai[j].ch_tot);
@@ -8282,8 +8282,8 @@ static void tabla_update_reg_address(struct tabla_priv *priv)
 
 #ifdef CONFIG_SWITCH_MAX1462X
 
-/*                                                  
-                   
+/* LGE_CHANGED_START 2012.10.25, gyuhwa.park@lge.com
+ * PMIC L10 Control
  */ 
 static bool max1462x_mic_bias = false;
 
@@ -8320,15 +8320,15 @@ void set_headset_mic_bias_l10(int on)
  
 }
 
-/*                                                 */
+/* LGE_CHANGED_END 2012.10.25, gyuhwa.park@lge.com */
 
 #endif /* CONFIG_SWITCH_MAX1462X */
 
 #ifdef CONFIG_SWITCH_FSA8008
 /*
-                               
-                                                             
-                                   
+* 2012-02-06, mint.choi@lge.com
+* Enable/disable fsa8008 mic bias when inserting and removing
+* this API called by fsa8008 driver
 */
 
 void tabla_codec_micbias2_ctl(int enable)
@@ -8352,8 +8352,8 @@ void tabla_codec_micbias2_ctl(int enable)
 	}
 }
 
-/*                                                 
-                                          
+/* LGE_CHANGED_START 2012.07.30, sehwan.lee@lge.com
+ * PMIC L29 Control(because headset noise)
  */ 
 static bool fsa8008_mic_bias = false;
 
@@ -8368,7 +8368,7 @@ void set_headset_mic_bias_l29(int on)
 			pr_err("%s: regulator get of vreg_l29 failed (%ld)\n", __func__, PTR_ERR(vreg_l29)); 
 		}
 
-//                                                                          
+//[LGE] seungkyu.joo, 2012-12-18 , HW Request for enabling apple headset mic
 #if defined(CONFIG_MACH_APQ8064_J1SK)|| defined(CONFIG_MACH_APQ8064_J1KT)|| defined(CONFIG_MACH_APQ8064_J1U)|| defined(CONFIG_MACH_APQ8064_J1A)
 		rc = regulator_set_voltage(vreg_l29, 2700000, 2700000);
 #else
@@ -8394,7 +8394,7 @@ void set_headset_mic_bias_l29(int on)
 	}
  
 }
-/*                                                */
+/* LGE_CHANGED_END 2012.07.30, sehwan.lee@lge.com */
 
 EXPORT_SYMBOL_GPL(tabla_codec_micbias2_ctl);
 #endif /* CONFIG_SWITCH_FSA8008 */
@@ -8592,11 +8592,11 @@ static int tabla_codec_probe(struct snd_soc_codec *codec)
 //	snd_soc_dapm_new_controls(dapm, tabla_dapm_widgets,
 //				  ARRAY_SIZE(tabla_dapm_widgets));
 
-//                                                                         
+// [[LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 #if defined(CONFIG_SND_SOC_ES325_SLIM)
 	es325_remote_add_codec_controls(codec);
 #endif /* CONFIG_SND_SOC_ES325_SLIM */
-//                                                                         
+// ]]LGE_BSP_AUDIO, jeremy.pi@lge.com, Audience eS325 ALSA SoC Audio driver
 
 	snd_soc_dapm_new_controls(dapm, tabla_dapm_aif_in_widgets,
 				  ARRAY_SIZE(tabla_dapm_aif_in_widgets));

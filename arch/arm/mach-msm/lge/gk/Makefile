@@ -50,7 +50,7 @@ obj-$(CONFIG_MACH_APQ8064_GKATT) += board-gk.o \
 	board-gk-nfc.o \
 	board-gk-rfkill.o 
 
-obj-$(CONFIG_MACH_APQ8064_GKOPENHK) += board-gk.o \
+obj-$(CONFIG_MACH_APQ8064_GKGLOBAL) += board-gk.o \
 	board-gk-camera.o \
 	board-gk-display.o \
 	board-gk-gpiomux.o \
@@ -62,55 +62,3 @@ obj-$(CONFIG_MACH_APQ8064_GKOPENHK) += board-gk.o \
 	board-gk-storage.o \
 	board-gk-nfc.o \
 	board-gk-rfkill.o 
-
-obj-$(CONFIG_MACH_APQ8064_GKOPENTW) += board-gk.o \
-	board-gk-camera.o \
-	board-gk-display.o \
-	board-gk-gpiomux.o \
-	board-gk-gpu.o \
-	board-gk-pmic.o \
-	board-gk-regulator.o \
-	board-gk-misc.o \
-	board-gk-sound.o \
-	board-gk-storage.o \
-	board-gk-nfc.o \
-	board-gk-rfkill.o 
-	
-obj-$(CONFIG_MACH_APQ8064_GKSHBSG) += board-gk.o \
-	board-gk-camera.o \
-	board-gk-display.o \
-	board-gk-gpiomux.o \
-	board-gk-gpu.o \
-	board-gk-pmic.o \
-	board-gk-regulator.o \
-	board-gk-misc.o \
-	board-gk-sound.o \
-	board-gk-storage.o \
-	board-gk-nfc.o \
-	board-gk-rfkill.o 
-
-obj-$(CONFIG_MACH_APQ8064_GKOPENEU) += board-gk.o \
-	board-gk-camera.o \
-	board-gk-display.o \
-	board-gk-gpiomux.o \
-	board-gk-gpu.o \
-	board-gk-pmic.o \
-	board-gk-regulator.o \
-	board-gk-misc.o \
-	board-gk-sound.o \
-	board-gk-storage.o \
-	board-gk-nfc.o \
-	board-gk-rfkill.o
-
-obj-$(CONFIG_MACH_APQ8064_GKTCLMX) += board-gk.o \
-	board-gk-camera.o \
-	board-gk-display.o \
-	board-gk-gpiomux.o \
-	board-gk-gpu.o \
-	board-gk-pmic.o \
-	board-gk-regulator.o \
-	board-gk-misc.o \
-	board-gk-sound.o \
-	board-gk-storage.o \
-	board-gk-nfc.o \
-	board-gk-rfkill.o

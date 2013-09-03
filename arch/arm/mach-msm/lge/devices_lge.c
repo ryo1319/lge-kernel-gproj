@@ -99,7 +99,7 @@ static struct chg_cable_info_table pm8921_acc_cable_type_data[]={
 	{ADC_CABLE_NONE,    CABLE_NONE,     C_NONE_TA_MA,       C_NONE_USB_MA},
 };
 
-//                                                                            
+//doosan.baek@lge.com 20121122 Adc value is changed for Rev A, B, C of GV DCM.
 #if defined(CONFIG_MACH_APQ8064_GVDCM)
 /* This table is only for gvdcm in Rev A, B, C */
 static int pm8921_acc_cable_adc_data_gvdcm[]={
@@ -120,7 +120,7 @@ static int pm8921_acc_cable_adc_data_gvdcm[]={
 	ADC_CABLE_NONE3,
 };
 #endif
-//                                                                            
+//doosan.baek@lge.com 20121122 Adc value is changed for Rev A, B, C of GV DCM.
 
 #endif
 
@@ -200,13 +200,13 @@ int lge_pm_get_cable_info(struct chg_cable_info *cable_info)
 	info->ta_ma = C_NO_INIT_TA_MA;
 	info->usb_ma = C_NO_INIT_USB_MA;
 
-//                                                                            
+//doosan.baek@lge.com 20121122 Adc value is changed for Rev A, B, C of GV DCM.
 #if defined(CONFIG_MACH_APQ8064_GVDCM)
 	if(lge_get_board_revno() <= HW_REV_C)
 		for(i = 0; i <= CABLE_NONE;i++)
 			pm8921_acc_cable_type_data[i].threshhold = pm8921_acc_cable_adc_data_gvdcm[i];
 #endif
-//                                                                            
+//doosan.baek@lge.com 20121122 Adc value is changed for Rev A, B, C of GV DCM.
 
 	/* assume: adc value must be existed in ascending order */
 	for (i = 0; i < table_size; i++) {
@@ -298,15 +298,11 @@ __setup("lge.batt_info=", battery_information_setup);
 #endif
 
 #ifdef CONFIG_LGE_KCAL
-#if defined (CONFIG_MACH_APQ8064_GKU) || defined (CONFIG_MACH_APQ8064_GKKT) || defined (CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GVKT)
+#if defined (CONFIG_MACH_APQ8064_GKU) || defined (CONFIG_MACH_APQ8064_GKKT) || defined (CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 int g_kcal_r = 248;
 int g_kcal_g = 248;
 int g_kcal_b = 255;
 #elif defined (CONFIG_MACH_APQ8064_GVDCM)
-int g_kcal_r = 250;
-int g_kcal_g = 250;
-int g_kcal_b = 255;
-#elif defined (CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
 int g_kcal_r = 250;
 int g_kcal_g = 250;
 int g_kcal_b = 255;
@@ -321,6 +317,12 @@ static int __init display_kcal_setup(char *kcal)
         sscanf(kcal, "%d|%d|%d|%c", &g_kcal_r, &g_kcal_g, &g_kcal_b, &vaild_k );
         printk(KERN_INFO "kcal is %d|%d|%d|%c\n",
                                         g_kcal_r, g_kcal_g, g_kcal_b, vaild_k);
+
+#if defined (CONFIG_MACH_APQ8064_GKU) || defined (CONFIG_MACH_APQ8064_GKKT) || defined (CONFIG_MACH_APQ8064_GKSK) || defined (CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
+       g_kcal_r = g_kcal_r < 248 ? 248 : g_kcal_r;
+       g_kcal_g = g_kcal_g < 248 ? 248 : g_kcal_g;
+       g_kcal_b = g_kcal_b < 253 ? 253 : g_kcal_b;
+#endif
 
         if(vaild_k != 'K') {
                 printk(KERN_INFO "kcal not calibrated yet : %d\n", vaild_k);
@@ -477,7 +479,7 @@ void __init lge_add_panic_handler_devices(void)
 
 	platform_device_register(&panic_handler_device);
 }
-#endif //                        
+#endif // CONFIG_LGE_HANDLE_PANIC
 
 #ifdef CONFIG_LGE_ECO_MODE
 static struct platform_device lge_kernel_device = {

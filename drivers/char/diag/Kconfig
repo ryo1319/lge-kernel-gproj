@@ -75,3 +75,13 @@ config LGE_DM_APP
 	help
 	 LGE DM APP Support
 endmenu
+
+menu "LGE DM DEV Support"
+
+config LGE_DM_DEV
+    bool "LGE DM DEV Support"
+    default n
+    depends on MACH_LGE
+    help
+     LGE DM DEV Support
+endmenu

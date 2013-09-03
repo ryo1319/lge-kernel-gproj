@@ -132,18 +132,18 @@ void hdmi_msm_cec_one_touch_play(void);
 void hdmi_msm_cec_msg_send(struct hdmi_msm_cec_msg *msg);
 #endif /* CONFIG_FB_MSM_HDMI_MSM_PANEL_CEC_SUPPORT */
 
-/*           
-               
-                                                    
-                                 
+/* LGE_CHANGE
+ * not used api
+ * (feature CONFIG_FB_MSM_HDMI_MHL_8334 is disabled)
+ * 2012-09-07, chaeuk.lee@lge.com
  */
 #ifdef CONFIG_FB_MSM_HDMI_MHL_8334
 void mhl_connect_api(boolean on);
 #endif /* CONFIG_FB_MSM_HDMI_MHL_8334 */
 
-/*           
-                                           
-                                 
+/* LGE_CHANGE
+ * default video resolution for each target
+ * 2012-09-22, chaeuk.lee@lge.com
  */
 #ifdef CONFIG_MACH_LGE
 
@@ -160,11 +160,7 @@ boolean hdmi_msm_is_dvi_mode(void);
 	defined(CONFIG_MACH_APQ8064_GKSK) || \
 	defined(CONFIG_MACH_APQ8064_GKU) || \
 	defined(CONFIG_MACH_APQ8064_GKATT) || \
-	defined(CONFIG_MACH_APQ8064_GKOPENHK) || \
-	defined(CONFIG_MACH_APQ8064_GKOPENTW) || \
-	defined(CONFIG_MACH_APQ8064_GKSHBSG) || \
-	defined(CONFIG_MACH_APQ8064_GKOPENEU) || \
-	defined(CONFIG_MACH_APQ8064_GKTCLMX) || \
+	defined(CONFIG_MACH_APQ8064_GKGLOBAL) || \
 	defined(CONFIG_MACH_APQ8064_GVKT)
 #define LGE_DEFAULT_HDMI_VIDEO_RESOLUTION HDMI_VFRMT_1920x1080p60_16_9
 /* HD (Default) */
@@ -173,6 +169,6 @@ boolean hdmi_msm_is_dvi_mode(void);
 //#define LGE_DEFAULT_HDMI_VIDEO_RESOLUTION HDMI_VFRMT_1280x720p60_16_9
 #endif
 
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 #endif /* __HDMI_MSM_H__ */

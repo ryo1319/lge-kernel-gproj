@@ -231,7 +231,7 @@ static int msm_voip_dtx_mode_get(struct snd_kcontrol *kcontrol,
 	return 0;
 }
 
-//                                                                                              
+//[AUDIO_BSP]_START, 20120213, mint.choi@lge.com, modified voip volume level for domestic models
 #if defined(CONFIG_MACH_APQ8064_J1SK) || defined(CONFIG_MACH_APQ8064_J1KT) || defined(CONFIG_MACH_APQ8064_J1U) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GVKT)
 static struct snd_kcontrol_new msm_voip_controls[] = {
 	SOC_SINGLE_EXT("Voip Tx Mute", SND_SOC_NOPM, 0, 1, 0,

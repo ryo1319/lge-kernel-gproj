@@ -35,9 +35,9 @@
 #define D(fmt, args...) do {} while (0)
 #endif
 
-//                                                                    
+// Start LGE_BSP_CAMERA::seongjo.kim@lge.com Control camera kernel log
 int logcount_nofreebuffer_available = 0;
-//                                                                  
+// End LGE_BSP_CAMERA::seongjo.kim@lge.com Control camera kernel log
 
 static int msm_vb2_ops_queue_setup(struct vb2_queue *vq,
 				const struct v4l2_format *fmt,
@@ -126,12 +126,12 @@ static int msm_vb2_ops_buf_init(struct vb2_buffer *vb)
 	}
 	for (i = 0; i < vb->num_planes; i++) {
 		mem = vb2_plane_cookie(vb, i);
-//                                                      
+//Start LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		if(mem == NULL){
 			pr_err("%s:mem is NULL, pcam_inst->vid_fmt.type=%d",__func__, pcam_inst->vid_fmt.type);
 			return -EINVAL;
 		}		
-//                                                     
+//End  LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		if (buf_type == VIDEOBUF2_MULTIPLE_PLANES)
 			offset.data_offset =
 				pcam_inst->plane_info.plane[i].offset;
@@ -277,7 +277,7 @@ static void msm_vb2_ops_buf_cleanup(struct vb2_buffer *vb)
 		buf->state = MSM_BUFFER_STATE_UNUSED;
 		return;
 	}
-/*                                                                              */
+/* LGE_CHANGE_S, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
 	if (!get_server_use_count() &&
 		pmctl && pmctl->hardware_running) {
 		pr_err("%s: daemon crashed but hardware is still running\n",
@@ -298,22 +298,22 @@ static void msm_vb2_ops_buf_cleanup(struct vb2_buffer *vb)
 		pr_err("server use count %d, pmctl pointer %p, hardware_running %d\n", get_server_use_count(),
 		pmctl, pmctl->hardware_running);
 	}
-/*                                                                              */
+/* LGE_CHANGE_E, patch for IOMMU page fault, 2012.09.06, jungryoul.choi@lge.com */
 	for (i = 0; i < vb->num_planes; i++) {
 		mem = vb2_plane_cookie(vb, i);
-//                                                      
+//Start LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		if(mem == NULL){
 			pr_err("%s:mem is NULL",__func__);
 			return;
 		}
-//                                                     
+//End  LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		videobuf2_pmem_contig_user_put(mem, pmctl->client,
 			pmctl->domain_num
-/*                                                               */
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+/* LGE_CHANGE_S, ion leakage patch, 2013.1.23, jungki.kim[Start] */
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 			, pcam_inst->is_closing
 #endif
-/*                                                             */
+/* LGE_CHANGE_E, ion leakage patch, 2013.1.23, jungki.kim[End] */
 			);
 	}
 	buf->state = MSM_BUFFER_STATE_UNUSED;
@@ -433,13 +433,13 @@ struct msm_frame_buffer *msm_mctl_buf_find(
 		buf_idx = buf->vidbuf.v4l2_buf.index;
 		mem = vb2_plane_cookie(&buf->vidbuf, 0);
 		
-//                                                      
+//Start LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		if(mem == NULL){
 			pr_err("%s:mem is NULL, pcam_inst->vid_fmt.type=%d",__func__, pcam_inst->vid_fmt.type);
 			spin_unlock_irqrestore(&pcam_inst->vq_irqlock, flags);
 			return NULL;
 		}		
-//                                                     
+//End  LGE_BSP_CAMERA : Fixed WBT - jonghwan.ko@lge.com
 		
 		if (mem->buffer_type ==	VIDEOBUF2_MULTIPLE_PLANES)
 			offset = mem->offset.data_offset +
@@ -721,6 +721,18 @@ int msm_mctl_reserve_free_buf(
 	 * camera instance, he would send the preferred camera instance.
 	 * If the preferred camera instance is NULL, get the
 	 * camera instance using the image mode passed */
+
+#if 0
+/* LGE_CHANGE_S, add messages to debug null, 2013.4.29, jungki.kim[Start] */
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined (CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
+	if(!buf_handle->inst_handle){
+		pr_err("%s: buf_handle->inst_handle is 0\n", __func__);
+		return rc;
+	}
+#endif
+/* LGE_CHANGE_E, add messages to debug null, 2013.4.29, jungki.kim[End] */
+#endif
+
 	if (!pcam_inst)
 		pcam_inst = msm_mctl_get_pcam_inst(pmctl, buf_handle);
 
@@ -729,12 +741,12 @@ int msm_mctl_reserve_free_buf(
 		return rc;
 	}
 	
-//                                                             
+//LGE_UPDATE_S 0828 add messages to debug null elin.lee@lge.com
 	if(pcam_inst->free_vq.prev == NULL || pcam_inst->free_vq.next == NULL){
 		pr_err("%s: next= 0x%p, prev= 0x%p\n", __func__, pcam_inst->free_vq.next, pcam_inst->free_vq.prev);
 		return rc;
 	}
-//                                                             
+//LGE_UPDATE_S 0828 add messages to debug null elin.lee@lge.com
 
 	spin_lock_irqsave(&pcam_inst->vq_irqlock, flags);
 	list_for_each_entry(buf, &pcam_inst->free_vq, list) {
@@ -749,13 +761,13 @@ int msm_mctl_reserve_free_buf(
 				pcam_inst->plane_info.num_planes;
 			for (i = 0; i < free_buf->num_planes; i++) {
 				mem = vb2_plane_cookie(&buf->vidbuf, i);
-//                                                             
+//LGE_UPDATE_S 0828 add messages to debug null elin.lee@lge.com
 				if(mem == NULL){
 					pr_err("%s:mem is NULL, pcam_inst->vid_fmt.type=%d",__func__, pcam_inst->vid_fmt.type);
 					spin_unlock_irqrestore(&pcam_inst->vq_irqlock, flags);
 					return rc;
 				}
-//                                                             
+//LGE_UPDATE_S 0828 add messages to debug null elin.lee@lge.com
 				if (mem->buffer_type ==
 						VIDEOBUF2_MULTIPLE_PLANES)
 					plane_offset =
@@ -768,14 +780,14 @@ int msm_mctl_reserve_free_buf(
 					__func__,
 					pcam_inst->buf_offset[buf_idx][i].
 					data_offset, plane_offset);
-//                                                                     
+//LGE_UPDATE_S 0828 add messages to debug timeout error yt.jeon@lge.com
 				if (pcam_inst->buf_offset[buf_idx][i].data_offset != 0 || plane_offset != 0) {
 					pr_err("%s: data offset %d, plane_offset %d\n",
 						__func__,
 						pcam_inst->buf_offset[buf_idx][i].data_offset,
 						plane_offset);
 				}
-//                                                                     
+//LGE_UPDATE_E 0828 add messages to debug timeout error yt.jeon@lge.com
 				free_buf->ch_paddr[i] =	(uint32_t)
 				videobuf2_to_pmem_contig(&buf->vidbuf, i) +
 				pcam_inst->buf_offset[buf_idx][i].data_offset +
@@ -784,13 +796,13 @@ int msm_mctl_reserve_free_buf(
 			}
 		} else {
 			mem = vb2_plane_cookie(&buf->vidbuf, 0);
-//                                                             
+//LGE_UPDATE_S 0828 add messages to debug null elin.lee@lge.com
 			if(mem == NULL){
 				pr_err("%s:mem is NULL, pcam_inst->vid_fmt.type=%d",__func__, pcam_inst->vid_fmt.type);
 				spin_unlock_irqrestore(&pcam_inst->vq_irqlock, flags);
 				return rc;
 			}
-//                                                             
+//LGE_UPDATE_E 0828 add messages to debug null elin.lee@lge.com
 			
 			free_buf->ch_paddr[0] = (uint32_t)
 				videobuf2_to_pmem_contig(&buf->vidbuf, 0) +
@@ -809,7 +821,7 @@ int msm_mctl_reserve_free_buf(
 	}
 	
 	if (rc != 0)
-	//                                                                    
+	// Start LGE_BSP_CAMERA::seongjo.kim@lge.com Control camera kernel log
 	{
 		logcount_nofreebuffer_available++;
 		if (logcount_nofreebuffer_available > 30)
@@ -819,7 +831,7 @@ int msm_mctl_reserve_free_buf(
 			logcount_nofreebuffer_available = 0;
 		}
 	}
-	//                                                                  
+	// End LGE_BSP_CAMERA::seongjo.kim@lge.com Control camera kernel log
 	spin_unlock_irqrestore(&pcam_inst->vq_irqlock, flags);
 	return rc;
 }

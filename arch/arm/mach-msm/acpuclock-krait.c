@@ -53,7 +53,7 @@ int g_speed_bin;
 int g_pvs_bin;
 
 #if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)\
-		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 int limit_cpufreq = 0;
 #endif
 
@@ -459,7 +459,7 @@ static int acpuclk_krait_set_rate(int cpu, unsigned long rate,
 	int rc = 0;
 
 #if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT)\
-		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+		|| defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	if(limit_cpufreq) {
 		if(rate > 1242000) rate = 1242000;	
 	}
@@ -800,22 +800,6 @@ static const struct acpu_level __cpuinit *find_min_acpu_level(void)
 	return NULL;
 }
 
-#ifdef CONFIG_MACH_APQ8064_J1D
-static const struct acpu_level __cpuinit *find_max_acpu_level(void)
-{
-	struct acpu_level *l;
-	struct acpu_level *max_acpu_level = NULL;
-
-	for (l = drv.acpu_freq_tbl; l->speed.khz != 0; l++)
-		if (l->use_for_scaling)
-		{
-			max_acpu_level = l;
-		}
-
-	return max_acpu_level;
-}
-#endif
-
 static int __cpuinit per_cpu_init(int cpu)
 {
 	struct scalable *sc = &drv.scalable[cpu];
@@ -836,19 +820,7 @@ static int __cpuinit per_cpu_init(int cpu)
 	if (!acpu_level)
 #endif
 	{
-#ifdef CONFIG_MACH_APQ8064_J1D
-		if((lge_get_boot_cable_type() == LGE_BOOT_LT_CABLE_56K)
-			&& (cpu == 0)
-		)
-		{
-			acpu_level = find_max_acpu_level();
-		} else {
-			acpu_level = find_min_acpu_level();
-		}
-#else
 		acpu_level = find_min_acpu_level();
-#endif
-
 		if (!acpu_level) {
 			ret = -ENODEV;
 			goto err_table;

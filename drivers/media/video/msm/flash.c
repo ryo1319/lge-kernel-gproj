@@ -33,8 +33,8 @@ enum msm_cam_flash_stat{
 };
 
 
-/*                                          
-                                   
+/* [patch for Enabling flash LED for camera]
+  * 2012-03-14, jinsool.lee@lge.com
   */
 extern int lm3559_flash_set_led_state(int state);
 
@@ -762,11 +762,11 @@ int msm_flash_ctrl(struct msm_camera_sensor_info *sdata,
 	sensor_data = sdata;
 	switch (flash_info->flashtype) {
 	case LED_FLASH:
-	#if !defined(CONFIG_MACH_APQ8064_GKKT) && !defined(CONFIG_MACH_APQ8064_GKSK) && !defined(CONFIG_MACH_APQ8064_GKU) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GKOPENHK) && !defined(CONFIG_MACH_APQ8064_GVDCM)  && !defined(CONFIG_MACH_APQ8064_GVKT) && !defined(CONFIG_MACH_APQ8064_GKOPENTW) && !defined(CONFIG_MACH_APQ8064_GKSHBSG)&& !defined(CONFIG_MACH_APQ8064_GKOPENEU) && !defined(CONFIG_MACH_APQ8064_GKTCLMX)
-		/*                                          
-                                   
-                              
-  */
+	#if !defined(CONFIG_MACH_APQ8064_GKKT) && !defined(CONFIG_MACH_APQ8064_GKSK) && !defined(CONFIG_MACH_APQ8064_GKU) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GVDCM)  && !defined(CONFIG_MACH_APQ8064_GVKT) && !defined(CONFIG_MACH_APQ8064_GKGLOBAL)
+		/* [patch for Enabling flash LED for camera]
+		* 2012-03-14, jinsool.lee@lge.com
+		*  This feature is for G... 
+		*/
 
 		rc = lm3559_flash_set_led_state(flash_info->ctrl_data.led_state);
 

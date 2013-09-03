@@ -250,9 +250,9 @@ sdioh_enable_func_intr(void)
 			return SDIOH_API_RC_FAIL;
 		}
 
-		/* Enable F1 and F2 interrupts, set master enable */
-		reg |= (INTR_CTL_FUNC1_EN | INTR_CTL_FUNC2_EN | INTR_CTL_MASTER_EN);
-
+		/* Enable F1 and F2 interrupts, clear master enable */
+		reg &= ~INTR_CTL_MASTER_EN;
+		reg |= (INTR_CTL_FUNC1_EN | INTR_CTL_FUNC2_EN);
 		sdio_writeb(gInstance->func[0], reg, SDIOD_CCCR_INTEN, &err);
 		sdio_release_host(gInstance->func[0]);
 

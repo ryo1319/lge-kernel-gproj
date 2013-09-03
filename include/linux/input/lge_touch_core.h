@@ -19,7 +19,7 @@
 #define LGE_TOUCH_CORE_H
 
 //#define MT_PROTOCOL_A
-//                            
+//#define LGE_TOUCH_TIME_DEBUG
 
 #define MAX_FINGER	10
 #define MAX_BUTTON	4
@@ -28,6 +28,9 @@
 #define CUST_G_TOUCH
 #endif
 
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
+#define PRESSURE_DIFF	/* pressure_diff_detection  */
+#endif
 struct touch_device_caps
 {
 	u8		button_support;
@@ -220,6 +223,17 @@ struct accuracy_filter_info {
 	struct accuracy_history_data	his_data;
 };
 
+#ifdef PRESSURE_DIFF
+struct pressure_diff_info {
+	bool ghost_diff_detection;
+	int z_diff_cnt;
+	int z30_id;
+	int z_more30_id;
+	int z30_x_pos_1st;
+	int z30_y_pos_1st;
+	bool z30_set_check;
+};
+#endif
 struct touch_device_driver {
 	int		(*probe)		(struct i2c_client *client);
 #ifdef CUST_G_TOUCH
@@ -359,6 +373,9 @@ enum{
 	DEBUG_JITTER			= (1U << 9),	// 512
 	DEBUG_ACCURACY			= (1U << 10),	// 1024
 	DEBUG_NOISE				= (1U << 11),	// 2048
+#ifdef PRESSURE_DIFF
+	DEBUG_PRESSURE			= (1U << 12),	// 4096
+#endif
 };
 
 #ifdef LGE_TOUCH_TIME_DEBUG

@@ -180,7 +180,7 @@ static int __init lge_hsd_fsa8008_init(void)
     lge_bd_rev = lge_get_board_revno();
 
     if (lge_bd_rev == HW_REV_F) {
-        lge_hs_pdata.set_headset_mic_bias = NULL; //                                                                  
+        lge_hs_pdata.set_headset_mic_bias = NULL; //2012-08-24 mikyoung.chang@lge.com mic bias is controlled by mic_en
         printk(KERN_INFO "lge_bd_rev : %d, >= bd_rev : %d, so set set_headset_mic_bias = NULL!!!\n", lge_bd_rev, bd_rev);
     }
     else {
@@ -231,7 +231,7 @@ static int __init lge_hsd_max1462x_init(void)
 
     lge_bd_rev = lge_get_board_revno();
 //#ifndef CONFIG_MACH_APQ8064_GKATT
-#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX))
+#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)) 
     if (lge_bd_rev == HW_REV_1_0) {
         lge_hs_pdata.set_headset_mic_bias = set_headset_mic_bias_l10;
         printk(KERN_INFO "lge_bd_rev : %d, >= bd_rev : %d\n", lge_bd_rev, bd_rev);

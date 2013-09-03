@@ -16,6 +16,7 @@
  *
  */
 #include <linux/gpio.h>
+
 #include <mach/board_lge.h>
 
 #include "msm_fb.h"
@@ -31,7 +32,7 @@ static struct dsi_buf lgit_rx_buf;
 static struct dsi_buf lgit_camera_tx_buf;
 static struct dsi_buf lgit_shutdown_tx_buf;
 
-#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK)  || defined(CONFIG_MACH_APQ8064_GV_KR) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GK_KR) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GV_KR) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 //#define LGD_PANEL_WORKAROUND       /* workaround for lcd defect(lcd flickering)   20130119 */ 
 //#define LGD_PANEL_WORKAROUND_TIME  /* check the time inverval  from LCD ON to REBOOT */
 #endif
@@ -41,7 +42,7 @@ static struct dsi_buf lgit_shutdown_tx_buf;
 #include <linux/rtc.h>
 
 
-#if defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 #define INVERSION_NORMAL_REG_1 0x30   // 1 column inversion
 #define INVERSION_NORMAL_REG_2 0xF7   
 #else
@@ -66,7 +67,7 @@ static struct dsi_buf lgit_shutdown_tx_buf;
 #define INVERSION_MODE_ALWAYS_NORMAL 1
 #define INVERSION_MODE_ALWAYS_RECOVERY 2
 
-#if defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined (CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GKU) || defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 /* created lcd log partition by file system Team : http://lap.lge.com:8145/lap/219040 */
 #define LCD_MMC_DEVICENAME "/dev/block/mmcblk0p36"
 #elif defined(CONFIG_MACH_APQ8064_GKKT) || defined(CONFIG_MACH_APQ8064_GKSK) || defined(CONFIG_MACH_APQ8064_GVKT)
@@ -648,7 +649,7 @@ int mipi_lgit_lcd_on(struct platform_device *pdev)
 
 	printk(KERN_INFO "[LCD][DEBUG] %s is started \n", __func__);
 
-//                                                                                         
+//LGE_UPDATE_S hj.eum@lge.com : adding change mipi mode to write register setting of LCD IC
 	MIPI_OUTP(MIPI_DSI_BASE + 0x38, 0x10000000);     //HS mode
 
 #if defined (CONFIG_MACH_APQ8064_GVDCM)
@@ -690,7 +691,7 @@ int mipi_lgit_lcd_on(struct platform_device *pdev)
        if (cnt < 0)
               return cnt;
 #endif
-//                                                                                         
+//LGE_UPDATE_E hj.eum@lge.com : adding change mipi mode to write register setting of LCD IC
 
 #ifdef LGD_PANEL_WORKAROUND
 

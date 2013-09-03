@@ -76,9 +76,9 @@ struct msm_gpiomux_config apq8064_ethernet_configs[] = {
 	},
 };
 #endif
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
-//                       
+// LGE_BROADCAST_ONESEG {
 #if defined(CONFIG_LGE_BROADCAST_TDMB) || defined(CONFIG_LGE_BROADCAST_ONESEG)
 static struct gpiomux_setting gsbi5_spi_config= {
 	.func = GPIOMUX_FUNC_2,
@@ -97,8 +97,8 @@ static struct gpiomux_setting dmb_int_pin = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_UP,
 };
-#endif /*                      */
-//                       
+#endif /* CONFIG_LGE_BROADCAST */
+// LGE_BROADCAST_ONESEG }
 
 #if defined(CONFIG_LGE_FELICA_ONLY)
 static struct gpiomux_setting felica_pon_cfg = {
@@ -465,7 +465,7 @@ static struct gpiomux_setting gsbi6_felica_active = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_UP,
 };    
-#endif /*                   */
+#endif /* CONFIG_LGE_FELICA */
 
 #if !defined(CONFIG_MACH_LGE)
 static struct gpiomux_setting ext_regulator_config = {
@@ -488,7 +488,7 @@ static struct gpiomux_setting gsbi7_func2_cfg = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_NONE,
 };
-#endif /*              */
+#endif /* LGE Not Used */
 
 #if defined(CONFIG_LGE_IRRC)
 static struct gpiomux_setting gsbi7_irrc_TXD = {
@@ -553,7 +553,7 @@ static struct gpiomux_setting gsbi7_func2_cfg = {
 	.drv = GPIOMUX_DRV_8MA,
 	.pull = GPIOMUX_PULL_NONE,
 };
-#endif //                            
+#endif //#if defined(CONFIG_MACH_LGE)
 
 static struct gpiomux_setting gsbi3_suspended_cfg = {
 	.func = GPIOMUX_FUNC_1,
@@ -841,7 +841,7 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 			[GPIOMUX_ACTIVE] = &gsbi4_uart_active
 		},
 	},
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 
 #if !defined(CONFIG_MACH_LGE)
@@ -877,9 +877,9 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 		},
 	},
 #endif
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
-//                       
+// LGE_BROADCAST_ONESEG {
 #if defined(CONFIG_LGE_BROADCAST_TDMB) || defined(CONFIG_LGE_BROADCAST_ONESEG)
 	{
 		.gpio	   = 51,		/* GSBI5 QUP DMB SPI_MOSI */
@@ -923,8 +923,8 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 			[GPIOMUX_SUSPENDED] = &dmb_ctrl_pin,
 		},
 	},	
-#endif /*                      */
-//                       
+#endif /* CONFIG_LGE_BROADCAST */
+// LGE_BROADCAST_ONESEG }
 
 #if !defined(CONFIG_MACH_LGE)
 	{
@@ -971,7 +971,7 @@ static struct msm_gpiomux_config apq8064_gsbi_configs[] __initdata = {
 			[GPIOMUX_ACTIVE] = &gpio_i2c_config,
 		},
 	},
-#endif /*              */
+#endif /* LGE Not Used */
 };
 
 #if defined(CONFIG_LGE_FELICA_ONLY)
@@ -1348,7 +1348,7 @@ static struct msm_gpiomux_config mpq8064_gsbi5_i2c_configs[] __initdata = {
 		},
 	},
 };
-#endif /*                 */
+#endif /* CONFIG_MACH_LGE */
 
 static struct gpiomux_setting ir_suspended_cfg = {
 	.func = GPIOMUX_FUNC_GPIO,
@@ -1542,9 +1542,9 @@ static struct msm_gpiomux_config apq8064_sdc3_configs[] __initdata = {
 	},
 };
 
-/*                                */
+/* #ifndef CONFIG_LGE_FELICA_KDDI */
 #if !defined(CONFIG_LGE_FELICA_KDDI) && !defined(CONFIG_LGE_FELICA_DCM) && !defined(CONFIG_CXD2235AGG_GJ_KDDI)
-/*                                  */
+/* ehee.lee@lge.com [START] for NFC */
 #if defined(CONFIG_LGE_NFC)
 static struct gpiomux_setting nfc_pn544_ven_cfg = {
 	.func = GPIOMUX_FUNC_GPIO,
@@ -1567,10 +1567,10 @@ static struct gpiomux_setting nfc_pn544_firm_cfg = {
 	.dir = GPIOMUX_OUT_LOW,
 };
 #endif
-/*                                */ 
-#endif//                                                      
-/*                                  */
-/*                                */
+/* ehee.lee@lge.com [END] for NFC */ 
+#endif//endif of CONFIG_LGE_FELICA_KDDI, CONFIG_LGE_FELICA_DCM
+/* ehee.lee@lge.com [START] for NFC */
+/* #ifndef CONFIG_LGE_FELICA_KDDI */
 #if !defined(CONFIG_LGE_FELICA_KDDI) && !defined(CONFIG_LGE_FELICA_DCM) && !defined(CONFIG_CXD2235AGG_GJ_KDDI)
 #if defined(CONFIG_LGE_NFC)
 static struct msm_gpiomux_config apq8064_nfc_configs[] __initdata = {
@@ -1594,8 +1594,8 @@ static struct msm_gpiomux_config apq8064_nfc_configs[] __initdata = {
 	},
 };
 #endif
-#endif//                                                      
-/*                                */ 
+#endif//endif of CONFIG_LGE_FELICA_KDDI, CONFIG_LGE_FELICA_DCM
+/* ehee.lee@lge.com [END] for NFC */ 
 
 void __init apq8064_init_gpiomux(void)
 {
@@ -1687,15 +1687,15 @@ void __init apq8064_init_gpiomux(void)
 		msm_gpiomux_install(apq8064_hsic_configs,
 				ARRAY_SIZE(apq8064_hsic_configs));
 #endif
-/*                                */
+/* #ifndef CONFIG_LGE_FELICA_KDDI */
 #if !defined(CONFIG_LGE_FELICA_KDDI) && !defined(CONFIG_LGE_FELICA_DCM) && !defined(CONFIG_CXD2235AGG_GJ_KDDI)
-/*                                  */
+/* ehee.lee@lge.com [START] for NFC */
 #if defined(CONFIG_LGE_NFC)
 	msm_gpiomux_install(apq8064_nfc_configs,
 			ARRAY_SIZE(apq8064_nfc_configs));
 #endif
-#endif//                                                      
-/*                                */ 
+#endif//endif of CONFIG_LGE_FELICA_KDDI, CONFIG_LGE_FELICA_DCM
+/* ehee.lee@lge.com [END] for NFC */ 
 
 	if (machine_is_apq8064_cdp() || machine_is_apq8064_liquid())
 		msm_gpiomux_install(apq8064_mxt_configs,

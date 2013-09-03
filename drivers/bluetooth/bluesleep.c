@@ -57,7 +57,7 @@
 
 #include <linux/gpio.h>
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef CONFIG_LGE_BLUESLEEP
 #ifndef FEATURE_USE_BTLA
@@ -74,8 +74,8 @@
 #ifdef BTA_NOT_USE_ROOT_PERM
 #define AID_BLUETOOTH       1002
 #endif  //BTA_NOT_USE_ROOT_PERM
-#endif/*                    */
-//                                           
+#endif/*CONFIG_LGE_BLUESLEEP*/
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 
 #define BT_SLEEP_DBG
@@ -94,12 +94,12 @@ struct bluesleep_info {
 	unsigned ext_wake;
 	unsigned host_wake_irq;
 	struct uart_port *uport;
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	struct wake_lock wake_lock;
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 };
 
 /* work function */
@@ -115,13 +115,13 @@ DECLARE_DELAYED_WORK(sleep_workqueue, bluesleep_sleep_work);
 #define bluesleep_tx_idle()     schedule_delayed_work(&sleep_workqueue, 0)
 
 #ifdef FEATURE_USE_BTLA
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 // Fixed power consumtion problem when connected with Samsung stereo headset.
 /* 5 second timeout */
 #define TX_TIMER_INTERVAL	5 // 1 -> 5
 #define TX_TIMER_SLEEP_INTERVAL	TX_TIMER_INTERVAL//Add
-//                                             
+// END : 0005259 chanha.park@lge.com 2010-03-21
 #else
 #define TX_TIMER_INTERVAL	1
 #endif //FEATURE_USE_BTLA
@@ -138,7 +138,7 @@ static struct bluesleep_info *bsi;
 /* module usage */
 static atomic_t open_count = ATOMIC_INIT(1);
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 /*
  * Local function prototypes
@@ -147,7 +147,7 @@ static atomic_t open_count = ATOMIC_INIT(1);
 static int bluesleep_hci_event(struct notifier_block *this,
 			    unsigned long event, void *data);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 /*
  * Global variables
@@ -165,7 +165,7 @@ static struct timer_list tx_timer;
 /** Lock for state transitions */
 static spinlock_t rw_lock;
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 /** Notifier block for HCI events */
@@ -174,7 +174,7 @@ struct notifier_block hci_event_nblock = {
 };
 
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 struct proc_dir_entry *bluetooth_dir, *sleep_dir;
 
@@ -211,7 +211,7 @@ void bluesleep_sleep_wakeup(void)
 {
 	if (test_bit(BT_ASLEEP, &flags)) {
 		BT_DBG("waking up...");
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 		wake_lock(&bsi->wake_lock);
@@ -220,7 +220,7 @@ void bluesleep_sleep_wakeup(void)
 		mod_timer(&tx_timer, jiffies + (TX_TIMER_INTERVAL * HZ));
 		gpio_set_value(bsi->ext_wake, 0);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 		clear_bit(BT_ASLEEP, &flags);
 		/*Activating UART */
@@ -263,14 +263,14 @@ static void bluesleep_sleep_work(struct work_struct *work)
 			/*Deactivating UART */
 			hsuart_power(0);
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 			wake_lock_timeout(&bsi->wake_lock, HZ / 2);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 		}
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 		else {
@@ -279,7 +279,7 @@ static void bluesleep_sleep_work(struct work_struct *work)
 			return;
 		}
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	} else {
 		BT_DBG("Call BT Wake Up");
 		bluesleep_sleep_wakeup();
@@ -299,7 +299,7 @@ static void bluesleep_hostwake_task(unsigned long data)
 
 	spin_lock(&rw_lock);
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	if(gpio_get_value(bsi->host_wake) == 0)
@@ -319,13 +319,13 @@ static void bluesleep_hostwake_task(unsigned long data)
 		bluesleep_rx_busy();
 	else
 		bluesleep_rx_idle();
-#endif/*                                             */
-//                                           
+#endif/*defined(CONFIG_LGE_BRCM_H4_LPM_SUPPORT_PATCH)*/
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	spin_unlock(&rw_lock);
 }
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 /**
@@ -389,7 +389,7 @@ static int bluesleep_hci_event(struct notifier_block *this,
 	return NOTIFY_DONE;
 }
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 /**
  * Handles transmission timer expiration.
@@ -399,14 +399,14 @@ static void bluesleep_tx_timer_expire(unsigned long data)
 {
 	unsigned long irq_flags;
 
-	//                                                 
+	//LG_BTUI] Add timer modifier [minwoo2.kim@lge.com]
 	int host_wake;
 
 	spin_lock_irqsave(&rw_lock, irq_flags);
 
 	BT_DBG("Tx timer expired");
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	/* already asleep, this is an error case */
@@ -429,7 +429,7 @@ static void bluesleep_tx_timer_expire(unsigned long data)
 	}
 	else
 		bluesleep_tx_idle();
-//                                     
+//[minwoo2.kim@lge.com, 2013/01/23] [e]
 
 #else/*FEATURE_USE_BTLA*/
 	/* were we silent during the last timeout? */
@@ -445,7 +445,7 @@ static void bluesleep_tx_timer_expire(unsigned long data)
 	/* clear the incoming data flag */
 	clear_bit(BT_TXDATA, &flags);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	spin_unlock_irqrestore(&rw_lock, irq_flags);
 }
@@ -458,7 +458,7 @@ static void bluesleep_tx_timer_expire(unsigned long data)
  */
 static irqreturn_t bluesleep_hostwake_isr(int irq, void *dev_id)
 {
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-09-09
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	/* schedule a tasklet to handle the change in the host wake line */
@@ -477,7 +477,7 @@ static irqreturn_t bluesleep_hostwake_isr(int irq, void *dev_id)
 #else/*FEATURE_USE_BTLA*/
 	tasklet_schedule(&hostwake_task);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-09-09
 
 	return IRQ_HANDLED;
 }
@@ -508,7 +508,7 @@ static int bluesleep_start(void)
 		return -EBUSY;
 	}
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 	/* start the timer */
@@ -517,18 +517,18 @@ static int bluesleep_start(void)
 	/* assert BT_WAKE */
 	gpio_set_value(bsi->ext_wake, 0);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	BT_DBG("bluesleep_start");
 	hsuart_power(1);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-09-09
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	retval = request_irq(bsi->host_wake_irq, bluesleep_hostwake_isr,
@@ -539,7 +539,7 @@ static int bluesleep_start(void)
 				IRQF_DISABLED | IRQF_TRIGGER_FALLING,
 				"bluetooth hostwake", NULL);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-09-09
 
 	if (retval  < 0) {
 		BT_ERR("Couldn't acquire BT_HOST_WAKE IRQ");
@@ -554,20 +554,20 @@ static int bluesleep_start(void)
 	}
 
 	set_bit(BT_PROTO, &flags);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	wake_lock(&bsi->wake_lock);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	return 0;
 fail:
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //DEL: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 	del_timer(&tx_timer);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	atomic_inc(&open_count);
 
 	return retval;
@@ -590,27 +590,27 @@ static void bluesleep_stop(void)
 	BT_DBG("bluesleep_stop");
 
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //MOD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 	/* assert BT_WAKE */
 	gpio_set_value(bsi->ext_wake, 0);
 	del_timer(&tx_timer);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	clear_bit(BT_PROTO, &flags);
 
 	if (test_bit(BT_ASLEEP, &flags)) {
 		clear_bit(BT_ASLEEP, &flags);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 		hsuart_power(1);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	}
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	else
@@ -619,7 +619,7 @@ static void bluesleep_stop(void)
 		hsuart_power(0);
 	}
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	atomic_inc(&open_count);
 
@@ -627,12 +627,12 @@ static void bluesleep_stop(void)
 	if (disable_irq_wake(bsi->host_wake_irq))
 		BT_ERR("Couldn't disable hostwake IRQ wakeup mode\n");
 	free_irq(bsi->host_wake_irq, NULL);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	wake_lock_timeout(&bsi->wake_lock, HZ / 2);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 }
 /**
  * Read the <code>BT_WAKE</code> GPIO pin value via the proc interface.
@@ -683,22 +683,22 @@ static int bluepower_write_proc_btwake(struct file *file, const char *buffer,
 		BT_DBG("BT WAKE Set to Wake");
 
 		gpio_set_value(bsi->ext_wake, 0);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 		//set_bit(BT_TXDATA, &flags);
 		bluesleep_sleep_wakeup();
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	} else if (buf[0] == '1') {
 		BT_DBG("BT WAKE Set to Sleep");
 		gpio_set_value(bsi->ext_wake, 1);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 		bluesleep_tx_idle();
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	} else {
 		kfree(buf);
 		return -EINVAL;
@@ -850,19 +850,19 @@ static int __init bluesleep_probe(struct platform_device *pdev)
 		goto free_bt_ext_wake;
 	}
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef CONFIG_LGE_BLUESLEEP
 	bsi->uport= msm_hs_get_bt_uport(BT_PORT_NUM);
-#endif/*                             */
-//                                           
+#endif/*defined(CONFIG_LGE_BLUESLEEP)*/
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	wake_lock_init(&bsi->wake_lock, WAKE_LOCK_SUSPEND, "bluesleep");
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	return 0;
 
@@ -890,12 +890,12 @@ static int bluesleep_remove(struct platform_device *pdev)
 
 	gpio_free(bsi->host_wake);
 	gpio_free(bsi->ext_wake);
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef FEATURE_USE_BTLA
 	wake_lock_destroy(&bsi->wake_lock);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	kfree(bsi);
 	return 0;
 }
@@ -946,13 +946,13 @@ static int __init bluesleep_init(void)
 	}
 	ent->read_proc = bluepower_read_proc_btwake;
 	ent->write_proc = bluepower_write_proc_btwake;
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef BTA_NOT_USE_ROOT_PERM
     ent->uid = AID_BLUETOOTH;
     ent->gid = AID_BLUETOOTH;
 #endif  //BTA_NOT_USE_ROOT_PERM
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	/* read only proc entries */
 	if (create_proc_read_entry("hostwake", 0, sleep_dir,
@@ -971,13 +971,13 @@ static int __init bluesleep_init(void)
 	}
 	ent->read_proc = bluesleep_read_proc_proto;
 	ent->write_proc = bluesleep_write_proc_proto;
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifdef BTA_NOT_USE_ROOT_PERM
     ent->uid = AID_BLUETOOTH;
     ent->gid = AID_BLUETOOTH;
 #endif  //BTA_NOT_USE_ROOT_PERM
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	/* read only proc entries */
 	if (create_proc_read_entry("asleep", 0,
@@ -1000,12 +1000,12 @@ static int __init bluesleep_init(void)
 	/* initialize host wake tasklet */
 	tasklet_init(&hostwake_task, bluesleep_hostwake_task, 0);
 
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 	hci_register_notifier(&hci_event_nblock);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 
 	return 0;
 
@@ -1024,12 +1024,12 @@ fail:
  */
 static void __exit bluesleep_exit(void)
 {
-//                                             
+//BEGIN: 0019639 chanha.park@lge.com 2012-06-16
 //ADD: 0019639: [F200][BT] Support Bluetooth low power mode
 #ifndef FEATURE_USE_BTLA
 	hci_unregister_notifier(&hci_event_nblock);
 #endif/*FEATURE_USE_BTLA*/
-//                                           
+//END: 0019639 chanha.park@lge.com 2012-06-16
 	platform_driver_unregister(&bluesleep_driver);
 
 	remove_proc_entry("asleep", sleep_dir);

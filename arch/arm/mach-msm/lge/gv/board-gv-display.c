@@ -1506,6 +1506,12 @@ static struct dsi_cmd_desc lgit_shutdown_set[] = {
        {DTYPE_DCS_WRITE, 1, 0, 0, 0,  sizeof(display_off), display_off},
 };
 
+static struct dsi_cmd_desc lgit_shutdown_set[] = {
+       {DTYPE_GEN_LWRITE, 1, 0, 0, 0, sizeof(vcom_setting_for_suspend), vcom_setting_for_suspend},
+       {DTYPE_GEN_LWRITE, 1, 0, 0, 0, sizeof(vcom_setting_for_suspend), vcom_setting_for_suspend},
+       {DTYPE_DCS_WRITE, 1, 0, 0, 0,  sizeof(display_off), display_off},
+};
+
 static struct msm_panel_common_pdata mipi_lgit_pdata = {
 	.backlight_level = mipi_lgit_backlight_level,
        .power_on_set_1_old = lgit_power_on_set_1_old,

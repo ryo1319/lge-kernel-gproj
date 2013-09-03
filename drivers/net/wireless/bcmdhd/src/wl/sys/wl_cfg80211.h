@@ -599,6 +599,10 @@ struct wl_priv {
 #ifdef WL_HOST_BAND_MGMT
 	u8 curr_band;
 #endif /* WL_HOST_BAND_MGMT */
+
+#ifdef CUSTOMER_HW10
+	struct work_struct escan_timeout_work;
+#endif
 };
 
 

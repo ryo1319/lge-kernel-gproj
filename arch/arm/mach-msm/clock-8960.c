@@ -1380,7 +1380,7 @@ static struct clk_freq_tbl clk_tbl_gsbi_qup[] = {
 	F_GSBI_QUP(27000000, pxo,  1, 0,  0),
 #if defined(CONFIG_LGE_BROADCAST_ONESEG)
 	F_GSBI_QUP(32000000, pll8, 4, 1,  3),
-#endif	 /*                             */
+#endif	 /* CONFIG_LGE_BROADCAST_ONESEG */
 	F_GSBI_QUP(48000000, pll8, 4, 1,  2),
 	F_GSBI_QUP(51200000, pll8, 1, 2, 15),
 	F_END
@@ -5312,7 +5312,7 @@ static struct clk_lookup msm_clocks_8064[] = {
 	CLK_LOOKUP("core_clk",		gsbi5_qup_clk.c,	"spi_qsd.0"),
 #else
 	CLK_LOOKUP("core_clk",      gsbi5_qup_clk.c,    "qup_i2c.5"),
-#endif /*                      */
+#endif /* CONFIG_LGE_BROADCAST */
 
 	CLK_LOOKUP("core_clk",		gsbi6_qup_clk.c,	""),
 	CLK_LOOKUP("core_clk",		gsbi7_qup_clk.c,	""),
@@ -5390,7 +5390,7 @@ static struct clk_lookup msm_clocks_8064[] = {
 	CLK_LOOKUP("iface_clk",		gsbi5_p_clk.c,		"spi_qsd.0"),
 #else
 	CLK_LOOKUP("iface_clk",     gsbi5_p_clk.c,      "qup_i2c.5"),
-#endif /*                      */
+#endif /* CONFIG_LGE_BROADCAST */
 
 
 #if !defined(CONFIG_MACH_APQ8064_GVDCM)
@@ -5430,7 +5430,7 @@ static struct clk_lookup msm_clocks_8064[] = {
 	CLK_LOOKUP("iface_clk",		sdc2_p_clk.c,		"msm_sdcc.2"),
 	CLK_LOOKUP("iface_clk",		sdc3_p_clk.c,		"msm_sdcc.3"),
 	CLK_LOOKUP("iface_clk",		sdc4_p_clk.c,		"msm_sdcc.4"),
-#ifdef CONFIG_MSM_PCIE //                
+#ifdef CONFIG_MSM_PCIE //LGE : featuring 
 	CLK_LOOKUP("iface_clk",		pcie_p_clk.c,		"msm_pcie"),
 	CLK_LOOKUP("ref_clk",		pcie_phy_ref_clk.c,	"msm_pcie"),
 	CLK_LOOKUP("bus_clk",		pcie_a_clk.c,		"msm_pcie"),
@@ -5442,22 +5442,22 @@ static struct clk_lookup msm_clocks_8064[] = {
 	CLK_LOOKUP("core_clk",		pmic_ssbi2_clk.c,	""),
 	CLK_LOOKUP("mem_clk",		rpm_msg_ram_p_clk.c,	""),
 #if defined(CONFIG_MACH_LGE)
-/*                                                                                     */
-#if defined(CONFIG_MACH_APQ8064_GKKT) ||defined(CONFIG_MACH_APQ8064_GKSK) ||defined(CONFIG_MACH_APQ8064_GKU) ||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+/* LGE_CHANGE_S, For GV/GK 13M & 2.4M camera driver, 2012.07.20, gayoung85.lee@lge.com */
+#if defined(CONFIG_MACH_APQ8064_GKKT) ||defined(CONFIG_MACH_APQ8064_GKSK) ||defined(CONFIG_MACH_APQ8064_GKU) ||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GVDCM) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,		"4-0078"), /* GSBI4, Slave Addr: 0x78, ce1702 */
 	CLK_LOOKUP("cam_clk",		cam2_clk.c, 		"4-006c"), /* GSBI4, Slave Addr: 0x6e, imx132 */
 #endif
-/*                                                                                     */
+/* LGE_CHANGE_E, For GV/GK 13M & 2.4M camera driver, 2012.07.20, gayoung85.lee@lge.com */
 
 #if 1 //def CONFIG_MACH_APQ8064_J1VD
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,		"4-000d"), /* GSBI4, Slave Addr: 0x0d, imx111 */
-/*                                                                                                  */
+/* LGE_CHANGE_S, for old HW (LGU Rev.A,B VZW Rev.A,B ATT Rev.A), 2012.04.27, jungryoul.choi@lge.com */
 #if 1
-	CLK_LOOKUP("cam_clk",		cam2_clk.c,		"4-006e"), /* GSBI4, Slave Addr: 0x6e, imx119 *//*                                                */
+	CLK_LOOKUP("cam_clk",		cam2_clk.c,		"4-006e"), /* GSBI4, Slave Addr: 0x6e, imx119 *//* LGE_CHANGE_S, Using MCLK2, soojung.lim@lge.com */
 #else
-	CLK_LOOKUP("cam_clk",		cam1_clk.c,		"4-006e"), /* GSBI4, Slave Addr: 0x6e, imx119 *//*                                                */
+	CLK_LOOKUP("cam_clk",		cam1_clk.c,		"4-006e"), /* GSBI4, Slave Addr: 0x6e, imx119 *//* LGE_CHANGE_S, Using MCLK2, soojung.lim@lge.com */
 #endif
-/*                                                                                                  */
+/* LGE_CHANGE_S, for old HW (LGU Rev.A,B VZW Rev.A,B ATT Rev.A), 2012.04.27, jungryoul.choi@lge.com */
 #endif
 #else /* QCT Original */
 	CLK_LOOKUP("cam_clk",		cam0_clk.c,	"4-001a"),
@@ -5822,12 +5822,12 @@ static struct clk_lookup msm_clocks_8960_common[] __initdata = {
 	CLK_LOOKUP("core_clk",		pmic_ssbi2_clk.c,	""),
 	CLK_LOOKUP("mem_clk",		rpm_msg_ram_p_clk.c,	""),
 #if defined(CONFIG_MACH_LGE)
-/*                                                                                     */
-#if defined(CONFIG_MACH_APQ8064_GKKT) ||defined(CONFIG_MACH_APQ8064_GKSK) ||defined(CONFIG_MACH_APQ8064_GKU) ||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+/* LGE_CHANGE_S, For GV/GK 13M & 2.4M camera driver, 2012.07.20, gayoung85.lee@lge.com */
+#if defined(CONFIG_MACH_APQ8064_GKKT) ||defined(CONFIG_MACH_APQ8064_GKSK) ||defined(CONFIG_MACH_APQ8064_GKU) ||defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GVKT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-0078"), /* GSBI4, Slave Addr: 0x78, ce1702 */
 	CLK_LOOKUP("cam_clk",		cam1_clk.c, "4-006c"), /* GSBI4, Slave Addr: 0x6c, imx132 */
 #endif
-/*                                                                                     */
+/* LGE_CHANGE_E, For GV/GK 13M & 2.4M camera driver, 2012.07.20, gayoung85.lee@lge.com */
 #ifdef CONFIG_MACH_APQ8064_J1VD
 	CLK_LOOKUP("cam_clk",		cam0_clk.c, "4-000d"), /* GSBI4, Slave Addr: 0x0d, imx111 */
 	CLK_LOOKUP("cam_clk",		cam1_clk.c, "4-006e"), /* GSBI4, Slave Addr: 0x6e, imx119 */

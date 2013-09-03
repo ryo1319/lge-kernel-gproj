@@ -466,7 +466,7 @@ static int rmnet_ctl_open(struct inode *inode, struct file *file)
 				dev_err(dev->devicep, "%s: dev->intf->altsetting is NULL %s \n",__func__, dev->name);
 				return -ETIMEDOUT;
 			}
-#endif /*                          */
+#endif /* CONFIG_USB_G_LGE_ANDROID */
 
 			dev_err(dev->devicep, "%s: Timeout opening %s %d\n",
 						__func__, dev->name, dev->intf->altsetting->desc.bInterfaceNumber);
@@ -770,7 +770,7 @@ int rmnet_usb_ctrl_probe(struct usb_interface *intf,
 
 #ifdef LG_FW_HSIC_EMS_DEBUG/*secheol.pyo - endpoint logging*/
 	printk("[%s] RmNet Ctrl Interrupt IN end_point = %d \n", __func__,
-		(int)(int_in->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)); //                   
+		(int)(int_in->desc.bEndpointAddress & USB_ENDPOINT_NUMBER_MASK)); //secheol.pyo@lge.com
 #endif/*secheol.pyo - endpoint logging*/
 	mutex_lock(&dev->dev_lock);
 	dev->intf = intf;

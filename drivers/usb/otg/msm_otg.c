@@ -62,11 +62,11 @@
 
 #ifdef CONFIG_LGE_AUX_NOISE
 /*
-                              
-                                 
+ * 2012-07-20, bob.cho@lge.com
+ * extern api to remove aux noise
  */
 #include "../../../sound/soc/codecs/wcd9310.h"
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 
 #define MSM_USB_BASE	(motg->regs)
 #define DRIVER_NAME	"msm_otg"
@@ -151,7 +151,7 @@ static const int vdd_val[VDD_TYPE_MAX][VDD_VAL_MAX] = {
 static int msm_hsusb_ldo_init(struct msm_otg *motg, int init)
 {
 	int rc = 0;
-//                               
+//#ifdef CONFIG_USB_G_LGE_ANDROID
 //	enum lge_boot_mode_type boot_mode;
 //#endif
 
@@ -586,6 +586,20 @@ static int msm_otg_reset(struct usb_phy *phy)
 
 #if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_USB_OTG) // jaegeun.jung for detecting slimport, usb device, usb otg
 		/* Disable PMIC pull-up */
+#if defined(CONFIG_MACH_APQ8064_GKGLOBAL)
+		// Fix new minimum current failure issue in Factory Flight sleep mode
+		// Set no pull state regardless of hw revision; except Factory2 mode
+		if(boot_mode != LGE_BOOT_MODE_FACTORY2)
+		{
+			pm8xxx_usb_id_pullup(0);
+			pr_info("%s: pm usb id pull_up(0)\n",__func__);
+		}
+		else
+		{
+			pm8xxx_usb_id_pullup(1);
+			pr_info("%s: pm usb id pull_up(1) in boot_mode(%d) to fix noise signal\n",__func__, boot_mode);
+		}
+#else
 		if((boot_mode != LGE_BOOT_MODE_FACTORY2) && (lge_get_board_revno()==HW_REV_C || lge_get_board_revno() >= HW_REV_1_0))
 		{
 			pm8xxx_usb_id_pullup(0);
@@ -596,6 +610,7 @@ static int msm_otg_reset(struct usb_phy *phy)
 			pm8xxx_usb_id_pullup(1);
 			pr_info("%s: pm usb id pull_up(1) in boot_mode(%d) to fix noise signal\n",__func__, boot_mode);
 		}
+#endif
 #else 
 	    /* Enable PMIC pull-up */
 		pm8xxx_usb_id_pullup(1);
@@ -1210,12 +1225,12 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned mA)
 		mA = IDEV_ACA_CHG_LIMIT;
 
 #ifdef CONFIG_LGE_PM
-	/*                                           
-                                                         
-                                                                    
-  */
+	/* We replace original current limit into LGE
+	 * customized current limit only if cable is DCP or SDP.
+	 * XXX: In case of SDP(USB), android gadget will set current again.
+	 */
 	if (lge_pm_get_cable_type() != NO_INIT_CABLE) {
-		/*                                                                                                */
+		/*LGE_S jungwoo.yun@lge.com 2012-08-07 iusbmax set to 1100mA in 56K/910K cable and battery present*/
 		if((lge_pm_get_cable_type() == CABLE_56K || lge_pm_get_cable_type() == CABLE_910K) && pm8921_is_real_battery_present() == 1)
 		{
 			mA = 1100;
@@ -1226,7 +1241,7 @@ static void msm_otg_notify_charger(struct msm_otg *motg, unsigned mA)
 			mA = 1100;
 			pr_info("LGE_BOOT_MODE_FACTORY2 && pm8921_is_battery_present( ) 1100mA\n");
 		}
-		/*                                                                                            */
+		/*LGE_E jungwoo.yun@lge.com 2012-08-07 iusbmax set to 1100mA in 910K cable and battery present*/
 		else if(motg->chg_type == USB_SDP_CHARGER)
 			mA = lge_pm_get_usb_current();
 		else if (motg->chg_type == USB_DCP_CHARGER)
@@ -2144,7 +2159,7 @@ static const char *chg_to_string(enum usb_chg_type chg_type)
 #define MSM_CHG_SECONDARY_DET_TIME	(50 * HZ/1000) /* TVDMSRC_ON */
 
 #ifdef CONFIG_LGE_PM
-#if defined(CONFIG_USB_G_LGE_ANDROID) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GK_KR) && !defined(CONFIG_MACH_APQ8064_GKOPENHK) && !defined(CONFIG_MACH_APQ8064_GKOPENTW) && !defined(CONFIG_MACH_APQ8064_GKSHBSG) && !defined(CONFIG_MACH_APQ8064_GKOPENEU) && !defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_USB_G_LGE_ANDROID) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GK_KR) && !defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 static int firstboot_check = 1;
 #endif
 extern struct chg_cable_info lge_cable_info;
@@ -2320,7 +2335,7 @@ static void msm_chg_detect_work(struct work_struct *w)
 #ifdef CONFIG_LGE_PM
 		/* read adc and store cable infomation */
 		lge_pm_read_cable_info();
-#if defined(CONFIG_USB_G_LGE_ANDROID) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GK_KR) && !defined(CONFIG_MACH_APQ8064_GKOPENHK) && !defined(CONFIG_MACH_APQ8064_GKOPENTW) && !defined(CONFIG_MACH_APQ8064_GKSHBSG) && !defined(CONFIG_MACH_APQ8064_GKOPENEU) && !defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_USB_G_LGE_ANDROID) && !defined(CONFIG_MACH_APQ8064_GKATT) && !defined(CONFIG_MACH_APQ8064_GK_KR) && !defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 //thoon81.kim [START] enter download mode after 910K cable is pluged
 		if (lge_cable_info.cable_type == CABLE_910K 
 		&& (lge_get_boot_cable_type() == LGE_BOOT_NO_INIT_CABLE || !firstboot_check)
@@ -2559,11 +2574,11 @@ static void msm_otg_sm_work(struct work_struct *w)
 				case USB_DCP_CHARGER:
 #ifdef CONFIG_LGE_AUX_NOISE
 					/*
-                                   
-                                                           
-      */
+					 * 2012-07-20, bob.cho@lge.com
+					 * call api to remove aux noise when charger connected
+					 */
 					tabla_codec_hph_pa_ctl(TABLA_EVENT_CHARGER_CONNECT);
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI4 //to know usb state on touch driver
                     trigger_baseline_state_machine(1,0);
@@ -2651,11 +2666,11 @@ static void msm_otg_sm_work(struct work_struct *w)
 			
 #ifdef CONFIG_LGE_AUX_NOISE
 			/*
-                                 
-                                                         
-    */
+			 * 2012-07-20, bob.cho@lge.com
+			 * call api to remove aux noise when charger connected
+			 */
 			tabla_codec_hph_pa_ctl(TABLA_EVENT_CHARGER_DISCONNECT);
-#endif /*                    */
+#endif /*CONFIG_LGE_AUX_NOISE*/
 #ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_I2C_RMI4 //to know usb state on touch driver
             trigger_baseline_state_machine(0,-1);
 #endif
@@ -2671,10 +2686,10 @@ static void msm_otg_sm_work(struct work_struct *w)
 	
 #if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_USB_OTG)			 
 			/*
-                                        
-                                                                                             
-                                                                                       
-    */
+			 * 2013-01-21, seokjeong.hong@lge.com
+			 * To prevent abnormal behaviors, Inserting unauthorized cable w/180K or 200K ohm resistor
+			 * value on their ID pin. Do not check ID state before entering into low power mode.
+			 */
 			if(lge_cable_info.cable_type == CABLE_180K || lge_cable_info.cable_type == CABLE_200K || lge_cable_info.cable_type == CABLE_220K
 				|| lge_cable_info.cable_type == CABLE_620K
 				|| lge_cable_info.cable_type == CABLE_330K)
@@ -3398,7 +3413,7 @@ static void msm_otg_set_vbus_state(int online)
 
 #if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_USB_OTG)
 	queue_delayed_work(system_nrt_wq, &motg->usb_id_sel_work, msecs_to_jiffies(0));
-#endif//                                                                                           
+#endif// 20130128 for Avoiding the MutexLock api use while running IRQ Handler jaegeun.jung@lge.com
 
 	if (!init) {
 		init = true;
@@ -3475,10 +3490,10 @@ static void msm_pmic_id_w(struct work_struct *w)
     }
 	
 	/*
-                                      
-                                                                                           
-                          
-  */
+	 * 2013-01-21, seokjeong.hong@lge.com
+	 * To prevent abnormal behaviors, Inserting unauthorized cable w/180K or 200K ohm resistor
+	 * value on their ID pin.
+	 */
 
 	if(lge_cable_info.cable_type == CABLE_180K || lge_cable_info.cable_type == CABLE_200K || lge_cable_info.cable_type == CABLE_220K
 		|| lge_cable_info.cable_type == CABLE_620K
@@ -3489,10 +3504,10 @@ static void msm_pmic_id_w(struct work_struct *w)
 	}
 
 	/*
-                                      
-                                                                             
-                                                                                          
-  */
+	 * 2013-02-04, seokjeong.hong@lge.com
+	 * To prevent abnormal pmic_id_irq interrupt by noise or glitch signal case.
+	 * otg_detect flags is set at OTG_STATE_A_WAIT_VRISE and clear at OTG_STATE_A_WAIT_VFALL.
+	 */
 
 #if 1
 	if(boot_mode != LGE_BOOT_MODE_FACTORY2)
@@ -3534,9 +3549,9 @@ static void usb_id_sel_w(struct work_struct *w)
 
 	pr_info("%s: VBUS State Change !\n",__func__);
 
-    /*                                   
-                                                                                                    
-                                                                                                                            
+    /* 2013-02-15, seokjeong.hong@lge.com
+     * to read adc and store cable infomation on booting process  to prevent abnormal OTG interrupt,
+     * inserting abnormal usb cable(id pin resisor value : 180K, 200K or 220K) to only device side connector at powering on.
      */
 
 	if(first_boot) {
@@ -3547,7 +3562,7 @@ static void usb_id_sel_w(struct work_struct *w)
 	if(test_bit(B_SESS_VLD, &motg->inputs))
 	{
 #if !defined(CONFIG_MACH_APQ8064_GVDCM)
-#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX))  // leechangjun 20121211 for GKATT HW REV_D add 
+#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL))  // leechangjun 20121211 for GKATT HW REV_D add 
         if((boot_mode != LGE_BOOT_MODE_FACTORY2) && (lge_get_board_revno()==HW_REV_C || lge_get_board_revno() >= HW_REV_1_0))
 			//if(!slimport_is_connected())
 				usb_id_sel_enable(0);
@@ -3565,7 +3580,7 @@ static void usb_id_sel_w(struct work_struct *w)
 	else
 	{
 #if !defined(CONFIG_MACH_APQ8064_GVDCM)
-#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)) // leechangjun 20121211 for GKATT HW REV_D add 
+#if !(defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL))// leechangjun 20121211 for GKATT HW REV_D add 
         if((boot_mode != LGE_BOOT_MODE_FACTORY2) && (lge_get_board_revno()==HW_REV_C || lge_get_board_revno() >= HW_REV_1_0))
 			//if(!slimport_is_connected()){
 				usb_id_sel_enable(1);
@@ -3605,7 +3620,7 @@ static void usb_id_sel_w(struct work_struct *w)
 	}
 }
 
-#endif//                                                                                           
+#endif// 20130128 for Avoiding the MutexLock api use while running IRQ Handler jaegeun.jung@lge.com
 
 static irqreturn_t msm_pmic_id_irq(int irq, void *data)
 {
@@ -4265,7 +4280,7 @@ static int __init msm_otg_probe(struct platform_device *pdev)
 	INIT_DELAYED_WORK(&motg->pmic_id_status_work, msm_pmic_id_status_w);
 #if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_USB_OTG)
 	INIT_DELAYED_WORK(&motg->pmic_id_work, msm_pmic_id_w);
-	INIT_DELAYED_WORK(&motg->usb_id_sel_work, usb_id_sel_w);//                                                                                            
+	INIT_DELAYED_WORK(&motg->usb_id_sel_work, usb_id_sel_w);// 20130128 for Avoiding the MutexLock api use while running IRQ Handler jaegeun.jung@lge.com 
 #endif
 #ifdef CONFIG_LGE_PM
 	INIT_DELAYED_WORK(&check_ta_work, msm_ta_detect_work);
@@ -4438,7 +4453,7 @@ static int __devexit msm_otg_remove(struct platform_device *pdev)
 	cancel_delayed_work_sync(&motg->pmic_id_status_work);
 #if defined(CONFIG_USB_G_LGE_ANDROID) && defined(CONFIG_USB_OTG)
 	cancel_delayed_work_sync(&motg->pmic_id_work);
-    cancel_delayed_work_sync(&motg->usb_id_sel_work);//                                                                                            
+    cancel_delayed_work_sync(&motg->usb_id_sel_work);// 20130128 for Avoiding the MutexLock api use while running IRQ Handler jaegeun.jung@lge.com 
 #endif
 
 

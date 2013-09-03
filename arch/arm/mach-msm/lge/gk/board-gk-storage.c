@@ -133,7 +133,7 @@ static struct msm_mmc_pad_pull sdc1_pad_pull_off_cfg[] = {
 
 /* SDC3 pad data */
 static struct msm_mmc_pad_drv sdc3_pad_drv_on_cfg[] = {
-#if defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKOPENHK) || defined(CONFIG_MACH_APQ8064_GKOPENTW) || defined(CONFIG_MACH_APQ8064_GKSHBSG) || defined(CONFIG_MACH_APQ8064_GKOPENEU) || defined(CONFIG_MACH_APQ8064_GKTCLMX)
+#if defined(CONFIG_MACH_APQ8064_GKATT) || defined(CONFIG_MACH_APQ8064_GKGLOBAL)
 	{TLMM_HDRV_SDC3_CLK, GPIO_CFG_12MA},
 	{TLMM_HDRV_SDC3_CMD, GPIO_CFG_12MA},
 	{TLMM_HDRV_SDC3_DATA, GPIO_CFG_12MA}

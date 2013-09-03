@@ -1452,4 +1452,4 @@ static int __init msm_init_datamover(void)
 	return 0;
 }
 arch_initcall(msm_init_datamover);
-#endif //                                         
+#endif // CONFIG_LGE_BROADCAST_ONESEG_MB86A35S_SPI

@@ -1424,6 +1424,9 @@ wl_android_set_auto_channel(struct net_device *dev, const char* string_num,
 	int chosen = 0;
 	int retry = 0;
 	int ret = 0;
+#ifdef CUSTOMER_HW10
+	int ap = 1;
+#endif
 
 	/* Restrict channel to 1 - 7: 2GHz, 20MHz BW, No SB */
 	u32 req_buf[8] = {7, 0x2B01, 0x2B02, 0x2B03, 0x2B04, 0x2B05, 0x2B06,
@@ -1431,6 +1434,15 @@ wl_android_set_auto_channel(struct net_device *dev, const char* string_num,
 
 	/* Auto channel select */
 	wl_uint32_list_t request;
+
+#ifdef CUSTOMER_HW10
+	ret = wldev_ioctl(dev, WLC_SET_AP, &ap, sizeof(s32), true);
+	if (ret < 0) {
+		DHD_ERROR(("%s: can't set AP, err = %d\n", __FUNCTION__, ret));
+		channel = 1;
+		goto done;
+	}
+#endif
 
 	channel = bcm_atoi(string_num);
 	DHD_INFO(("%s : HAPD_AUTO_CHANNEL = %d\n", __FUNCTION__, channel));

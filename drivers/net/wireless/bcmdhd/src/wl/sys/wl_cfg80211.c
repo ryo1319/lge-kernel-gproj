@@ -329,6 +329,11 @@ static s32 wl_notify_pfn_status(struct wl_priv *wl, struct net_device *ndev,
 #endif /* PNO_SUPPORT */
 static s32 wl_notifier_change_state(struct wl_priv *wl, struct net_info *_net_info,
 	enum wl_status state, bool set);
+
+#ifdef CUSTOMER_HW10
+static void wl_escan_timeout_work_handler(struct work_struct *work);
+#endif
+
 /*
  * register/deregister parent device
  */
@@ -2102,6 +2107,12 @@ __wl_cfg80211_scan(struct wiphy *wiphy, struct net_device *ndev,
 	}
 #endif /* WL_CFG80211_VSDB_PRIORITIZE_SCAN_REQUEST */
 
+#ifdef CUSTOMER_HW10
+	if (wl_get_drv_status(wl, CONNECTING, ndev)) {
+		WL_ERR(("Connecting : Scanning ignored"));
+		return -EAGAIN;
+	}
+#endif
 
 	/* Arm scan timeout timer */
 	mod_timer(&wl->scan_timeout, jiffies + msecs_to_jiffies(WL_SCAN_TIMER_INTERVAL_MS));
@@ -8309,6 +8320,11 @@ static s32 wl_init_priv_mem(struct wl_priv *wl)
 
 		INIT_WORK(&wl->afx_hdl->work, wl_cfg80211_afx_handler);
 	}
+
+#ifdef CUSTOMER_HW10
+	INIT_WORK(&wl->escan_timeout_work, wl_escan_timeout_work_handler);
+#endif
+
 	return 0;
 
 init_priv_mem_out:
@@ -8354,6 +8370,10 @@ static void wl_deinit_priv_mem(struct wl_priv *wl)
 		kfree(wl->afx_hdl);
 		wl->afx_hdl = NULL;
 	}
+
+#ifdef CUSTOMER_HW10
+	cancel_work_sync(&wl->escan_timeout_work);
+#endif
 
 	if (wl->ap_info) {
 		kfree(wl->ap_info->wpa_ie);
@@ -8561,16 +8581,30 @@ static s32 wl_iscan_thread(void *data)
 	return 0;
 }
 
+#ifdef CUSTOMER_HW10
+static void wl_escan_timeout_work_handler(struct work_struct *work)
+{
+	struct wl_priv *wl = wlcfg_drv_priv;
+
+	wl_notify_escan_complete(wl, wl->escan_info.ndev, true, true);
+}
+#endif
+
 static void wl_scan_timeout(unsigned long data)
 {
 	struct wl_priv *wl = (struct wl_priv *)data;
 
 	if (wl->scan_request) {
 		WL_ERR(("timer expired\n"));
-		if (wl->escan_on)
+		if (wl->escan_on) {
+#ifdef CUSTOMER_HW10
+			schedule_work(&wl->escan_timeout_work);
+#else
 			wl_notify_escan_complete(wl, wl->escan_info.ndev, true, true);
-		else
+#endif
+		} else {
 			wl_notify_iscan_complete(wl_to_iscan(wl), true);
+		}
 	}
 }
 static void wl_iscan_timer(unsigned long data)
