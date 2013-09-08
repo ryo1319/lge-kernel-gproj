@@ -140,8 +140,13 @@ static inline void *kgsl_sg_alloc(unsigned int sglen)
 {
 	if ((sglen * sizeof(struct scatterlist)) <  PAGE_SIZE)
 		return kzalloc(sglen * sizeof(struct scatterlist), GFP_KERNEL);
-	else
-		return vmalloc(sglen * sizeof(struct scatterlist));
+	else {
+		void *ptr = vmalloc(sglen * sizeof(struct scatterlist));
+		if (ptr)
+			memset(ptr, 0, sglen * sizeof(struct scatterlist));
+
+		return ptr;
+	}
 }
 
 static inline void kgsl_sg_free(void *ptr, unsigned int sglen)
@@ -157,7 +162,7 @@ memdesc_sg_phys(struct kgsl_memdesc *memdesc,
 		unsigned int physaddr, unsigned int size)
 {
 	memdesc->sg = kgsl_sg_alloc(1);
-	if (memdesc->sg == NULL)
+	if (!memdesc->sg)
 		return -ENOMEM;
 
 	kmemleak_not_leak(memdesc->sg);
@@ -258,6 +263,11 @@ kgsl_allocate(struct kgsl_memdesc *memdesc,
 	ret = kgsl_sharedmem_page_alloc(memdesc, pagetable, size);
 	if (ret)
 		return ret;
+	ret = kgsl_mmu_get_gpuaddr(pagetable, memdesc);
+	if (ret) {
+		kgsl_sharedmem_free(memdesc);
+		return ret;
+	}
 	ret = kgsl_mmu_map(pagetable, memdesc);
 	if (ret)
 		kgsl_sharedmem_free(memdesc);
@@ -295,15 +305,4 @@ kgsl_allocate_contiguous(struct kgsl_memdesc *memdesc, size_t size)
 	return ret;
 }
 
-static inline int kgsl_sg_size(struct scatterlist *sg, int sglen)
-{
-	int i, size = 0;
-	struct scatterlist *s;
-
-	for_each_sg(sg, s, sglen, i) {
-		size += s->length;
-	}
-
-	return size;
-}
 #endif /* __KGSL_SHAREDMEM_H */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2002,2007-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2002,2007-2012, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -64,14 +64,6 @@ struct mem_entry_stats {
 	.max_attr = __MEM_ENTRY_ATTR(_type, _name##_max, \
 		mem_entry_max_show), \
 }
-
-
-/*
- * One page allocation for a guard region to protect against over-zealous
- * GPU pre-fetch
- */
-
-static struct page *kgsl_guard_page;
 
 /**
  * Given a kobj, find the process structure attached to it
@@ -244,6 +236,29 @@ static int kgsl_drv_histogram_show(struct device *dev,
 	return len;
 }
 
+static int kgsl_drv_full_cache_threshold_store(struct device *dev,
+					 struct device_attribute *attr,
+					 const char *buf, size_t count)
+{
+	int ret;
+	unsigned int thresh;
+	ret = sscanf(buf, "%d", &thresh);
+	if (ret != 1)
+		return count;
+
+	kgsl_driver.full_cache_threshold = thresh;
+
+	return count;
+}
+
+static int kgsl_drv_full_cache_threshold_show(struct device *dev,
+					struct device_attribute *attr,
+					char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%d\n",
+			kgsl_driver.full_cache_threshold);
+}
+
 DEVICE_ATTR(vmalloc, 0444, kgsl_drv_memstat_show, NULL);
 DEVICE_ATTR(vmalloc_max, 0444, kgsl_drv_memstat_show, NULL);
 DEVICE_ATTR(page_alloc, 0444, kgsl_drv_memstat_show, NULL);
@@ -253,6 +268,9 @@ DEVICE_ATTR(coherent_max, 0444, kgsl_drv_memstat_show, NULL);
 DEVICE_ATTR(mapped, 0444, kgsl_drv_memstat_show, NULL);
 DEVICE_ATTR(mapped_max, 0444, kgsl_drv_memstat_show, NULL);
 DEVICE_ATTR(histogram, 0444, kgsl_drv_histogram_show, NULL);
+DEVICE_ATTR(full_cache_threshold, 0644,
+		kgsl_drv_full_cache_threshold_show,
+		kgsl_drv_full_cache_threshold_store);
 
 static const struct device_attribute *drv_attr_list[] = {
 	&dev_attr_vmalloc,
@@ -264,6 +282,7 @@ static const struct device_attribute *drv_attr_list[] = {
 	&dev_attr_mapped,
 	&dev_attr_mapped_max,
 	&dev_attr_histogram,
+	&dev_attr_full_cache_threshold,
 	NULL
 };
 
@@ -366,10 +385,6 @@ static void kgsl_page_alloc_free(struct kgsl_memdesc *memdesc)
 	struct scatterlist *sg;
 	int sglen = memdesc->sglen;
 
-	/* Don't free the guard page if it was used */
-	if (memdesc->priv & KGSL_MEMDESC_GUARD_PAGE)
-		sglen--;
-
 	kgsl_driver.stats.page_alloc -= memdesc->size;
 
 	if (memdesc->hostptr) {
@@ -377,8 +392,11 @@ static void kgsl_page_alloc_free(struct kgsl_memdesc *memdesc)
 		kgsl_driver.stats.vmalloc -= memdesc->size;
 	}
 	if (memdesc->sg)
-		for_each_sg(memdesc->sg, sg, sglen, i)
+		for_each_sg(memdesc->sg, sg, sglen, i){
+			if (sg->length == 0)
+				break;
 			__free_pages(sg_page(sg), get_order(sg->length));
+		}
 }
 
 static int kgsl_contiguous_vmflags(struct kgsl_memdesc *memdesc)
@@ -403,10 +421,6 @@ static int kgsl_page_alloc_map_kernel(struct kgsl_memdesc *memdesc)
 		int npages = PAGE_ALIGN(memdesc->size) >> PAGE_SHIFT;
 		int sglen = memdesc->sglen;
 		int i, count = 0;
-
-		/* Don't map the guard page if it exists */
-		if (memdesc->priv & KGSL_MEMDESC_GUARD_PAGE)
-			sglen--;
 
 		/* create a list of pages to call vmap */
 		pages = vmalloc(npages * sizeof(struct page *));
@@ -565,47 +579,39 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 
 	sglen_alloc = PAGE_ALIGN(size) >> PAGE_SHIFT;
 
-	/*
-	 * Add guard page to the end of the allocation when the
-	 * IOMMU is in use.
-	 */
-
-	if (kgsl_mmu_get_mmutype() == KGSL_MMU_TYPE_IOMMU)
-		sglen_alloc++;
-
 	memdesc->size = size;
 	memdesc->pagetable = pagetable;
 	memdesc->ops = &kgsl_page_alloc_ops;
 
-	memdesc->sg = kgsl_sg_alloc(sglen_alloc);
+	memdesc->sglen_alloc = sglen_alloc;
+	memdesc->sg = kgsl_sg_alloc(memdesc->sglen_alloc);
 
 	if (memdesc->sg == NULL) {
-		KGSL_CORE_ERR("vmalloc(%d) failed\n",
-			sglen_alloc * sizeof(struct scatterlist));
 		ret = -ENOMEM;
 		goto done;
 	}
 
 	/*
 	 * Allocate space to store the list of pages to send to vmap.
-	 * This is an array of pointers so we can track 1024 pages per page of
-	 * allocation which means we can handle up to a 8MB buffer request with
-	 * two pages; well within the acceptable limits for using kmalloc.
+	 * This is an array of pointers so we can track 1024 pages per page
+	 * of allocation.  Since allocations can be as large as the user dares,
+	 * we have to use the kmalloc/vmalloc trick here to make sure we can
+	 * get the memory we need.
 	 */
 
-	pages = kmalloc(sglen_alloc * sizeof(struct page *), GFP_KERNEL);
+	if ((memdesc->sglen_alloc * sizeof(struct page *)) > PAGE_SIZE)
+		pages = vmalloc(memdesc->sglen_alloc * sizeof(struct page *));
+	else
+		pages = kmalloc(PAGE_SIZE, GFP_KERNEL);
 
 	if (pages == NULL) {
-		KGSL_CORE_ERR("kmalloc (%d) failed\n",
-			sglen_alloc * sizeof(struct page *));
 		ret = -ENOMEM;
 		goto done;
 	}
 
 	kmemleak_not_leak(memdesc->sg);
 
-	memdesc->sglen_alloc = sglen_alloc;
-	sg_init_table(memdesc->sg, sglen_alloc);
+	sg_init_table(memdesc->sg, memdesc->sglen_alloc);
 
 	len = size;
 
@@ -649,26 +655,6 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 
 		sg_set_page(&memdesc->sg[sglen++], page, page_size, 0);
 		len -= page_size;
-	}
-
-	/* Add the guard page to the end of the sglist */
-
-	if (kgsl_mmu_get_mmutype() == KGSL_MMU_TYPE_IOMMU) {
-		/*
-		 * It doesn't matter if we use GFP_ZERO here, this never
-		 * gets mapped, and we only allocate it once in the life
-		 * of the system
-		 */
-
-		if (kgsl_guard_page == NULL)
-			kgsl_guard_page = alloc_page(GFP_KERNEL | __GFP_ZERO |
-				__GFP_HIGHMEM);
-
-		if (kgsl_guard_page != NULL) {
-			sg_set_page(&memdesc->sg[sglen++], kgsl_guard_page,
-				PAGE_SIZE, 0);
-			memdesc->priv |= KGSL_MEMDESC_GUARD_PAGE;
-		}
 	}
 
 	memdesc->sglen = sglen;
@@ -721,7 +707,10 @@ _kgsl_sharedmem_page_alloc(struct kgsl_memdesc *memdesc,
 		kgsl_driver.stats.histogram[order]++;
 
 done:
-	kfree(pages);
+	if ((memdesc->sglen_alloc * sizeof(struct page *)) > PAGE_SIZE)
+		vfree(pages);
+	else
+		kfree(pages);
 
 	if (ret)
 		kgsl_sharedmem_free(memdesc);
@@ -796,8 +785,10 @@ void kgsl_sharedmem_free(struct kgsl_memdesc *memdesc)
 	if (memdesc == NULL || memdesc->size == 0)
 		return;
 
-	if (memdesc->gpuaddr)
+	if (memdesc->gpuaddr) {
 		kgsl_mmu_unmap(memdesc->pagetable, memdesc);
+		kgsl_mmu_put_gpuaddr(memdesc->pagetable, memdesc);
+	}
 
 	if (memdesc->ops && memdesc->ops->free)
 		memdesc->ops->free(memdesc);

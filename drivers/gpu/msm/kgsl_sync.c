@@ -11,6 +11,7 @@
  *
  */
 
+#include <linux/err.h>
 #include <linux/file.h>
 #include <linux/sched.h>
 #include <linux/slab.h>
@@ -86,7 +87,7 @@ struct kgsl_fence_event_priv {
  */
 
 static inline void kgsl_fence_event_cb(struct kgsl_device *device,
-	void *priv, u32 context_id, u32 timestamp)
+	void *priv, u32 context_id, u32 timestamp, u32 type)
 {
 	struct kgsl_fence_event_priv *ev = priv;
 
@@ -123,16 +124,19 @@ int kgsl_add_fence_event(struct kgsl_device *device,
 	if (len != sizeof(priv))
 		return -EINVAL;
 
-	context = kgsl_find_context(owner, context_id);
-	if (context == NULL)
-		return -EINVAL;
-
 	event = kzalloc(sizeof(*event), GFP_KERNEL);
 	if (event == NULL)
 		return -ENOMEM;
+
+	context = kgsl_context_get_owner(owner, context_id);
+
+	if (context == NULL) {
+		kfree(event);
+		return -EINVAL;
+	}
+
 	event->context = context;
 	event->timestamp = timestamp;
-	kgsl_context_get(context);
 
 	pt = kgsl_sync_pt_create(context->timeline, timestamp);
 	if (pt == NULL) {
@@ -163,6 +167,10 @@ int kgsl_add_fence_event(struct kgsl_device *device,
 		goto fail_copy_fd;
 	}
 
+	/*
+	 * Hold the context ref-count for the event - it will get released in
+	 * the callback
+	 */
 	ret = kgsl_add_event(device, context_id, timestamp,
 			kgsl_fence_event_cb, event, owner);
 	if (ret)
@@ -173,7 +181,6 @@ int kgsl_add_fence_event(struct kgsl_device *device,
 fail_event:
 fail_copy_fd:
 	/* clean up sync_fence_install */
-	sync_fence_put(fence);
 	put_unused_fd(priv.fence_fd);
 fail_fd:
 	/* clean up sync_fence_create */
@@ -243,7 +250,7 @@ int kgsl_sync_timeline_create(struct kgsl_context *context)
 	char ktimeline_name[sizeof(context->timeline->name)] = {};
 	snprintf(ktimeline_name, sizeof(ktimeline_name),
 		"%s_%.15s(%d)-%.15s(%d)-%d",
-		context->dev_priv->device->name,
+		context->device->name,
 		current->group_leader->comm, current->group_leader->pid,
 		current->comm, current->pid, context->id);
 
@@ -254,7 +261,7 @@ int kgsl_sync_timeline_create(struct kgsl_context *context)
 
 	ktimeline = (struct kgsl_sync_timeline *) context->timeline;
 	ktimeline->last_timestamp = 0;
-	ktimeline->device = context->dev_priv->device;
+	ktimeline->device = context->device;
 	ktimeline->context_id = context->id;
 
 	return 0;
@@ -266,7 +273,7 @@ void kgsl_sync_timeline_signal(struct sync_timeline *timeline,
 	struct kgsl_sync_timeline *ktimeline =
 		(struct kgsl_sync_timeline *) timeline;
 
-	if (timestamp_cmp(timestamp, ktimeline->last_timestamp > 0))
+	if (timestamp_cmp(timestamp, ktimeline->last_timestamp) > 0)
 		ktimeline->last_timestamp = timestamp;
 	sync_timeline_signal(timeline);
 }
@@ -274,4 +281,66 @@ void kgsl_sync_timeline_signal(struct sync_timeline *timeline,
 void kgsl_sync_timeline_destroy(struct kgsl_context *context)
 {
 	sync_timeline_destroy(context->timeline);
+}
+
+static void kgsl_sync_callback(struct sync_fence *fence,
+	struct sync_fence_waiter *waiter)
+{
+	struct kgsl_sync_fence_waiter *kwaiter =
+		(struct kgsl_sync_fence_waiter *) waiter;
+	kwaiter->func(kwaiter->priv);
+	sync_fence_put(kwaiter->fence);
+	kfree(kwaiter);
+}
+
+struct kgsl_sync_fence_waiter *kgsl_sync_fence_async_wait(int fd,
+	void (*func)(void *priv), void *priv)
+{
+	struct kgsl_sync_fence_waiter *kwaiter;
+	struct sync_fence *fence;
+	int status;
+
+	fence = sync_fence_fdget(fd);
+	if (fence == NULL)
+		return ERR_PTR(-EINVAL);
+
+	/* create the waiter */
+	kwaiter = kzalloc(sizeof(*kwaiter), GFP_KERNEL);
+	if (kwaiter == NULL) {
+		sync_fence_put(fence);
+		return ERR_PTR(-ENOMEM);
+	}
+	kwaiter->fence = fence;
+	kwaiter->priv = priv;
+	kwaiter->func = func;
+	sync_fence_waiter_init((struct sync_fence_waiter *) kwaiter,
+		kgsl_sync_callback);
+
+	/* if status then error or signaled */
+	status = sync_fence_wait_async(fence,
+		(struct sync_fence_waiter *) kwaiter);
+	if (status) {
+		kfree(kwaiter);
+		sync_fence_put(fence);
+		if (status < 0)
+			kwaiter = ERR_PTR(status);
+		else
+			kwaiter = NULL;
+	}
+
+	return kwaiter;
+}
+
+int kgsl_sync_fence_async_cancel(struct kgsl_sync_fence_waiter *kwaiter)
+{
+	if (kwaiter == NULL)
+		return 0;
+
+	if(sync_fence_cancel_async(kwaiter->fence,
+		(struct sync_fence_waiter *) kwaiter) == 0) {
+		sync_fence_put(kwaiter->fence);
+		kfree(kwaiter);
+		return 1;
+	}
+	return 0;
 }

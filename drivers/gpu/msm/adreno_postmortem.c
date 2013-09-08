@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2012, Code Aurora Forum. All rights reserved.
+/* Copyright (c) 2010-2013, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -21,6 +21,7 @@
 #include "adreno_ringbuffer.h"
 #include "kgsl_cffdump.h"
 #include "kgsl_pwrctrl.h"
+#include "adreno_trace.h"
 
 #include "a2xx_reg.h"
 #include "a3xx_reg.h"
@@ -50,7 +51,6 @@ static const struct pm_id_name pm3_types[] = {
 	{CP_DRAW_INDX,			"DRW_NDX_"},
 	{CP_DRAW_INDX_BIN,		"DRW_NDXB"},
 	{CP_EVENT_WRITE,		"EVENT_WT"},
-	{CP_MEM_WRITE,			"MEM_WRIT"},
 	{CP_IM_LOAD,			"IN__LOAD"},
 	{CP_IM_LOAD_IMMEDIATE,		"IM_LOADI"},
 	{CP_IM_STORE,			"IM_STORE"},
@@ -269,7 +269,7 @@ static bool adreno_rb_use_hex(void)
 #endif
 }
 
-static void adreno_dump_rb(struct kgsl_device *device, const void *buf,
+void adreno_dump_rb(struct kgsl_device *device, const void *buf,
 			 size_t len, int start, int size)
 {
 	const uint32_t *ptr = buf;
@@ -693,6 +693,7 @@ int adreno_dump(struct kgsl_device *device, int manual)
 	unsigned int ts_processed = 0xdeaddead;
 	struct kgsl_context *context;
 	unsigned int context_id;
+	unsigned int rbbm_status;
 
 	static struct ib_list ib_list;
 
@@ -702,10 +703,14 @@ int adreno_dump(struct kgsl_device *device, int manual)
 
 	mb();
 
-	if (adreno_is_a2xx(adreno_dev))
-		adreno_dump_a2xx(device);
-	else if (adreno_is_a3xx(adreno_dev))
-		adreno_dump_a3xx(device);
+	if (device->pm_dump_enable) {
+		if (adreno_is_a2xx(adreno_dev))
+			adreno_dump_a2xx(device);
+		else if (adreno_is_a3xx(adreno_dev))
+			adreno_dump_a3xx(device);
+	}
+
+	kgsl_regread(device, adreno_dev->gpudev->reg_rbbm_status, &rbbm_status);
 
 	pt_base = kgsl_mmu_get_current_ptbase(&device->mmu);
 	cur_pt_base = pt_base;
@@ -720,18 +725,37 @@ int adreno_dump(struct kgsl_device *device, int manual)
 	kgsl_regread(device, REG_CP_IB2_BASE, &cp_ib2_base);
 	kgsl_regread(device, REG_CP_IB2_BUFSZ, &cp_ib2_bufsz);
 
+	trace_adreno_gpu_fault(rbbm_status, cp_rb_rptr, cp_rb_wptr,
+			cp_ib1_base, cp_ib1_bufsz, cp_ib2_base, cp_ib2_bufsz);
+
+	/* If postmortem dump is not enabled, dump minimal set and return */
+	if (!device->pm_dump_enable) {
+
+		KGSL_LOG_DUMP(device,
+			"RBBM STATUS %08X | IB1:%08X/%08X | IB2: %08X/%08X"
+			" | RPTR: %04X | WPTR: %04X\n",
+			rbbm_status,  cp_ib1_base, cp_ib1_bufsz, cp_ib2_base,
+			cp_ib2_bufsz, cp_rb_rptr, cp_rb_wptr);
+
+		return 0;
+	}
+
 	kgsl_sharedmem_readl(&device->memstore,
 			(unsigned int *) &context_id,
 			KGSL_MEMSTORE_OFFSET(KGSL_MEMSTORE_GLOBAL,
 				current_context));
-	context = idr_find(&device->context_idr, context_id);
+
+	context = kgsl_context_get(device, context_id);
+
 	if (context) {
 		ts_processed = kgsl_readtimestamp(device, context,
 						  KGSL_TIMESTAMP_RETIRED);
-		KGSL_LOG_DUMP(device, "CTXT: %d  TIMESTM RTRD: %08X\n",
+		KGSL_LOG_DUMP(device, "FT CTXT: %d  TIMESTM RTRD: %08X\n",
 				context->id, ts_processed);
 	} else
 		KGSL_LOG_DUMP(device, "BAD CTXT: %d\n", context_id);
+
+	kgsl_context_put(context);
 
 	num_item = adreno_ringbuffer_count(&adreno_dev->ringbuffer,
 						cp_rb_rptr);
@@ -883,5 +907,9 @@ int adreno_dump(struct kgsl_device *device, int manual)
 error_vfree:
 	vfree(rb_copy);
 end:
+	/* Restart the dispatcher after a manually triggered dump */
+	if (manual)
+		adreno_dispatcher_start(adreno_dev);
+
 	return result;
 }
