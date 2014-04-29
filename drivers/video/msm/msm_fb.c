@@ -248,15 +248,15 @@ static void msm_fb_set_bl_brightness(struct led_classdev *led_cdev,
 	/* This maps android backlight level 0 to 255 into
 	   driver backlight level 0 to bl_max with rounding */
 
-#if defined(CONFIG_BACKLIGHT_LM3533)
+//#if defined(CONFIG_BACKLIGHT_LM3533)
 	bl_lvl = value;
-#else
+//#else
 	bl_lvl = (2 * value * mfd->panel_info.bl_max + MAX_BACKLIGHT_BRIGHTNESS)
 		/(2 * MAX_BACKLIGHT_BRIGHTNESS);
 
 	if (!bl_lvl && value)
 		bl_lvl = 1;
-#endif
+//#endif
 
 	down(&mfd->sem);
 	msm_fb_set_backlight(mfd, bl_lvl);
@@ -927,12 +927,12 @@ static int check_updated = 0;
 static int unset_bl_level, bl_updated;
 #endif
 
-#if defined(CONFIG_BACKLIGHT_LM3530)
+#if defined(CONFIG_BACKLIGHT_LM3530) || defined(CONFIG_BACKLIGHT_LM3533)
 static int bl_level_old = 0xCA;
 static int default_bl_value = 202;
-#elif defined(CONFIG_BACKLIGHT_LM3533)
-static int bl_level_old = -1; /* LGE_CHANGE */
-static int default_bl_value = -1;
+//#elif defined(CONFIG_BACKLIGHT_LM3533)
+//static int bl_level_old = -1; /* LGE_CHANGE */
+//static int default_bl_value = -1;
 #elif defined(CONFIG_BACKLIGHT_LM3630)//daewoo.kwak
 static int bl_level_old = 0xF0;
 #if defined(CONFIG_MACH_APQ8064_GVDCM)
